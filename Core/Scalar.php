@@ -80,9 +80,10 @@ class Scalar
 
     public function initialize()
     {
+        $hostname = strtolower(str_replace('.', '+', $_SERVER['HTTP_HOST']));
         ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_APP_PATH, dirname(SCALAR_CORE) . '/SCALAR_APP');
-        if (ScalarConfig::getInstance()->asScalarArray()->containsPath('VirtualHost.' . strtolower($_SERVER['SERVER_NAME']))) {
-            define('SCALAR_APP', ScalarConfig::getInstance()->asScalarArray()->getPath('VirtualHost.' . strtolower($_SERVER['SERVER_NAME'])));
+        if (ScalarConfig::getInstance()->asScalarArray()->containsPath('VirtualHost.' . $hostname)) {
+            define('SCALAR_APP', ScalarConfig::getInstance()->asScalarArray()->getPath('VirtualHost.' . $hostname));
             ScalarConfig::getInstance()->addOverride(self::CONFIG_APP_PATH, SCALAR_APP);
         } else {
             define('SCALAR_APP', ScalarConfig::getInstance()->get(self::CONFIG_APP_PATH));
@@ -110,7 +111,7 @@ class Scalar
         $streamFactory = new StreamFactory();
         $logStream = null;
 
-        if (ScalarConfig::getInstance()->get(self::CONFIG_CORE_LOG_ENABLED)) {
+        if (ScalarConfig::getInstance()->get(self::CONFIG_CORE_LOG_ENABLED) === true) {
             $mode = ScalarConfig::getInstance()->get(self::CONFIG_CORE_LOG_APPEND) ? 'a+' : 'w+';
             $logStream = $streamFactory->createStreamFromFile
             (
