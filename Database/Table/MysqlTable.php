@@ -13,9 +13,10 @@ use Scalar\Database\PDODatabase;
 use Scalar\Database\QueryFlavor;
 use Scalar\Util\Annotation\PHPDoc;
 use Scalar\Util\Factory\AnnotationFactory;
+use Scalar\Util\FilterableInterface;
 use Scalar\Util\ScalarArray;
 
-abstract class MysqlTable
+abstract class MysqlTable implements FilterableInterface
 {
 
     /**
@@ -23,7 +24,7 @@ abstract class MysqlTable
      */
     private static $database;
     /**
-     * @var static
+     * @var \stdClass
      */
     private $mockObject;
     /**
@@ -95,16 +96,14 @@ abstract class MysqlTable
      * @param $lambda callable filter
      * @return self
      */
-    public function whereNot($lambda, $value)
+    public function whereNot($lambda)
     {
         $mockObject = $this->generateMockInstance();
         $mock = &$mockObject;
         $field = $lambda($mock);
 
         $this->query->putPath('Where.NotEqual',
-            [
-                $field => $value
-            ]
+            $field
         );
         return $this;
     }
@@ -167,17 +166,16 @@ abstract class MysqlTable
     /**
      * Filter data from all objects in array
      * @param $lambda callable filter
+     * @return $this
      */
-    public function whereLike($lambda, $value)
+    public function whereLike($lambda)
     {
         $mockObject = $this->generateMockInstance();
         $mock = &$mockObject;
         $field = $lambda($mock);
 
         $this->query->putPath('Where.Like',
-            [
-                $field => $value
-            ]
+            $field
         );
         return $this;
     }
@@ -185,8 +183,9 @@ abstract class MysqlTable
     /**
      * Filter data from all objects in array
      * @param $lambda callable filter
+     * @return $this
      */
-    public function whereNotLike($lambda, $value)
+    public function whereNotLike($lambda)
     {
         $mockObject = $this->generateMockInstance();
         $mock = &$mockObject;
@@ -194,7 +193,7 @@ abstract class MysqlTable
 
         $this->query->putPath('Where.NotLike',
             [
-                $field => $value
+                $field
             ]
         );
         return $this;
@@ -226,17 +225,7 @@ abstract class MysqlTable
      */
     public function any()
     {
-        $data = $this->fetch();
-
-        if ($data === null) {
-            return false;
-        }
-
-        if (is_array($data)) {
-            return $this->count($data) > 0;
-        }
-
-        return true;
+        // TODO
     }
 
     /**
@@ -279,10 +268,16 @@ abstract class MysqlTable
 
                 $this->where
                 (
-                    function ($mock) use ($fieldDefinition, $tableDefinition) {
-                        return $tableDefinition->getField($fieldDefinition->getLocalHelperColumn())->getHelperColumnName();
-                    },
-                    $row[$fieldDefinition->getLocalHelperColumn()]
+                    function ($mock) use ($fieldDefinition, $tableDefinition, $row) {
+                        return [
+                            $tableDefinition
+                                ->getField
+                                (
+                                    $fieldDefinition
+                                        ->getLocalHelperColumn()
+                                )
+                                ->getHelperColumnName() => $row[$fieldDefinition->getLocalHelperColumn()]];
+                    }
                 );;
                 $query = $this->getSelectQuery();
                 $result = self::getPDO()->execute($query[0], $query[1]);
@@ -383,6 +378,7 @@ abstract class MysqlTable
             $field = join(', ', $field);
         }
         $this->query->setPath('Selector', $field);
+        return $this;
     }
 
     /**
@@ -390,15 +386,13 @@ abstract class MysqlTable
      * @param $lambda callable filter
      * @return self
      */
-    public function where($lambda, $value)
+    public function where($lambda)
     {
         $mockObject = $this->generateMockInstance();
         $mock = &$mockObject;
         $field = $lambda($mock);
         $this->query->putPath('Where.Equal',
-            [
-                $field => $value
-            ]
+            $field
         );
         return $this;
     }
@@ -417,6 +411,7 @@ abstract class MysqlTable
         }
 
         $query = $this->getSelectQuery();
+        // TODO
     }
 
     /**
@@ -441,22 +436,12 @@ abstract class MysqlTable
 
     /**
      * Check if data contains entry
-     * @param $entry mixed
+     * @param $entry static
      * @return bool
      */
     public function contains($entry)
     {
-        $data = $this->fetch();
-
-        if ($data === null) {
-            return false;
-        }
-
-        if (is_array($data)) {
-
-        }
-
-
+        // TODO
     }
 
     /**
@@ -465,7 +450,8 @@ abstract class MysqlTable
      */
     public function distinct()
     {
-        // TODO: Implement distinct() method.
+        $this->query->setPath('Distinct', true);
+        return $this;
     }
 
     /**
@@ -486,8 +472,26 @@ abstract class MysqlTable
     public function orderBy($comparable)
     {
         $fieldName = $comparable($this->generateMockInstance());
-        echo $fieldName;
-        echo "sdfsdfsdfssd";
+        $this->query->setPath('Order', $fieldName);
+        return $this;
+    }
+
+    /**
+     * Set order direction to 'ascending'
+     */
+    public function ascending()
+    {
+        $this->query->setPath('Direction', 'ASC');
+        return $this;
+    }
+
+    /**
+     * Set order direction to 'ascending'
+     */
+    public function descending()
+    {
+        $this->query->setPath('Direction', 'DESC');
+        return $this;
     }
 
     /**
@@ -512,8 +516,8 @@ abstract class MysqlTable
         foreach ($primaryKeys as $fieldDefinition) {
             $fieldName = $fieldDefinition->getFieldName();
             $this->where(function ($mock) use ($fieldName) {
-                return $mock->$fieldName;
-            }, $this->getFieldValue($fieldName));
+                return [$mock->$fieldName = $this->getFieldValue($fieldName)];
+            });
         }
         $query = $this->getDeleteQuery();
 
@@ -564,9 +568,9 @@ abstract class MysqlTable
                 $fieldValue = $this->updateOverrides[$fieldName];
             }
             $selectorData[$fieldName] = $fieldValue;
-            $this->where(function ($mock) use ($fieldName) {
-                return $mock->$fieldName;
-            }, $fieldValue);
+            $this->where(function ($mock) use ($fieldName, $fieldValue) {
+                return [$mock->$fieldName => $fieldValue];
+            });
         }
 
 
@@ -623,14 +627,17 @@ abstract class MysqlTable
             $this->where
             (
                 function ($mock) use ($tableDefinition, $fieldDefinition) {
-                    return $tableDefinition->getField($fieldDefinition->getLocalHelperColumn())->getHelperColumnName();
-                }, $this->getFieldValue($fieldDefinition->getLocalHelperColumn())
-            );
+                    return [
+                        $tableDefinition
+                            ->getField
+                            (
+                                $fieldDefinition
+                                    ->getLocalHelperColumn()
+                            )
+                            ->getHelperColumnName() => $this->getFieldValue($fieldDefinition->getLocalHelperColumn())];
+                });
 
             $query = $this->getDeleteQuery();
-
-            echo $query[0] . '<br>';
-            var_dump($query[1]) . '<br>';
 
             self::getPDO()->execute($query[0], $query[1]);
             $this->resetQuery();
@@ -814,5 +821,14 @@ abstract class MysqlTable
     public function asDictionary($keyValueAssignment)
     {
         // TODO: Implement asDictionary() method.
+    }
+
+    /**
+     * Return filtered data as array
+     * @return array
+     */
+    public function asArray()
+    {
+        // TODO: Implement asArray() method.
     }
 }

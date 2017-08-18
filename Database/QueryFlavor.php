@@ -38,7 +38,10 @@ class QueryFlavor extends IniConfig
     const CONFIG_UPDATE_BASE = 'Update.Base';
     const CONFIG_UPDATE_VALUES = 'Update.Values';
     const CONFIG_UPDATE_WHERE = 'Update.Where';
+
     private $injectableRegex = '/{(?<Path>[^}]*)}/x';
+
+    private $placeholderCounter = 0;
 
     public function __construct($flavor)
     {
@@ -254,16 +257,30 @@ class QueryFlavor extends IniConfig
     {
         $possibilities = [];
         $pdoPlaceholders = [];
-        foreach ($array as $possibility) { // All possibilities which will be connected with OR
+
+        foreach (array_reverse($array) as $possibility) { // All possibilities which will be connected with OR
             $andConditions = [];
             foreach ($possibility as $key => $val) {
-                $placeholderKey = str_replace('.', '_', $key);
-                $parameters = new ScalarArray(['LeftColumn' => $key, 'RightColumn' => ':' . $placeholderKey]);
+
+                if (!is_array($val)) {
+                    $val = [$val];
+                }
+
+                $keys = [];
+
+                foreach ($val as $whereOption) {
+                    $placeholderKey = str_replace('.', '_', $key) . $this->placeholderCounter;
+                    $pdoPlaceholders[$placeholderKey] = $whereOption;
+                    $this->placeholderCounter++;
+                    array_push($keys, ':' . $placeholderKey);
+                }
+
+                $parameters = new ScalarArray(['LeftColumn' => $key, 'RightColumn' => join(', ', $keys)]);
                 array_push($andConditions, $this->replacePlaceholders($conditionTemplate, $parameters));
-                $pdoPlaceholders[$placeholderKey] = $val;
             }
             array_push($possibilities, '(' . join(' AND ', $andConditions) . ')');
         }
+
         return ['(' . join(' OR ', $possibilities) . ')', $pdoPlaceholders];
     }
 
@@ -332,7 +349,6 @@ class QueryFlavor extends IniConfig
         $baseQuery = $this->get(self::CONFIG_SELECT_BASE);
         $pdoData = [];
 
-
         if ($placeholders->contains("Join")) {
             foreach ($placeholders['Join'] as $join) {
                 $join = new ScalarArray($join);
@@ -365,13 +381,8 @@ class QueryFlavor extends IniConfig
             $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_WHERE)]);
         }
 
-        if ($placeholders->contains("Group")) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_GROUP)]);
-        }
+        $placeholders->setPath('Distinct', $placeholders->getPath('Distinct', false));
 
-        if ($placeholders->contains("Order") && $placeholders->contains("Direction")) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_ORDER)]);
-        }
 
         if ($placeholders->contains("Where")) {
 
@@ -411,6 +422,14 @@ class QueryFlavor extends IniConfig
             $placeholders->setPath('Filter', join(' AND ', $conditions));
 
             $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_WHERE)]);
+        }
+
+        if ($placeholders->contains("Group")) {
+            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_GROUP)]);
+        }
+
+        if ($placeholders->contains("Order") && $placeholders->contains("Direction")) {
+            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_ORDER)]);
         }
 
         if ($placeholders->contains("Limit")) {
