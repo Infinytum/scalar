@@ -6,7 +6,7 @@
  * Time: 17:50
  */
 
-namespace Scaly\Util\Annotation;
+namespace Scalar\Util\Annotation;
 
 
 class PHPDoc

@@ -1,15 +1,15 @@
 <?php
 
-namespace Scaly\Cache\Storage;
+namespace Scalar\Cache\Storage;
 
-use Scaly\Cache\Exception\CacheStorageException;
+use Scalar\Cache\Exception\CacheStorageException;
 
 /**
  * Interface CacheStorageInterface
  *
  * Persistence Providers for caching
  *
- * @package Scaly\Cache\Storage
+ * @package Scalar\Cache\Storage
  */
 interface CacheStorageInterface
 {

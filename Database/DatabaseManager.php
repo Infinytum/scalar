@@ -6,11 +6,11 @@
  * Time: 15:28
  */
 
-namespace Scaly\Database;
+namespace Scalar\Database;
 
 
-use Scaly\Config\IniConfig;
-use Scaly\Core\Config\ScalyConfig;
+use Scalar\Config\IniConfig;
+use Scalar\Core\Config\ScalarConfig;
 
 class DatabaseManager
 {
@@ -31,24 +31,24 @@ class DatabaseManager
     public function __construct()
     {
         self::$instance = $this;
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_DATABASE_LIST, '{{App.Home}}/database.list');
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_DATABASE_LIST, '{{App.Home}}/database.list');
 
-        if (!file_exists(ScalyConfig::getInstance()->get(self::CONFIG_DATABASE_LIST))) {
-            $iniConfig = new IniConfig(ScalyConfig::getInstance()->get(self::CONFIG_DATABASE_LIST), [], true, INI_SCANNER_RAW);
-            $iniConfig->set('MyDatabase.ConnectionString', 'mysql:host=localhost:3306;dbname=myDatabase;charset=utf8');
+        if (!file_exists(ScalarConfig::getInstance()->get(self::CONFIG_DATABASE_LIST))) {
+            $iniConfig = new IniConfig(ScalarConfig::getInstance()->get(self::CONFIG_DATABASE_LIST), [], true, INI_SCANNER_RAW);
+            $iniConfig->set('MyDatabase.ConnectionString', 'mysql:host=localhost:33q06;dbname=myDatabase;charset=utf8');
             $iniConfig->set('MyDatabase.User', 'root');
             $iniConfig->set('MyDatabase.Pass', 'password');
             $iniConfig->save();
         }
 
-        $this->iniConfig = new IniConfig(ScalyConfig::getInstance()->get(self::CONFIG_DATABASE_LIST), [], true, INI_SCANNER_RAW);
+        $this->iniConfig = new IniConfig(ScalarConfig::getInstance()->get(self::CONFIG_DATABASE_LIST), [], true, INI_SCANNER_RAW);
         $this->iniConfig->load();
     }
 
     /**
      * @return DatabaseManager
      */
-    public static function getInstance(): DatabaseManager
+    public static function getInstance()
     {
         if (!self::$instance) {
             new DatabaseManager();

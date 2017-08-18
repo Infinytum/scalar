@@ -1,12 +1,12 @@
 <?php
 
-namespace Scaly\Updater;
+namespace Scalar\Updater;
 
-use Scaly\Http\Client\CurlHttpClient;
-use Scaly\Http\Factory\HttpClientFactory;
-use Scaly\IO\Factory\StreamFactory;
-use Scaly\IO\Factory\UriFactory;
-use Scaly\Repository\Repository;
+use Scalar\Http\Client\CurlHttpClient;
+use Scalar\Http\Factory\HttpClientFactory;
+use Scalar\IO\Factory\StreamFactory;
+use Scalar\IO\Factory\UriFactory;
+use Scalar\Repository\Repository;
 
 class Updater implements UpdaterInterface
 {
@@ -116,22 +116,22 @@ class Updater implements UpdaterInterface
         }
 
         $streamFactory = new StreamFactory();
-        $stream = $streamFactory->createStreamFromFile('/tmp/scaly.zip', 'w+');
+        $stream = $streamFactory->createStreamFromFile('/tmp/scalar.zip', 'w+');
         $stream->write($response->getBody()->getContents());
         $stream->close();
 
-        $sha1 = sha1_file('/tmp/scaly.zip');
+        $sha1 = sha1_file('/tmp/scalar.zip');
 
         if ($sha1 != $json['sha1']) {
             return false;
         }
 
         $zip = new \ZipArchive;
-        $res = $zip->open('/tmp/scaly.zip');
+        $res = $zip->open('/tmp/scalar.zip');
         if ($res === TRUE) {
-            $zip->extractTo(SCALY_CORE . '../');
+            $zip->extractTo(SCALAR_CORE . '../');
             $zip->close();
-            unlink('/tmp/scaly.zip');
+            unlink('/tmp/scalar.zip');
         } else {
             return false;
         }

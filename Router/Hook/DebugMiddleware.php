@@ -6,13 +6,13 @@
  * Time: 21:48
  */
 
-namespace Scaly\Router\Hook;
+namespace Scalar\Router\Hook;
 
 
-use Scaly\Core\Scaly;
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\Http\Middleware\HttpMiddlewareInterface;
+use Scalar\Core\Scalar;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\Http\Middleware\HttpMiddlewareInterface;
 
 class DebugMiddleware implements HttpMiddlewareInterface
 {
@@ -41,10 +41,10 @@ class DebugMiddleware implements HttpMiddlewareInterface
         $response->getBody()->write(PHP_EOL);
         $response->getBody()->write(PHP_EOL);
         $response->getBody()->write(PHP_EOL);
-        $response->getBody()->write('// SCALY DEBUG');
+        $response->getBody()->write('// SCALAR DEBUG');
         $response->getBody()->write(PHP_EOL);
         $response->getBody()->write(PHP_EOL);
-        foreach (Scaly::getLogger()->getLogArray() as $logLine) {
+        foreach (Scalar::getLogger()->getLogArray() as $logLine) {
             $response->getBody()->write($logLine . PHP_EOL);
         }
 

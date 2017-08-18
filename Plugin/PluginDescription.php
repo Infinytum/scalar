@@ -1,10 +1,10 @@
 <?php
 
-namespace Scaly\Plugin;
+namespace Scalar\Plugin;
 
 /**
  * Class PluginDescription
- * @package Scaly\Plugin
+ * @package Scalar\Plugin
  */
 class PluginDescription
 {

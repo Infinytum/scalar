@@ -6,13 +6,13 @@
  * Time: 19:32
  */
 
-namespace Scaly\Updater\Factory;
+namespace Scalar\Updater\Factory;
 
 
-use Scaly\Core\Config\ScalyConfig;
-use Scaly\Repository\Repository;
-use Scaly\Repository\RepositoryManager;
-use Scaly\Updater\Updater;
+use Scalar\Core\Config\ScalarConfig;
+use Scalar\Repository\Repository;
+use Scalar\Repository\RepositoryManager;
+use Scalar\Updater\Updater;
 
 class UpdaterFactory implements UpdaterFactoryInterface
 {
@@ -21,7 +21,7 @@ class UpdaterFactory implements UpdaterFactoryInterface
 
     public function __construct()
     {
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_UPDATE_CHANNEL, 'stable');
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_UPDATE_CHANNEL, 'stable');
     }
 
     /**
@@ -35,7 +35,7 @@ class UpdaterFactory implements UpdaterFactoryInterface
         return new Updater
         (
             $repositoryManager->getUpdateRepository(),
-            ScalyConfig::getInstance()->get(self::CONFIG_UPDATE_CHANNEL)
+            ScalarConfig::getInstance()->get(self::CONFIG_UPDATE_CHANNEL)
         );
     }
 
@@ -53,7 +53,7 @@ class UpdaterFactory implements UpdaterFactoryInterface
     )
     {
         if ($channel == null) {
-            $channel = ScalyConfig::getInstance()->get(self::CONFIG_UPDATE_CHANNEL);
+            $channel = ScalarConfig::getInstance()->get(self::CONFIG_UPDATE_CHANNEL);
         }
         return new Updater
         (

@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Core\Middleware;
+namespace Scalar\Core\Middleware;
 
 interface MiddlewareInterface
 {

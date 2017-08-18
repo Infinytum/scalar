@@ -1,25 +1,25 @@
 <?php
 
-namespace Scaly\Repository;
+namespace Scalar\Repository;
 
-use Scaly\Cache\Cache;
-use Scaly\Cache\Factory\FileCacheStorageFactory;
-use Scaly\Cache\Factory\MemCacheStorageFactory;
-use Scaly\Cache\Storage\MemCacheStorage;
-use Scaly\Http\Client\CurlHttpClient;
-use Scaly\Http\Factory\HttpClientFactory;
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\IO\UriInterface;
-use Scaly\Plugin\Factory\PluginDescriptionFactory;
-use Scaly\Plugin\PluginDescription;
-use Scaly\Util\ScalyArray;
+use Scalar\Cache\Cache;
+use Scalar\Cache\Factory\FileCacheStorageFactory;
+use Scalar\Cache\Factory\MemCacheStorageFactory;
+use Scalar\Cache\Storage\MemCacheStorage;
+use Scalar\Http\Client\CurlHttpClient;
+use Scalar\Http\Factory\HttpClientFactory;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\IO\UriInterface;
+use Scalar\Plugin\Factory\PluginDescriptionFactory;
+use Scalar\Plugin\PluginDescription;
+use Scalar\Util\ScalarArray;
 
 class Repository implements RepositoryInterface
 {
 
     const CACHE_PACKAGE_LIST = 'Repository.Packages.';
 
-    const REPO_AUTH_HEADER = 'ScalyCoreAuthKey';
+    const REPO_AUTH_HEADER = 'ScalarCoreAuthKey';
 
     const REPO_PACKAGE_LIST = '/v1/packages';
     const REPO_PACKAGE_SEARCH = '/v1/search';
@@ -138,7 +138,7 @@ class Repository implements RepositoryInterface
      * Search for Plugins by name
      *
      * @param $pluginName
-     * @return ScalyArray
+     * @return ScalarArray
      */
     public function searchPlugin
     (
@@ -164,7 +164,7 @@ class Repository implements RepositoryInterface
     /**
      * Get cached package list
      *
-     * @return ScalyArray
+     * @return ScalarArray
      */
     public function getPackageList()
     {
@@ -174,7 +174,7 @@ class Repository implements RepositoryInterface
 
         $array = $this->cache->get(self::CACHE_PACKAGE_LIST . $this->getName());
 
-        return new ScalyArray($array);
+        return new ScalarArray($array);
     }
 
     /**
@@ -241,7 +241,7 @@ class Repository implements RepositoryInterface
 
     /**
      * @param ResponseInterface $response
-     * @return ScalyArray
+     * @return ScalarArray
      */
     private function parseResponse($response)
     {
@@ -262,7 +262,7 @@ class Repository implements RepositoryInterface
             );
         }
 
-        $scalyJson = new ScalyArray($json);
+        $scalyJson = new ScalarArray($json);
 
         if ($scalyJson->containsPath('sha1')) {
 

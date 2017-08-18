@@ -6,19 +6,19 @@
  * Time: 17:58
  */
 
-namespace Scaly\Router;
+namespace Scalar\Router;
 
-use Scaly\App\App;
-use Scaly\Config\JsonConfig;
-use Scaly\Core\ClassLoader\AutoLoader;
-use Scaly\Http\Message\Response;
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\Http\Middleware\HttpMiddlewareDispatcher;
-use Scaly\Http\Middleware\HttpMiddlewareInterface;
-use Scaly\IO\Stream\Stream;
-use Scaly\IO\UriInterface;
-use Scaly\Util\ScalyArray;
+use Scalar\App\App;
+use Scalar\Config\JsonConfig;
+use Scalar\Core\ClassLoader\AutoLoader;
+use Scalar\Http\Message\Response;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\Http\Middleware\HttpMiddlewareDispatcher;
+use Scalar\Http\Middleware\HttpMiddlewareInterface;
+use Scalar\IO\Stream\Stream;
+use Scalar\IO\UriInterface;
+use Scalar\Util\ScalarArray;
 
 class Router implements RouterInterface
 {
@@ -379,7 +379,7 @@ class Router implements RouterInterface
 
     /**
      * @param UriInterface|string $uri
-     * @param ScalyArray $route
+     * @param ScalarArray $route
      * @return \Closure
      */
     private function generateClosure($uri, $route)

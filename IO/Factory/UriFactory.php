@@ -6,12 +6,12 @@
  * Time: 18:26
  */
 
-namespace Scaly\IO\Factory;
+namespace Scalar\IO\Factory;
 
 
-use Scaly\IO\Exception\MalformedUriException;
-use Scaly\IO\Uri;
-use Scaly\IO\UriInterface;
+use Scalar\IO\Exception\MalformedUriException;
+use Scalar\IO\Uri;
+use Scalar\IO\UriInterface;
 
 class UriFactory implements UriFactoryInterface
 {

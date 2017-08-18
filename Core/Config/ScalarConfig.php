@@ -1,12 +1,12 @@
 <?php
 
-namespace Scaly\Core\Config;
+namespace Scalar\Core\Config;
 
 
-use Scaly\Config\IniConfig;
-use Scaly\Util\ScalyArray;
+use Scalar\Config\IniConfig;
+use Scalar\Util\ScalarArray;
 
-class ScalyConfig extends IniConfig
+class ScalarConfig extends IniConfig
 {
 
     private static $instance;
@@ -17,21 +17,21 @@ class ScalyConfig extends IniConfig
 
     function __construct()
     {
-        parent::__construct(SCALY_CORE . '/config.ini', []);
+        parent::__construct(SCALAR_CORE . '/config.ini', []);
         $this->load();
         self::$instance = $this;
-        $this->overrides = new ScalyArray([]);
+        $this->overrides = new ScalarArray([]);
     }
 
     /**
      * Get singleton
      *
-     * @return ScalyConfig
+     * @return ScalarConfig
      */
-    public static function getInstance(): ScalyConfig
+    public static function getInstance()
     {
         if (!self::$instance) {
-            new ScalyConfig();
+            new ScalarConfig();
         }
         return self::$instance;
     }

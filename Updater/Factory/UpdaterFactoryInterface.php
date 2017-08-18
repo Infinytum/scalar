@@ -1,9 +1,9 @@
 <?php
 
-namespace Scaly\Updater\Factory;
+namespace Scalar\Updater\Factory;
 
-use Scaly\Repository\Repository;
-use Scaly\Updater\UpdaterInterface;
+use Scalar\Repository\Repository;
+use Scalar\Updater\UpdaterInterface;
 
 interface UpdaterFactoryInterface
 {

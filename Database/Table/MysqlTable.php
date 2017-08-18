@@ -6,17 +6,16 @@
  * Time: 16:01
  */
 
-namespace Scaly\Database\Table;
+namespace Scalar\Database\Table;
 
-use Scaly\Config\JsonConfig;
-use Scaly\Database\PDODatabase;
-use Scaly\Database\QueryFlavor;
-use Scaly\Util\Annotation\PHPDoc;
-use Scaly\Util\Factory\AnnotationFactory;
-use Scaly\Util\FilterableInterface;
-use Scaly\Util\ScalyArray;
+use Scalar\Config\JsonConfig;
+use Scalar\Database\PDODatabase;
+use Scalar\Database\QueryFlavor;
+use Scalar\Util\Annotation\PHPDoc;
+use Scalar\Util\Factory\AnnotationFactory;
+use Scalar\Util\ScalarArray;
 
-abstract class MysqlTable implements FilterableInterface
+abstract class MysqlTable
 {
 
     /**
@@ -32,7 +31,7 @@ abstract class MysqlTable implements FilterableInterface
      */
     private $fields;
     /**
-     * @var ScalyArray
+     * @var ScalarArray
      */
     private $query;
     /**
@@ -64,7 +63,7 @@ abstract class MysqlTable implements FilterableInterface
 
     public function resetQuery()
     {
-        $this->query = new ScalyArray
+        $this->query = new ScalarArray
         (
             [
                 'Table' => $this->tableName,
@@ -96,14 +95,16 @@ abstract class MysqlTable implements FilterableInterface
      * @param $lambda callable filter
      * @return self
      */
-    public function whereNot($lambda)
+    public function whereNot($lambda, $value)
     {
         $mockObject = $this->generateMockInstance();
         $mock = &$mockObject;
         $field = $lambda($mock);
 
         $this->query->putPath('Where.NotEqual',
-            $field
+            [
+                $field => $value
+            ]
         );
         return $this;
     }
@@ -133,7 +134,7 @@ abstract class MysqlTable implements FilterableInterface
             return $this->fields;
         }
         $reflectionClass = new \ReflectionClass(get_called_class());
-        $properties = new ScalyArray($reflectionClass->getProperties());
+        $properties = new ScalarArray($reflectionClass->getProperties());
 
         $fields = $properties->where
         (
@@ -142,7 +143,7 @@ abstract class MysqlTable implements FilterableInterface
                 $value
             ) {
                 $annotationFactory = new AnnotationFactory();
-                $annotations = new ScalyArray
+                $annotations = new ScalarArray
                 (
                     $annotationFactory->createAnnotationArrayFromString
                     (
@@ -167,14 +168,16 @@ abstract class MysqlTable implements FilterableInterface
      * Filter data from all objects in array
      * @param $lambda callable filter
      */
-    public function whereLike($lambda)
+    public function whereLike($lambda, $value)
     {
         $mockObject = $this->generateMockInstance();
         $mock = &$mockObject;
         $field = $lambda($mock);
 
         $this->query->putPath('Where.Like',
-            $field
+            [
+                $field => $value
+            ]
         );
         return $this;
     }
@@ -183,7 +186,7 @@ abstract class MysqlTable implements FilterableInterface
      * Filter data from all objects in array
      * @param $lambda callable filter
      */
-    public function whereNotLike($lambda)
+    public function whereNotLike($lambda, $value)
     {
         $mockObject = $this->generateMockInstance();
         $mock = &$mockObject;
@@ -191,7 +194,7 @@ abstract class MysqlTable implements FilterableInterface
 
         $this->query->putPath('Where.NotLike',
             [
-                $field
+                $field => $value
             ]
         );
         return $this;
@@ -336,7 +339,7 @@ abstract class MysqlTable implements FilterableInterface
             $definitionLoader->save();
         }
 
-        return new TableDefinition($definitionLoader->asScalyArray());
+        return new TableDefinition($definitionLoader->asScalarArray());
     }
 
     private static function getParameters
@@ -387,13 +390,15 @@ abstract class MysqlTable implements FilterableInterface
      * @param $lambda callable filter
      * @return self
      */
-    public function where($lambda)
+    public function where($lambda, $value)
     {
         $mockObject = $this->generateMockInstance();
         $mock = &$mockObject;
         $field = $lambda($mock);
         $this->query->putPath('Where.Equal',
-            $field
+            [
+                $field => $value
+            ]
         );
         return $this;
     }
@@ -436,7 +441,7 @@ abstract class MysqlTable implements FilterableInterface
 
     /**
      * Check if data contains entry
-     * @param $entry static
+     * @param $entry mixed
      * @return bool
      */
     public function contains($entry)
@@ -460,8 +465,7 @@ abstract class MysqlTable implements FilterableInterface
      */
     public function distinct()
     {
-        $this->query->setPath('Distinct', true);
-        return $this;
+        // TODO: Implement distinct() method.
     }
 
     /**
@@ -482,26 +486,8 @@ abstract class MysqlTable implements FilterableInterface
     public function orderBy($comparable)
     {
         $fieldName = $comparable($this->generateMockInstance());
-        $this->query->setPath('Order', $fieldName);
-        return $this;
-    }
-
-    /**
-     * Set order direction to 'ascending'
-     */
-    public function ascending()
-    {
-        $this->query->setPath('Direction', 'ASC');
-        return $this;
-    }
-
-    /**
-     * Set order direction to 'ascending'
-     */
-    public function descending()
-    {
-        $this->query->setPath('Direction', 'DESC');
-        return $this;
+        echo $fieldName;
+        echo "sdfsdfsdfssd";
     }
 
     /**
@@ -828,14 +814,5 @@ abstract class MysqlTable implements FilterableInterface
     public function asDictionary($keyValueAssignment)
     {
         // TODO: Implement asDictionary() method.
-    }
-
-    /**
-     * Return filtered data as array
-     * @return array
-     */
-    public function asArray()
-    {
-        // TODO: Implement asArray() method.
     }
 }

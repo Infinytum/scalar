@@ -1,13 +1,13 @@
 <?php
 
-namespace Scaly\Router\Controller;
+namespace Scalar\Router\Controller;
 
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
 
 /**
  * Interface RestController
- * @package Scaly\Router\Controller
+ * @package Scalar\Router\Controller
  *
  * Template for REST controllers
  */

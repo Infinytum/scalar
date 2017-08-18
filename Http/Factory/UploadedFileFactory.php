@@ -6,12 +6,12 @@
  * Time: 18:50
  */
 
-namespace Scaly\Http\Factory;
+namespace Scalar\Http\Factory;
 
 
-use Scaly\Http\Message\UploadedFile;
-use Scaly\Http\Message\UploadedFileInterface;
-use Scaly\IO\Factory\StreamFactory;
+use Scalar\Http\Message\UploadedFile;
+use Scalar\Http\Message\UploadedFileInterface;
+use Scalar\IO\Factory\StreamFactory;
 
 class UploadedFileFactory implements UploadedFileFactoryInterface
 {

@@ -6,11 +6,11 @@
  * Time: 21:32
  */
 
-namespace Scaly\Log\Factory;
+namespace Scalar\Log\Factory;
 
 
-use Scaly\IO\Stream\StreamInterface;
-use Scaly\Log\LoggerInterface;
+use Scalar\IO\Stream\StreamInterface;
+use Scalar\Log\LoggerInterface;
 
 interface LoggerFactoryInterface
 {

@@ -6,11 +6,11 @@
  * Time: 15:54
  */
 
-namespace Scaly\Repository;
+namespace Scalar\Repository;
 
 
-use Scaly\IO\UriInterface;
-use Scaly\Plugin\PluginDescription;
+use Scalar\IO\UriInterface;
+use Scalar\Plugin\PluginDescription;
 
 interface RepositoryInterface
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Scaly\Http\Message;
+namespace Scalar\Http\Message;
 
-use Scaly\Http\Exception\InvalidProtocolVersionException;
-use Scaly\IO\Stream\Stream;
-use Scaly\IO\Stream\StreamInterface;
+use Scalar\Http\Exception\InvalidProtocolVersionException;
+use Scalar\IO\Stream\Stream;
+use Scalar\IO\Stream\StreamInterface;
 
 
 class Message implements MessageInterface

@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Database;
+namespace Scalar\Database;
 
 
 class PDODatabase implements DatabaseInterface
@@ -70,7 +70,7 @@ class PDODatabase implements DatabaseInterface
     private function scanTables()
     {
         if (!$this->tables) {
-            $scanPath = SCALY_APP . '/Database/' . $this->name . '';
+            $scanPath = SCALAR_APP . '/Database/' . $this->name . '';
             $result = glob($scanPath . '/*.php');
             $classes = [];
 
@@ -238,7 +238,7 @@ class PDODatabase implements DatabaseInterface
      */
     private function fetchTableDefinition($class)
     {
-        $reflectionClass = new \ReflectionClass('Scaly\App\Database\\' . $this->name . '\\' . $class);
+        $reflectionClass = new \ReflectionClass('Scalar\App\Database\\' . $this->name . '\\' . $class);
         return $reflectionClass->getMethod('getTableDefinition')->invoke(null);
     }
 

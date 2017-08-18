@@ -6,7 +6,7 @@
  * Time: 1:27 PM
  */
 
-namespace Scaly\IO;
+namespace Scalar\IO;
 
 use PHPUnit\Framework\TestCase;
 

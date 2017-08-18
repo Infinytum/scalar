@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Http\Message;
+namespace Scalar\Http\Message;
 
 
 /**
@@ -8,7 +8,7 @@ namespace Scaly\Http\Message;
  *
  * Abstract server response implementation
  *
- * @package Scaly\Http\Message
+ * @package Scalar\Http\Message
  */
 interface ResponseInterface extends MessageInterface
 {

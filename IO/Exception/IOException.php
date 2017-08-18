@@ -6,7 +6,7 @@
  * Time: 18:57
  */
 
-namespace Scaly\IO\Exception;
+namespace Scalar\IO\Exception;
 
 
 abstract class IOException extends \Exception

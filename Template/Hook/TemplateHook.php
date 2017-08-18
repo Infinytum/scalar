@@ -6,13 +6,13 @@
  * Time: 11:26 AM
  */
 
-namespace Scaly\Template\Hook;
+namespace Scalar\Template\Hook;
 
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\Http\Middleware\HttpMiddlewareInterface;
-use Scaly\Template\Templater;
-use Scaly\Template\ViewBag;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\Http\Middleware\HttpMiddlewareInterface;
+use Scalar\Template\Templater;
+use Scalar\Template\ViewBag;
 
 class TemplateHook implements HttpMiddlewareInterface
 {

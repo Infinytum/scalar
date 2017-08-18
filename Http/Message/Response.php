@@ -6,10 +6,10 @@
  * Time: 00:08
  */
 
-namespace Scaly\Http\Message;
+namespace Scalar\Http\Message;
 
 
-use Scaly\IO\Stream\StreamInterface;
+use Scalar\IO\Stream\StreamInterface;
 
 class Response implements ResponseInterface
 {

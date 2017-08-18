@@ -6,7 +6,7 @@
  * Time: 9:09 AM
  */
 
-namespace Scaly\Core\Scope;
+namespace Scalar\Core\Scope;
 
 interface ScopeInterface
 {

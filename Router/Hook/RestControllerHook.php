@@ -6,13 +6,13 @@
  * Time: 10:37 AM
  */
 
-namespace Scaly\Router\Hook;
+namespace Scalar\Router\Hook;
 
 
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\Http\Middleware\HttpMiddlewareInterface;
-use Scaly\Router\Controller\RestController;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\Http\Middleware\HttpMiddlewareInterface;
+use Scalar\Router\Controller\RestController;
 
 class RestControllerHook implements HttpMiddlewareInterface
 {

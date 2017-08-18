@@ -6,7 +6,7 @@
  * Time: 1:26 PM
  */
 
-namespace Scaly\Template;
+namespace Scalar\Template;
 
 
 class ViewBag

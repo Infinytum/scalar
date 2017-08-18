@@ -1,10 +1,10 @@
 <?php
 
-namespace Scaly\Http\Factory;
+namespace Scalar\Http\Factory;
 
 
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\IO\UriInterface;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\IO\UriInterface;
 
 interface ServerRequestFactoryInterface
 {
