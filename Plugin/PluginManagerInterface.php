@@ -6,7 +6,7 @@
  * Time: 15:17
  */
 
-namespace Scaly\Plugin;
+namespace Scalar\Plugin;
 
 
 interface PluginManagerInterface

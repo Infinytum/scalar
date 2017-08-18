@@ -1,10 +1,10 @@
 <?php
 
-namespace Scaly\Cache\Factory;
+namespace Scalar\Cache\Factory;
 
 
-use Scaly\Cache\Storage\FileCacheStorage;
-use Scaly\Core\Config\ScalyConfig;
+use Scalar\Cache\Storage\FileCacheStorage;
+use Scalar\Core\Config\ScalarConfig;
 
 class FileCacheStorageFactory
 {
@@ -13,7 +13,7 @@ class FileCacheStorageFactory
 
     public function __construct()
     {
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_STORAGE_PATH, sys_get_temp_dir() . '/scaly.cache/{{App.Home}}');
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_STORAGE_PATH, sys_get_temp_dir() . '/Scalar.cache/{{App.Home}}');
     }
 
     /**
@@ -28,7 +28,7 @@ class FileCacheStorageFactory
     )
     {
         if (!is_string($storagePath)) {
-            $storagePath = ScalyConfig::getInstance()->get(self::CONFIG_STORAGE_PATH);
+            $storagePath = ScalarConfig::getInstance()->get(self::CONFIG_STORAGE_PATH);
         }
         return new FileCacheStorage($storagePath);
     }

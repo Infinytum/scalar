@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Log;
+namespace Scalar\Log;
 
 interface LoggerInterface
 {

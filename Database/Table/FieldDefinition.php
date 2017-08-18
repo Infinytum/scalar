@@ -6,10 +6,10 @@
  * Time: 10:57 PM
  */
 
-namespace Scaly\Database\Table;
+namespace Scalar\Database\Table;
 
 
-use Scaly\Util\ScalyArray;
+use Scalar\Util\ScalarArray;
 
 class FieldDefinition
 {
@@ -40,9 +40,9 @@ class FieldDefinition
         $array
     )
     {
-        if (is_array($array) && !$array instanceof ScalyArray) {
-            $array = new ScalyArray($array);
-        } else if (!$array instanceof ScalyArray) {
+        if (is_array($array) && !$array instanceof ScalarArray) {
+            $array = new ScalarArray($array);
+        } else if (!$array instanceof ScalarArray) {
             throw new \RuntimeException
             (
                 'Invalid field definition array passed to field definition'
@@ -176,7 +176,7 @@ class FieldDefinition
      */
     public function getForeignTableDefinition()
     {
-        $reflectionClass = new \ReflectionClass('Scaly\App\Database\\' . MysqlTable::getPDO()->getName() . '\\' . $this->getForeignTable());
+        $reflectionClass = new \ReflectionClass('Scalar\App\Database\\' . MysqlTable::getPDO()->getName() . '\\' . $this->getForeignTable());
         return $reflectionClass->getMethod('getTableDefinition')->invoke(null);
     }
 

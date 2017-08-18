@@ -1,6 +1,6 @@
 <?php
 
-define('SCALY_CORE', dirname(getcwd()));
+define('SCALAR_CORE', dirname(getcwd()));
 
 #region PHP Patches
 
@@ -19,22 +19,22 @@ if (!function_exists('getallheaders')) {
 
 #endregion
 
-include SCALY_CORE . '/Core/Scaly.php';
+include SCALAR_CORE . '/Core/Scalar.php';
 
-use Scaly\Core\Scaly;
+use Scalar\Core\Scalar;
 
 error_reporting(E_ALL);
 
-$scaly = Scaly::getInstance();
-$scaly->initialize();
+$scalar = Scalar::getInstance();
+$scalar->initialize();
 
-$serverRequestFactory = new \Scaly\Http\Factory\ServerRequestFactory();
+$serverRequestFactory = new \Scalar\Http\Factory\ServerRequestFactory();
 $serverRequest = $serverRequestFactory->createServerRequestFromArray($_SERVER);
 
-$response = Scaly::getRouter()->dispatch($serverRequest);
+$response = Scalar::getRouter()->dispatch($serverRequest);
 
 if (!$response) {
-    $responseFactory = new \Scaly\Http\Factory\ResponseFactory();
+    $responseFactory = new \Scalar\Http\Factory\ResponseFactory();
     $response = $responseFactory->createResponse(404);
 }
 

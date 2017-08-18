@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\IO;
+namespace Scalar\IO;
 
 
 /**
@@ -8,7 +8,7 @@ namespace Scaly\IO;
  *
  * Represents a RFC conform URI implementation
  *
- * @package Scaly\Http\Message
+ * @package Scalar\Http\Message
  */
 interface UriInterface extends \Serializable
 {

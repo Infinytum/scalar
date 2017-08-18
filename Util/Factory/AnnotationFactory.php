@@ -1,8 +1,8 @@
 <?php
 
-namespace Scaly\Util\Factory;
+namespace Scalar\Util\Factory;
 
-use Scaly\Util\Annotation\Annotation;
+use Scalar\Util\Annotation\Annotation;
 
 class AnnotationFactory
 {

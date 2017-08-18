@@ -6,11 +6,11 @@
  * Time: 4:57 PM
  */
 
-namespace Scaly\Template;
+namespace Scalar\Template;
 
 
-use Scaly\IO\Factory\StreamFactory;
-use Scaly\IO\Stream\StreamInterface;
+use Scalar\IO\Factory\StreamFactory;
+use Scalar\IO\Stream\StreamInterface;
 
 class Template
 {

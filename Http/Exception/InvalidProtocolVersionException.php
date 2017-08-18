@@ -6,7 +6,7 @@
  * Time: 23:24
  */
 
-namespace Scaly\Http\Exception;
+namespace Scalar\Http\Exception;
 
 
 use Throwable;
@@ -26,7 +26,7 @@ class InvalidProtocolVersionException extends HttpException
      * Get invalid Protocol Version
      * @return string
      */
-    public function getProtocolVersion(): string
+    public function getProtocolVersion()
     {
         return $this->protocolVersion;
     }

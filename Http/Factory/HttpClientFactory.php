@@ -1,10 +1,10 @@
 <?php
 
-namespace Scaly\Http\Factory;
+namespace Scalar\Http\Factory;
 
-use Scaly\Http\Client\HttpClientInterface;
-use Scaly\Http\HttpClient;
-use Scaly\IO\UriInterface;
+use Scalar\Http\Client\HttpClientInterface;
+use Scalar\Http\HttpClient;
+use Scalar\IO\UriInterface;
 
 class HttpClientFactory
 {

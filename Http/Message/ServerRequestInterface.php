@@ -1,13 +1,13 @@
 <?php
 
-namespace Scaly\Http\Message;
+namespace Scalar\Http\Message;
 
 /**
  * Interface ServerRequestInterface
  *
  * Abstract Server Request Implementation
  *
- * @package Scaly\Http\Message
+ * @package Scalar\Http\Message
  */
 interface ServerRequestInterface extends RequestInterface
 {

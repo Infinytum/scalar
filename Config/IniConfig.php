@@ -6,12 +6,12 @@
  * Time: 21:40
  */
 
-namespace Scaly\Config;
+namespace Scalar\Config;
 
 
-use Scaly\IO\Stream\Stream;
-use Scaly\IO\Stream\StreamInterface;
-use Scaly\Util\ScalyArray;
+use Scalar\IO\Stream\Stream;
+use Scalar\IO\Stream\StreamInterface;
+use Scalar\Util\ScalarArray;
 
 class IniConfig implements ConfigInterface
 {
@@ -27,7 +27,7 @@ class IniConfig implements ConfigInterface
     private $sections;
 
     /**
-     * @var ScalyArray
+     * @var ScalarArray
      */
     private $configArray;
 
@@ -39,7 +39,7 @@ class IniConfig implements ConfigInterface
     /**
      * IniConfig constructor.
      * @param resource|Stream|string $fileLocation
-     * @param ScalyArray|array $configArray
+     * @param ScalarArray|array $configArray
      * @param bool $sections
      * @param int $iniScannerMode
      */
@@ -69,9 +69,9 @@ class IniConfig implements ConfigInterface
             );
         }
 
-        if (is_array($configArray) && !$configArray instanceof ScalyArray) {
-            $this->configArray = new ScalyArray($configArray);
-        } elseif ($configArray instanceof ScalyArray) {
+        if (is_array($configArray) && !$configArray instanceof ScalarArray) {
+            $this->configArray = new ScalarArray($configArray);
+        } elseif ($configArray instanceof ScalarArray) {
             $this->configArray = $configArray;
         } else {
             throw new \InvalidArgumentException
@@ -219,7 +219,7 @@ class IniConfig implements ConfigInterface
     public function load()
     {
         $this->fileStream->rewind();
-        $this->configArray = new ScalyArray
+        $this->configArray = new ScalarArray
         (
             parse_ini_string
             (
@@ -231,11 +231,11 @@ class IniConfig implements ConfigInterface
     }
 
     /**
-     * Get config map as Scaly Array
+     * Get config map as Scalar Array
      *
-     * @return ScalyArray
+     * @return ScalarArray
      */
-    public function asScalyArray()
+    public function asScalarArray()
     {
         return clone $this->configArray;
     }

@@ -6,7 +6,7 @@
  * Time: 17:52
  */
 
-namespace Scaly\Util\Annotation;
+namespace Scalar\Util\Annotation;
 
 
 class Annotation
@@ -35,7 +35,7 @@ class Annotation
     /**
      * @return string
      */
-    public function getName(): string
+    public function getName()
     {
         return $this->name;
     }
@@ -43,7 +43,7 @@ class Annotation
     /**
      * @return array
      */
-    public function getArguments(): array
+    public function getArguments()
     {
         return $this->arguments;
     }

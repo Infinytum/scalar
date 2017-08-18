@@ -1,11 +1,11 @@
 <?php
 
-namespace Scaly\Http;
+namespace Scalar\Http;
 
 
-use Scaly\Http\Client\HttpClientInterface;
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
+use Scalar\Http\Client\HttpClientInterface;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
 
 class HttpClient
 {
@@ -76,7 +76,7 @@ class HttpClient
     /**
      * Get response after execution
      *
-     * @return ResponseInterface|null
+     * @return ResponseInterface
      */
     public function getResponse()
     {

@@ -6,7 +6,7 @@
  * Time: 1:40 PM
  */
 
-namespace Scaly\IO\Stream;
+namespace Scalar\IO\Stream;
 
 use PHPUnit\Framework\TestCase;
 

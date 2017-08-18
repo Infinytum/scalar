@@ -6,7 +6,7 @@
  * Template for any filterable class
  */
 
-namespace Scaly\Util;
+namespace Scalar\Util;
 
 interface FilterableInterface
 {

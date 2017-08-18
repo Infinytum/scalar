@@ -1,9 +1,9 @@
 <?php
 
-namespace Scaly\IO\Factory;
+namespace Scalar\IO\Factory;
 
-use Scaly\IO\Exception\MalformedUriException;
-use Scaly\IO\UriInterface;
+use Scalar\IO\Exception\MalformedUriException;
+use Scalar\IO\UriInterface;
 
 interface UriFactoryInterface
 {

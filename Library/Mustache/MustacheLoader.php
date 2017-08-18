@@ -6,7 +6,7 @@
  * Time: 4:44 PM
  */
 
-namespace Scaly\Library\Mustache;
+namespace Scalar\Library\Mustache;
 require_once "Cache.php";
 require_once "Cache/AbstractCache.php";
 require_once "Cache/NoopCache.php";

@@ -6,11 +6,11 @@
  * Time: 10:09 AM
  */
 
-namespace Scaly\Router;
+namespace Scalar\Router;
 
 
-use Scaly\Http\Message\RequestInterface;
-use Scaly\Http\Message\ResponseInterface;
+use Scalar\Http\Message\RequestInterface;
+use Scalar\Http\Message\ResponseInterface;
 
 interface AppInterface
 {

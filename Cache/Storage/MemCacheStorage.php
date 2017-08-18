@@ -6,10 +6,10 @@
  * Time: 07:23
  */
 
-namespace Scaly\Cache\Storage;
+namespace Scalar\Cache\Storage;
 
 
-use Scaly\Cache\Exception\CacheStorageException;
+use Scalar\Cache\Exception\CacheStorageException;
 
 class MemCacheStorage implements CacheStorageInterface
 {

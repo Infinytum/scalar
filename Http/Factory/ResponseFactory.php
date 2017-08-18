@@ -6,12 +6,12 @@
  * Time: 19:04
  */
 
-namespace Scaly\Http\Factory;
+namespace Scalar\Http\Factory;
 
 
-use Scaly\Http\Message\Response;
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\IO\Factory\StreamFactory;
+use Scalar\Http\Message\Response;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\IO\Factory\StreamFactory;
 
 class ResponseFactory implements ResponseFactoryInterface
 {

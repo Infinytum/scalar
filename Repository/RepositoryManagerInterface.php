@@ -1,8 +1,8 @@
 <?php
 
-namespace Scaly\Repository;
+namespace Scalar\Repository;
 
-use Scaly\IO\UriInterface;
+use Scalar\IO\UriInterface;
 
 interface RepositoryManagerInterface
 {

@@ -6,11 +6,11 @@
  * Time: 10:06
  */
 
-namespace Scaly\Router\Hook;
+namespace Scalar\Router\Hook;
 
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\Http\Middleware\HttpMiddlewareInterface;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\Http\Middleware\HttpMiddlewareInterface;
 
 class MethodFilterMiddleware implements HttpMiddlewareInterface
 {

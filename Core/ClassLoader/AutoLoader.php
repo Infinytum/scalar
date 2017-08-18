@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Core\ClassLoader;
+namespace Scalar\Core\ClassLoader;
 
 class AutoLoader
 {
@@ -20,7 +20,7 @@ class AutoLoader
     /**
      * @return AutoLoader
      */
-    public static function getInstance(): AutoLoader
+    public static function getInstance()
     {
         if (!self::$instance)
             new AutoLoader();

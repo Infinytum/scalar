@@ -6,10 +6,10 @@
  * Time: 9:23 AM
  */
 
-namespace Scaly\Core\Scope;
+namespace Scalar\Core\Scope;
 
 
-use Scaly\Util\ScalyArray;
+use Scalar\Util\ScalarArray;
 
 class Scope implements ScopeInterface, \Serializable
 {
@@ -20,7 +20,7 @@ class Scope implements ScopeInterface, \Serializable
     private $parentScope;
 
     /**
-     * @var ScalyArray
+     * @var ScalarArray
      */
     private $variables;
 
@@ -33,12 +33,12 @@ class Scope implements ScopeInterface, \Serializable
         $this->parentScope = $parentScope;
 
         if (is_array($variables)) {
-            $this->variables = new ScalyArray($variables);
-        } else if ($variables instanceof ScalyArray) {
+            $this->variables = new ScalarArray($variables);
+        } else if ($variables instanceof ScalarArray) {
             $this->variables = $variables;
         }
 
-        $this->variables = new ScalyArray([]);
+        $this->variables = new ScalarArray([]);
     }
 
     /**

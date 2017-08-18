@@ -1,13 +1,13 @@
 <?php
 
-namespace Scaly\IO\Stream;
+namespace Scalar\IO\Stream;
 
 /**
  * Interface StreamInterface
  *
  * A wrapper around a data stream
  *
- * @package Scaly\IO\Stream
+ * @package Scalar\IO\Stream
  */
 interface StreamInterface
 {

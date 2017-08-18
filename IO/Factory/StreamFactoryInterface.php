@@ -1,9 +1,9 @@
 <?php
 
-namespace Scaly\IO\Factory;
+namespace Scalar\IO\Factory;
 
 
-use Scaly\IO\Stream\StreamInterface;
+use Scalar\IO\Stream\StreamInterface;
 
 interface StreamFactoryInterface
 {

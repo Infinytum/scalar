@@ -1,23 +1,23 @@
 <?php
 
-namespace Scaly\Core;
+namespace Scalar\Core;
 
 require_once 'ClassLoader/AutoLoader.php';
 
-use Scaly\Core\ClassLoader\AutoLoader;
-use Scaly\Core\Config\ScalyConfig;
-use Scaly\Core\Log\CoreLogger;
-use Scaly\Database\DatabaseManager;
-use Scaly\IO\Factory\StreamFactory;
-use Scaly\Library\Mustache\MustacheLoader;
-use Scaly\Router\Hook\MethodFilterMiddleware;
-use Scaly\Router\Hook\RestControllerHook;
-use Scaly\Router\Router;
-use Scaly\Template\Controller\AssetProxy;
-use Scaly\Template\Hook\TemplateHook;
+use Scalar\Core\ClassLoader\AutoLoader;
+use Scalar\Core\Config\ScalarConfig;
+use Scalar\Core\Log\CoreLogger;
+use Scalar\Database\DatabaseManager;
+use Scalar\IO\Factory\StreamFactory;
+use Scalar\Library\Mustache\MustacheLoader;
+use Scalar\Router\Hook\MethodFilterMiddleware;
+use Scalar\Router\Hook\RestControllerHook;
+use Scalar\Router\Router;
+use Scalar\Template\Controller\AssetProxy;
+use Scalar\Template\Hook\TemplateHook;
 
 
-class Scaly
+class Scalar
 {
 
     const CONFIG_CORE_DEV_MODE = 'Core.DeveloperMode';
@@ -33,7 +33,7 @@ class Scaly
     const CONFIG_ASSETS_DIR = 'Template.Assets';
 
     /**
-     * @var Scaly
+     * @var Scalar
      */
     private static $instance;
 
@@ -52,9 +52,9 @@ class Scaly
         self::$instance = $this;
         $autoLoader = AutoLoader::getInstance();
         $autoLoader->register();
-        $autoLoader->addClassPath("Scaly\\", SCALY_CORE);
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_DEV_MODE, false);
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_DEBUG_MODE, false);
+        $autoLoader->addClassPath("Scalar\\", SCALAR_CORE);
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_DEV_MODE, false);
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_DEBUG_MODE, false);
     }
 
     /**
@@ -68,28 +68,27 @@ class Scaly
 
     /**
      * Get core instance
-     * @return Scaly
+     * @return Scalar
      */
     public static function getInstance()
     {
         if (!self::$instance) {
-            new Scaly();
+            new Scalar();
         }
         return self::$instance;
     }
 
     public function initialize()
     {
-	$hostname = str_replace('.', '+', $_SERVER['HTTP_HOST']);
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_APP_PATH, dirname(SCALY_CORE) . '/scaly_app');
-        if (ScalyConfig::getInstance()->asScalyArray()->containsPath('VirtualHost.' . strtolower($hostname))) {
-            define('SCALY_APP', ScalyConfig::getInstance()->asScalyArray()->getPath('VirtualHost.' . strtolower($hostname)));
-            ScalyConfig::getInstance()->addOverride(self::CONFIG_APP_PATH, SCALY_APP);
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_APP_PATH, dirname(SCALAR_CORE) . '/SCALAR_APP');
+        if (ScalarConfig::getInstance()->asScalarArray()->containsPath('VirtualHost.' . strtolower($_SERVER['SERVER_NAME']))) {
+            define('SCALAR_APP', ScalarConfig::getInstance()->asScalarArray()->getPath('VirtualHost.' . strtolower($_SERVER['SERVER_NAME'])));
+            ScalarConfig::getInstance()->addOverride(self::CONFIG_APP_PATH, SCALAR_APP);
         } else {
-            define('SCALY_APP', ScalyConfig::getInstance()->get(self::CONFIG_APP_PATH));
+            define('SCALAR_APP', ScalarConfig::getInstance()->get(self::CONFIG_APP_PATH));
         }
         $autoLoader = AutoLoader::getInstance();
-        $autoLoader->addClassPath("Scaly\\App\\", SCALY_APP);
+        $autoLoader->addClassPath("Scalar\\App\\", SCALAR_APP);
         $this->initializeCoreLogger();
         $this->initializeRouter();
         $this->initializeTemplater();
@@ -103,19 +102,19 @@ class Scaly
      */
     private function initializeCoreLogger()
     {
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_LOG_ENABLED, false);
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_LOG_APPEND, true);
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_LOG_FILE, '{{App.Home}}/scaly.log');
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_LOG_LEVEL, CoreLogger::Warning);
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_LOG_ENABLED, false);
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_LOG_APPEND, true);
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_LOG_FILE, '{{App.Home}}/scalar.log');
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_CORE_LOG_LEVEL, CoreLogger::Warning);
 
         $streamFactory = new StreamFactory();
         $logStream = null;
 
-        if (ScalyConfig::getInstance()->get(self::CONFIG_CORE_LOG_ENABLED)) {
-            $mode = ScalyConfig::getInstance()->get(self::CONFIG_CORE_LOG_APPEND) ? 'a+' : 'w+';
+        if (ScalarConfig::getInstance()->get(self::CONFIG_CORE_LOG_ENABLED)) {
+            $mode = ScalarConfig::getInstance()->get(self::CONFIG_CORE_LOG_APPEND) ? 'a+' : 'w+';
             $logStream = $streamFactory->createStreamFromFile
             (
-                ScalyConfig::getInstance()->get(self::CONFIG_CORE_LOG_FILE),
+                ScalarConfig::getInstance()->get(self::CONFIG_CORE_LOG_FILE),
                 $mode
             );
 
@@ -131,24 +130,24 @@ class Scaly
         $this->coreLogger = new CoreLogger
         (
             $logStream,
-            ScalyConfig::getInstance()->get(self::CONFIG_CORE_LOG_LEVEL)
+            ScalarConfig::getInstance()->get(self::CONFIG_CORE_LOG_LEVEL)
         );
         $this->coreLogger->v('Core Logger initialized');
     }
 
     /**
-     * Initialize Scaly router and router middleware
+     * Initialize Scalar router and router middleware
      */
     private function initializeRouter()
     {
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_ROUTER_MAP, '{{App.Home}}/route.map');
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_ROUTER_MAP, '{{App.Home}}/route.map');
 
         $this->coreLogger->v('Initializing router...');
 
         $this->router = new Router
         (
-            ScalyConfig::getInstance()->get(self::CONFIG_ROUTER_MAP),
-            SCALY_APP . '/Controller'
+            ScalarConfig::getInstance()->get(self::CONFIG_ROUTER_MAP),
+            SCALAR_APP . '/Controller'
         );
 
         $this->coreLogger->v('Injecting middleware...');
@@ -157,8 +156,8 @@ class Scaly
         $this->router->addHandler(new RestControllerHook());
 
         if (
-            ScalyConfig::getInstance()->get(self::CONFIG_CORE_DEV_MODE) ||
-            !file_exists(ScalyConfig::getInstance()->get(self::CONFIG_ROUTER_MAP))
+            ScalarConfig::getInstance()->get(self::CONFIG_CORE_DEV_MODE) ||
+            !file_exists(ScalarConfig::getInstance()->get(self::CONFIG_ROUTER_MAP))
         ) {
             $this->coreLogger->v('Generating route map');
             $this->router->generateRouteMap();
@@ -169,8 +168,8 @@ class Scaly
 
     private function initializeTemplater()
     {
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_TEMPLATE_DIR, '{{App.Home}}/Resources/Templates/');
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_ASSETS_DIR, '{{App.Home}}/Resources/Assets/');
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_TEMPLATE_DIR, '{{App.Home}}/Resources/Templates/');
+        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_ASSETS_DIR, '{{App.Home}}/Resources/Assets/');
         new MustacheLoader();
         self::getRouter()->addRoute('/assets', function ($request, $response, ...$params) {
             $assetProxy = new AssetProxy();

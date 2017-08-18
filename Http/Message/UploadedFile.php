@@ -1,9 +1,9 @@
 <?php
 
-namespace Scaly\Http\Message;
+namespace Scalar\Http\Message;
 
-use Scaly\IO\Stream\Stream;
-use Scaly\IO\Stream\StreamInterface;
+use Scalar\IO\Stream\Stream;
+use Scalar\IO\Stream\StreamInterface;
 
 
 class UploadedFile implements UploadedFileInterface
@@ -166,7 +166,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * Retrieve a stream representing the uploaded file.
      *
-     * @return \Scaly\IO\Stream\StreamInterface Stream representation of the uploaded file.
+     * @return \Scalar\IO\Stream\StreamInterface Stream representation of the uploaded file.
      * @throws \RuntimeException in cases when no stream is available / can be created.
      */
     public function getStream()

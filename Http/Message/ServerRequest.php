@@ -6,7 +6,7 @@
  * Time: 23:19
  */
 
-namespace Scaly\Http\Message;
+namespace Scalar\Http\Message;
 
 class ServerRequest extends Request implements ServerRequestInterface
 {

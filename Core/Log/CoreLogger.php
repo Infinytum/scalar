@@ -6,11 +6,11 @@
  * Time: 22:22
  */
 
-namespace Scaly\Core\Log;
+namespace Scalar\Core\Log;
 
 
-use Scaly\IO\Stream\StreamInterface;
-use Scaly\Log\LoggerInterface;
+use Scalar\IO\Stream\StreamInterface;
+use Scalar\Log\LoggerInterface;
 
 class CoreLogger implements LoggerInterface
 {
@@ -130,7 +130,7 @@ class CoreLogger implements LoggerInterface
     /**
      * @return array
      */
-    public function getLogArray(): array
+    public function getLogArray()
     {
         return $this->logArray;
     }

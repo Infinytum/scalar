@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\IO\Stream;
+namespace Scalar\IO\Stream;
 
 
 class Stream implements StreamInterface

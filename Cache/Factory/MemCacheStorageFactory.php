@@ -1,9 +1,9 @@
 <?php
 
-namespace Scaly\Cache\Factory;
+namespace Scalar\Cache\Factory;
 
-use Scaly\Cache\Storage\MemCacheStorage;
-use Scaly\Core\Config\ScalyConfig;
+use Scalar\Cache\Storage\MemCacheStorage;
+use Scalar\Core\Config\ScalarConfig;
 
 class MemCacheStorageFactory
 {
@@ -13,8 +13,8 @@ class MemCacheStorageFactory
 
     public function __construct()
     {
-        ScalyConfig::getInstance()->setDefaultAndSave(MemCacheStorageFactory::CONFIG_MEMCACHE_HOST, 'localhost');
-        ScalyConfig::getInstance()->setDefaultAndSave(MemCacheStorageFactory::CONFIG_MEMCACHE_PORT, '11211');
+        ScalarConfig::getInstance()->setDefaultAndSave(MemCacheStorageFactory::CONFIG_MEMCACHE_HOST, 'localhost');
+        ScalarConfig::getInstance()->setDefaultAndSave(MemCacheStorageFactory::CONFIG_MEMCACHE_PORT, '11211');
     }
 
     public function createMemCacheStorage
@@ -24,10 +24,10 @@ class MemCacheStorageFactory
     )
     {
         if (!$host) {
-            $host = ScalyConfig::getInstance()->get(MemCacheStorageFactory::CONFIG_MEMCACHE_HOST);
+            $host = ScalarConfig::getInstance()->get(MemCacheStorageFactory::CONFIG_MEMCACHE_HOST);
         }
         if (!$port) {
-            $port = ScalyConfig::getInstance()->get(MemCacheStorageFactory::CONFIG_MEMCACHE_PORT);
+            $port = ScalarConfig::getInstance()->get(MemCacheStorageFactory::CONFIG_MEMCACHE_PORT);
         }
 
         return new MemCacheStorage($host, $port);

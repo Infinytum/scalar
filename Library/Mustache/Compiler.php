@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-use Scaly\Cache\Cache;
-use Scaly\Cache\Factory\FileCacheStorageFactory;
-use Scaly\Cache\Factory\MemCacheStorageFactory;
-use Scaly\Cache\Storage\MemCacheStorage;
+use Scalar\Cache\Cache;
+use Scalar\Cache\Factory\FileCacheStorageFactory;
+use Scalar\Cache\Factory\MemCacheStorageFactory;
+use Scalar\Cache\Storage\MemCacheStorage;
 
 /**
  * Mustache Compiler class.

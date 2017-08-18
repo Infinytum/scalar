@@ -1,11 +1,11 @@
 <?php
 
-namespace Scaly\Http\Message;
+namespace Scalar\Http\Message;
 
 
 use InvalidArgumentException;
-use Scaly\IO\Uri;
-use Scaly\IO\UriInterface;
+use Scalar\IO\Uri;
+use Scalar\IO\UriInterface;
 
 class Request extends Message implements RequestInterface
 {

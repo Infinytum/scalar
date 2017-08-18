@@ -6,10 +6,10 @@
  * Time: 22:36
  */
 
-namespace Scaly\Plugin\Factory;
+namespace Scalar\Plugin\Factory;
 
 
-use Scaly\Plugin\PluginDescription;
+use Scalar\Plugin\PluginDescription;
 
 class PluginDescriptionFactory implements PluginDescriptionFactoryInterface
 {

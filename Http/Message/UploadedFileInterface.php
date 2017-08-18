@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Http\Message;
+namespace Scalar\Http\Message;
 
 /**
  * Interface UploadedFileInterface
@@ -8,7 +8,7 @@ namespace Scaly\Http\Message;
  * Object representing an uploaded file.
  * Instances of this class are immutable
  *
- * @package Scaly\Http\Message
+ * @package Scalar\Http\Message
  */
 interface UploadedFileInterface
 {
@@ -25,7 +25,7 @@ interface UploadedFileInterface
     /**
      * Retrieve a stream representing the uploaded file.
      *
-     * @return \Scaly\IO\Stream\StreamInterface Stream representation of the uploaded file.
+     * @return \Scalar\IO\Stream\StreamInterface Stream representation of the uploaded file.
      * @throws \RuntimeException in cases when no stream is available / can be created.
      */
     public function getStream();

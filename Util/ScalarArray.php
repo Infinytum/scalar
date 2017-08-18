@@ -1,14 +1,14 @@
 <?php
 
-namespace Scaly\Util;
+namespace Scalar\Util;
 
-class ScalyArray implements \ArrayAccess, FilterableInterface
+class ScalarArray implements \ArrayAccess, FilterableInterface
 {
 
     private $array;
 
     /**
-     * ScalyArray constructor.
+     * ScalarArray constructor.
      * @param $array array
      */
     public function __construct($array)

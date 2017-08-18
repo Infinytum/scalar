@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Config;
+namespace Scalar\Config;
 
 
 interface ConfigInterface

@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Database;
+namespace Scalar\Database;
 
 interface DatabaseInterface
 {

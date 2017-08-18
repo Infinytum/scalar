@@ -3,7 +3,7 @@ The "Library" Folder may contain third-party software, if so it will be listed b
 
 ## Mustache
 
-Scaly Template Language
+Scalar Template Language
 
 This software was slightly modified to use our caching system and may be modified even more in the future
 

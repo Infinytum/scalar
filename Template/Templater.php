@@ -6,14 +6,14 @@
  * Time: 2:45 PM
  */
 
-namespace Scaly\Template;
+namespace Scalar\Template;
 
 
-use Scaly\Cache\Cache;
-use Scaly\Cache\Factory\FileCacheStorageFactory;
-use Scaly\Cache\Factory\MemCacheStorageFactory;
-use Scaly\Cache\Storage\MemCacheStorage;
-use Scaly\Core\Config\ScalyConfig;
+use Scalar\Cache\Cache;
+use Scalar\Cache\Factory\FileCacheStorageFactory;
+use Scalar\Cache\Factory\MemCacheStorageFactory;
+use Scalar\Cache\Storage\MemCacheStorage;
+use Scalar\Core\Config\ScalarConfig;
 
 class Templater
 {
@@ -80,7 +80,7 @@ class Templater
         $template
     )
     {
-        $file = ScalyConfig::getInstance()->get("Template.Location") . $template . '.scaly';
+        $file = ScalarConfig::getInstance()->get("Template.Location") . $template . '.scalar';
         if (file_exists($file)) {
             return new Template(file_get_contents($file));
         }

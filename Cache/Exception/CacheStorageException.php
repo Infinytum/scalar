@@ -6,7 +6,7 @@
  * Time: 21:30
  */
 
-namespace Scaly\Cache\Exception;
+namespace Scalar\Cache\Exception;
 
 
 interface CacheStorageException extends CacheException

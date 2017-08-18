@@ -6,11 +6,11 @@
  * Time: 18:41
  */
 
-namespace Scaly\IO\Factory;
+namespace Scalar\IO\Factory;
 
 
-use Scaly\IO\Stream\Stream;
-use Scaly\IO\Stream\StreamInterface;
+use Scalar\IO\Stream\Stream;
+use Scalar\IO\Stream\StreamInterface;
 
 class StreamFactory implements StreamFactoryInterface
 {

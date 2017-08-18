@@ -1,15 +1,15 @@
 <?php
 
-namespace Scaly\Http\Message;
+namespace Scalar\Http\Message;
 
-use Scaly\IO\UriInterface;
+use Scalar\IO\UriInterface;
 
 /**
  * Interface RequestInterface
  *
  * Abstract HTTP request implementation
  *
- * @package Scaly\Http\Message
+ * @package Scalar\Http\Message
  */
 interface RequestInterface extends MessageInterface
 {

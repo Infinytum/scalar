@@ -6,13 +6,13 @@
  * Time: 13:07
  */
 
-namespace Scaly\Database;
+namespace Scalar\Database;
 
 
-use Scaly\Config\IniConfig;
-use Scaly\Database\Table\FieldDefinition;
-use Scaly\Database\Table\TableDefinition;
-use Scaly\Util\ScalyArray;
+use Scalar\Config\IniConfig;
+use Scalar\Database\Table\FieldDefinition;
+use Scalar\Database\Table\TableDefinition;
+use Scalar\Util\ScalarArray;
 
 class QueryFlavor extends IniConfig
 {
@@ -38,16 +38,13 @@ class QueryFlavor extends IniConfig
     const CONFIG_UPDATE_BASE = 'Update.Base';
     const CONFIG_UPDATE_VALUES = 'Update.Values';
     const CONFIG_UPDATE_WHERE = 'Update.Where';
-
     private $injectableRegex = '/{(?<Path>[^}]*)}/x';
-
-    private $placeholderCounter = 0;
 
     public function __construct($flavor)
     {
         parent::__construct
         (
-            SCALY_CORE . '/Database/Query/' . $flavor . '.ini',
+            SCALAR_CORE . '/Database/Query/' . $flavor . '.ini',
             [],
             true,
             INI_SCANNER_RAW
@@ -150,8 +147,8 @@ class QueryFlavor extends IniConfig
             0
         );
 
-        if (!$placeholders instanceof ScalyArray) {
-            $placeholders = new ScalyArray($placeholders);
+        if (!$placeholders instanceof ScalarArray) {
+            $placeholders = new ScalarArray($placeholders);
         }
 
         foreach ($injectables as $injectable) {
@@ -169,7 +166,7 @@ class QueryFlavor extends IniConfig
         $placeholders
     )
     {
-        $placeholders = new ScalyArray($placeholders);
+        $placeholders = new ScalarArray($placeholders);
         $baseQuery = $this->get(self::CONFIG_INSERT_BASE);
 
         if ($placeholders->contains('Fields')) {
@@ -196,7 +193,7 @@ class QueryFlavor extends IniConfig
         $placeholders
     )
     {
-        $placeholders = new ScalyArray($placeholders);
+        $placeholders = new ScalarArray($placeholders);
         $baseQuery = $this->get(self::CONFIG_UPDATE_BASE);
 
         if ($placeholders->contains("Filter")) {
@@ -209,7 +206,7 @@ class QueryFlavor extends IniConfig
                 $conditionTemplate = $this->get(self::CONFIG_UPDATE_VALUES);
                 $placeholderKey = str_replace('.', '_', $field);
 
-                $parameters = new ScalyArray(['Column' => $field, 'Value' => ':updated_' . $placeholderKey]);
+                $parameters = new ScalarArray(['Column' => $field, 'Value' => ':updated_' . $placeholderKey]);
                 array_push($preparedFields, $this->replacePlaceholders($conditionTemplate, $parameters));
             }
 
@@ -218,7 +215,7 @@ class QueryFlavor extends IniConfig
 
         if ($placeholders->contains("Where")) {
 
-            $whereArguments = new ScalyArray($placeholders->getPath('Where'));
+            $whereArguments = new ScalarArray($placeholders->getPath('Where'));
 
             $conditions = [];
 
@@ -257,30 +254,16 @@ class QueryFlavor extends IniConfig
     {
         $possibilities = [];
         $pdoPlaceholders = [];
-
-        foreach (array_reverse($array) as $possibility) { // All possibilities which will be connected with OR
+        foreach ($array as $possibility) { // All possibilities which will be connected with OR
             $andConditions = [];
             foreach ($possibility as $key => $val) {
-
-                if (!is_array($val)) {
-                    $val = [$val];
-                }
-
-                $keys = [];
-
-                foreach ($val as $whereOption) {
-                    $placeholderKey = str_replace('.', '_', $key) . $this->placeholderCounter;
-                    $pdoPlaceholders[$placeholderKey] = $whereOption;
-                    $this->placeholderCounter++;
-                    array_push($keys, ':' . $placeholderKey);
-                }
-
-                $parameters = new ScalyArray(['LeftColumn' => $key, 'RightColumn' => join(', ', $keys)]);
+                $placeholderKey = str_replace('.', '_', $key);
+                $parameters = new ScalarArray(['LeftColumn' => $key, 'RightColumn' => ':' . $placeholderKey]);
                 array_push($andConditions, $this->replacePlaceholders($conditionTemplate, $parameters));
+                $pdoPlaceholders[$placeholderKey] = $val;
             }
             array_push($possibilities, '(' . join(' AND ', $andConditions) . ')');
         }
-
         return ['(' . join(' OR ', $possibilities) . ')', $pdoPlaceholders];
     }
 
@@ -289,7 +272,7 @@ class QueryFlavor extends IniConfig
         $placeholders
     )
     {
-        $placeholders = new ScalyArray($placeholders);
+        $placeholders = new ScalarArray($placeholders);
         $baseQuery = $this->get(self::CONFIG_DELETE_BASE);
         $pdoData = [];
 
@@ -299,7 +282,7 @@ class QueryFlavor extends IniConfig
 
         if ($placeholders->contains("Where")) {
 
-            $whereArguments = new ScalyArray($placeholders->getPath('Where'));
+            $whereArguments = new ScalarArray($placeholders->getPath('Where'));
 
             $conditions = [];
 
@@ -345,13 +328,14 @@ class QueryFlavor extends IniConfig
         $placeholders
     )
     {
-        $placeholders = new ScalyArray($placeholders);
+        $placeholders = new ScalarArray($placeholders);
         $baseQuery = $this->get(self::CONFIG_SELECT_BASE);
         $pdoData = [];
 
+
         if ($placeholders->contains("Join")) {
             foreach ($placeholders['Join'] as $join) {
-                $join = new ScalyArray($join);
+                $join = new ScalarArray($join);
                 if (
                     $join->contains('Column') &&
                     $join->contains('JoinColumn') &&
@@ -381,12 +365,17 @@ class QueryFlavor extends IniConfig
             $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_WHERE)]);
         }
 
-        $placeholders->setPath('Distinct', $placeholders->getPath('Distinct', false));
+        if ($placeholders->contains("Group")) {
+            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_GROUP)]);
+        }
 
+        if ($placeholders->contains("Order") && $placeholders->contains("Direction")) {
+            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_ORDER)]);
+        }
 
         if ($placeholders->contains("Where")) {
 
-            $whereArguments = new ScalyArray($placeholders->getPath('Where'));
+            $whereArguments = new ScalarArray($placeholders->getPath('Where'));
 
             $conditions = [];
 
@@ -422,14 +411,6 @@ class QueryFlavor extends IniConfig
             $placeholders->setPath('Filter', join(' AND ', $conditions));
 
             $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_WHERE)]);
-        }
-
-        if ($placeholders->contains("Group")) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_GROUP)]);
-        }
-
-        if ($placeholders->contains("Order") && $placeholders->contains("Direction")) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_ORDER)]);
         }
 
         if ($placeholders->contains("Limit")) {
