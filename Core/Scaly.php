@@ -80,9 +80,10 @@ class Scaly
 
     public function initialize()
     {
+	$hostname = str_replace('.', '+', $_SERVER['HTTP_HOST']);
         ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_APP_PATH, dirname(SCALY_CORE) . '/scaly_app');
-        if (ScalyConfig::getInstance()->asScalyArray()->containsPath('VirtualHost.' . strtolower($_SERVER['SERVER_NAME']))) {
-            define('SCALY_APP', ScalyConfig::getInstance()->asScalyArray()->getPath('VirtualHost.' . strtolower($_SERVER['SERVER_NAME'])));
+        if (ScalyConfig::getInstance()->asScalyArray()->containsPath('VirtualHost.' . strtolower($hostname))) {
+            define('SCALY_APP', ScalyConfig::getInstance()->asScalyArray()->getPath('VirtualHost.' . strtolower($hostname)));
             ScalyConfig::getInstance()->addOverride(self::CONFIG_APP_PATH, SCALY_APP);
         } else {
             define('SCALY_APP', ScalyConfig::getInstance()->get(self::CONFIG_APP_PATH));
