@@ -6,6 +6,7 @@
 .idea
 *.iml
 config.ini
+phpunit.phar
 repository.list
 out
 gen
