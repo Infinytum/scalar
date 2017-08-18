@@ -6,15 +6,15 @@
  * Time: 16:01
  */
 
-namespace Scaly\Database\Table;
+namespace Scalar\Database\Table;
 
-use Scaly\Config\JsonConfig;
-use Scaly\Database\PDODatabase;
-use Scaly\Database\QueryFlavor;
-use Scaly\Util\Annotation\PHPDoc;
-use Scaly\Util\Factory\AnnotationFactory;
-use Scaly\Util\FilterableInterface;
-use Scaly\Util\ScalyArray;
+use Scalar\Config\JsonConfig;
+use Scalar\Database\PDODatabase;
+use Scalar\Database\QueryFlavor;
+use Scalar\Util\Annotation\PHPDoc;
+use Scalar\Util\Factory\AnnotationFactory;
+use Scalar\Util\FilterableInterface;
+use Scalar\Util\ScalarArray;
 
 abstract class MysqlTable implements FilterableInterface
 {
@@ -24,7 +24,7 @@ abstract class MysqlTable implements FilterableInterface
      */
     private static $database;
     /**
-     * @var static
+     * @var \stdClass
      */
     private $mockObject;
     /**
@@ -32,7 +32,7 @@ abstract class MysqlTable implements FilterableInterface
      */
     private $fields;
     /**
-     * @var ScalyArray
+     * @var ScalarArray
      */
     private $query;
     /**
@@ -64,7 +64,7 @@ abstract class MysqlTable implements FilterableInterface
 
     public function resetQuery()
     {
-        $this->query = new ScalyArray
+        $this->query = new ScalarArray
         (
             [
                 'Table' => $this->tableName,
@@ -133,7 +133,7 @@ abstract class MysqlTable implements FilterableInterface
             return $this->fields;
         }
         $reflectionClass = new \ReflectionClass(get_called_class());
-        $properties = new ScalyArray($reflectionClass->getProperties());
+        $properties = new ScalarArray($reflectionClass->getProperties());
 
         $fields = $properties->where
         (
@@ -142,7 +142,7 @@ abstract class MysqlTable implements FilterableInterface
                 $value
             ) {
                 $annotationFactory = new AnnotationFactory();
-                $annotations = new ScalyArray
+                $annotations = new ScalarArray
                 (
                     $annotationFactory->createAnnotationArrayFromString
                     (
@@ -166,6 +166,7 @@ abstract class MysqlTable implements FilterableInterface
     /**
      * Filter data from all objects in array
      * @param $lambda callable filter
+     * @return $this
      */
     public function whereLike($lambda)
     {
@@ -182,6 +183,7 @@ abstract class MysqlTable implements FilterableInterface
     /**
      * Filter data from all objects in array
      * @param $lambda callable filter
+     * @return $this
      */
     public function whereNotLike($lambda)
     {
@@ -223,17 +225,7 @@ abstract class MysqlTable implements FilterableInterface
      */
     public function any()
     {
-        $data = $this->fetch();
-
-        if ($data === null) {
-            return false;
-        }
-
-        if (is_array($data)) {
-            return $this->count($data) > 0;
-        }
-
-        return true;
+        // TODO
     }
 
     /**
@@ -276,10 +268,16 @@ abstract class MysqlTable implements FilterableInterface
 
                 $this->where
                 (
-                    function ($mock) use ($fieldDefinition, $tableDefinition) {
-                        return $tableDefinition->getField($fieldDefinition->getLocalHelperColumn())->getHelperColumnName();
-                    },
-                    $row[$fieldDefinition->getLocalHelperColumn()]
+                    function ($mock) use ($fieldDefinition, $tableDefinition, $row) {
+                        return [
+                            $tableDefinition
+                                ->getField
+                                (
+                                    $fieldDefinition
+                                        ->getLocalHelperColumn()
+                                )
+                                ->getHelperColumnName() => $row[$fieldDefinition->getLocalHelperColumn()]];
+                    }
                 );;
                 $query = $this->getSelectQuery();
                 $result = self::getPDO()->execute($query[0], $query[1]);
@@ -336,7 +334,7 @@ abstract class MysqlTable implements FilterableInterface
             $definitionLoader->save();
         }
 
-        return new TableDefinition($definitionLoader->asScalyArray());
+        return new TableDefinition($definitionLoader->asScalarArray());
     }
 
     private static function getParameters
@@ -380,6 +378,7 @@ abstract class MysqlTable implements FilterableInterface
             $field = join(', ', $field);
         }
         $this->query->setPath('Selector', $field);
+        return $this;
     }
 
     /**
@@ -412,6 +411,7 @@ abstract class MysqlTable implements FilterableInterface
         }
 
         $query = $this->getSelectQuery();
+        // TODO
     }
 
     /**
@@ -441,17 +441,7 @@ abstract class MysqlTable implements FilterableInterface
      */
     public function contains($entry)
     {
-        $data = $this->fetch();
-
-        if ($data === null) {
-            return false;
-        }
-
-        if (is_array($data)) {
-
-        }
-
-
+        // TODO
     }
 
     /**
@@ -526,8 +516,8 @@ abstract class MysqlTable implements FilterableInterface
         foreach ($primaryKeys as $fieldDefinition) {
             $fieldName = $fieldDefinition->getFieldName();
             $this->where(function ($mock) use ($fieldName) {
-                return $mock->$fieldName;
-            }, $this->getFieldValue($fieldName));
+                return [$mock->$fieldName = $this->getFieldValue($fieldName)];
+            });
         }
         $query = $this->getDeleteQuery();
 
@@ -578,9 +568,9 @@ abstract class MysqlTable implements FilterableInterface
                 $fieldValue = $this->updateOverrides[$fieldName];
             }
             $selectorData[$fieldName] = $fieldValue;
-            $this->where(function ($mock) use ($fieldName) {
-                return $mock->$fieldName;
-            }, $fieldValue);
+            $this->where(function ($mock) use ($fieldName, $fieldValue) {
+                return [$mock->$fieldName => $fieldValue];
+            });
         }
 
 
@@ -637,14 +627,17 @@ abstract class MysqlTable implements FilterableInterface
             $this->where
             (
                 function ($mock) use ($tableDefinition, $fieldDefinition) {
-                    return $tableDefinition->getField($fieldDefinition->getLocalHelperColumn())->getHelperColumnName();
-                }, $this->getFieldValue($fieldDefinition->getLocalHelperColumn())
-            );
+                    return [
+                        $tableDefinition
+                            ->getField
+                            (
+                                $fieldDefinition
+                                    ->getLocalHelperColumn()
+                            )
+                            ->getHelperColumnName() => $this->getFieldValue($fieldDefinition->getLocalHelperColumn())];
+                });
 
             $query = $this->getDeleteQuery();
-
-            echo $query[0] . '<br>';
-            var_dump($query[1]) . '<br>';
 
             self::getPDO()->execute($query[0], $query[1]);
             $this->resetQuery();
