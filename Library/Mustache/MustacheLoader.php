@@ -1,12 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nila
- * Date: 7/11/17
- * Time: 4:44 PM
- */
 
-namespace Scalar\Library\Mustache;
 require_once "Cache.php";
 require_once "Cache/AbstractCache.php";
 require_once "Cache/NoopCache.php";
@@ -40,9 +33,3 @@ require_once "LambdaHelper.php";
 require_once "Parser.php";
 require_once "Template.php";
 require_once "Tokenizer.php";
-
-class MustacheLoader
-{
-
-
-}

@@ -4,6 +4,7 @@ namespace Scalar\Core\Config;
 
 
 use Scalar\Config\IniConfig;
+use Scalar\Core\Scalar;
 use Scalar\Util\ScalarArray;
 
 class ScalarConfig extends IniConfig
@@ -26,14 +27,15 @@ class ScalarConfig extends IniConfig
     /**
      * Get singleton
      *
+     * @deprecated
      * @return ScalarConfig
      */
     public static function getInstance()
     {
-        if (!self::$instance) {
-            new ScalarConfig();
-        }
-        return self::$instance;
+        return Scalar::getService
+        (
+            Scalar::SERVICE_SCALAR_CONFIG
+        );
     }
 
     public function get

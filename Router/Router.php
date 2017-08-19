@@ -11,6 +11,7 @@ namespace Scalar\Router;
 use Scalar\App\App;
 use Scalar\Config\JsonConfig;
 use Scalar\Core\ClassLoader\AutoLoader;
+use Scalar\Core\Scalar;
 use Scalar\Http\Message\Response;
 use Scalar\Http\Message\ResponseInterface;
 use Scalar\Http\Message\ServerRequestInterface;
@@ -55,7 +56,13 @@ class Router implements RouterInterface
         $tempRouteMap = []
     )
     {
-
+        /**
+         * @var AutoLoader $autoLoader
+         */
+        $autoLoader = Scalar::getService
+        (
+            Scalar::SERVICE_AUTO_LOADER
+        );
 
         if (!file_exists($routeMapLocation)) {
             $this->routeMap = new JsonConfig($routeMapLocation);
@@ -67,11 +74,9 @@ class Router implements RouterInterface
         $this->controllerLocation = $controllerLocation;
         $this->middlewareDispatcher = new HttpMiddlewareDispatcher([]);
 
-        AutoLoader::getInstance()->addClassPath("\\", $controllerLocation);
+        $autoLoader->addClassPath("\\", $controllerLocation);
 
         $this->tempRouteMap = $tempRouteMap;
-
-
         $this->routeMap->load();
     }
 
@@ -142,15 +147,17 @@ class Router implements RouterInterface
     /**
      * @param \ReflectionClass $controllerReflect
      * @param $controller
+     * @param $controllerName
+     * @return array
      */
     private function generateMethodMap($controllerReflect, $controller, $controllerName)
     {
         $routes = [];
-        foreach ($controllerReflect->getMethods() as $phpmethod) {
+        foreach ($controllerReflect->getMethods() as $phpMethod) {
             $method = new \stdClass();
             $method->Controller = $controllerName;
-            $method->Function = $phpmethod->getName();
-            $methodData = $phpmethod->getDocComment();
+            $method->Function = $phpMethod->getName();
+            $methodData = $phpMethod->getDocComment();
             preg_match_all($this->phpDocRegex, $methodData, $matches, PREG_SET_ORDER, 0);
             foreach ($matches as $match) {
                 $property = $match["property"];
@@ -161,7 +168,7 @@ class Router implements RouterInterface
             }
 
             if (!isset($method->Path))
-                $method->Path = $controller->Path . '/' . lcfirst($phpmethod->getName());
+                $method->Path = $controller->Path . '/' . lcfirst($phpMethod->getName());
 
             if (is_array($method->Path)) {
                 foreach ($method->Path as $item) {

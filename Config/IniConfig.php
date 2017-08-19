@@ -111,11 +111,12 @@ class IniConfig implements ConfigInterface
     )
     {
         if ($this->has($key)) {
-            return;
+            return $this;
         }
         $this->setDefault($key, $value);
         $this->save();
         $this->load();
+        return $this;
     }
 
     /**
@@ -141,7 +142,7 @@ class IniConfig implements ConfigInterface
      *
      * @param $key
      * @param $value
-     * @return void
+     * @return static
      */
     public function setDefault
     (
@@ -150,9 +151,10 @@ class IniConfig implements ConfigInterface
     )
     {
         if ($this->has($key)) {
-            return;
+            return $this;
         }
         $this->set($key, $value);
+        return $this;
     }
 
     /**
@@ -160,7 +162,7 @@ class IniConfig implements ConfigInterface
      *
      * @param string $key
      * @param mixed $value
-     * @return void
+     * @return static
      */
     public function set
     (
@@ -173,12 +175,13 @@ class IniConfig implements ConfigInterface
         } else {
             $this->configArray[$key] = $value;
         }
+        return $this;
     }
 
     /**
      * Save configuration
      *
-     * @return void
+     * @return static
      */
     public function save()
     {
@@ -209,12 +212,13 @@ class IniConfig implements ConfigInterface
                 }
             }
         }
+        return $this;
     }
 
     /**
      * Load configuration
      *
-     * @return void
+     * @return static
      */
     public function load()
     {
@@ -228,6 +232,7 @@ class IniConfig implements ConfigInterface
                 $this->iniScannerMode
             )
         );
+        return $this;
     }
 
     /**

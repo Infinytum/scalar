@@ -452,4 +452,40 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
         }
         return true;
     }
+
+    public function get
+    (
+        $key,
+        $default = null
+    )
+    {
+        $returnValue = $default;
+
+        if ($this->contains($key)) {
+            $returnValue = $this->array[$key];
+        }
+
+        return $returnValue;
+    }
+
+    public function set
+    (
+        $key,
+        $value
+    )
+    {
+        $this->array[$key] = $value;
+    }
+
+    public function delete
+    (
+        $key
+    )
+    {
+        if ($this->isAssoc($this->array)) {
+            array_splice($array, $key, 1);
+        } else {
+            unset($this->array[$key]);
+        }
+    }
 }

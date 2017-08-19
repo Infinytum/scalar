@@ -9,7 +9,6 @@
 namespace Scalar\Template\Controller;
 
 
-use Scalar\Core\Config\ScalarConfig;
 use Scalar\Core\Scalar;
 use Scalar\Http\Message\ResponseInterface;
 
@@ -29,12 +28,16 @@ class AssetProxy
         $assetPath
     )
     {
-        $fullPath = ScalarConfig::getInstance()->get(Scalar::CONFIG_ASSETS_DIR) . '/' . $assetPath;
+        $scalarConfig = Scalar::getService
+        (
+            Scalar::SERVICE_SCALAR_CONFIG
+        );
+        $fullPath = $scalarConfig->get(Scalar::CONFIG_ASSETS_DIR) . '/' . $assetPath;
         if (!file_exists($fullPath)) {
             return $response->withStatus(404);
         }
 
-        if (strpos(realpath($fullPath), ScalarConfig::getInstance()->get(Scalar::CONFIG_ASSETS_DIR)) == -1) {
+        if (strpos(realpath($fullPath), $scalarConfig->get(Scalar::CONFIG_ASSETS_DIR)) == -1) {
             return $response->withStatus(404);
         }
 

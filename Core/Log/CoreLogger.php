@@ -9,6 +9,8 @@
 namespace Scalar\Core\Log;
 
 
+use Scalar\Core\Scalar;
+use Scalar\IO\Factory\StreamFactory;
 use Scalar\IO\Stream\StreamInterface;
 use Scalar\Log\LoggerInterface;
 
@@ -20,6 +22,11 @@ class CoreLogger implements LoggerInterface
     const Info = 2;
     const Warning = 3;
     const Error = 4;
+
+    const CONFIG_CORE_LOG_ENABLED = 'Core.Logging';
+    const CONFIG_CORE_LOG_FILE = 'Core.LogPath';
+    const CONFIG_CORE_LOG_LEVEL = 'Core.LogLevel';
+    const CONFIG_CORE_LOG_APPEND = 'Core.LogAppend';
 
     /**
      * @var StreamInterface
@@ -36,14 +43,37 @@ class CoreLogger implements LoggerInterface
      */
     private $logLevel;
 
-    public function __construct
-    (
-        $logStream,
-        $logLevel
-    )
+    public function __construct()
     {
+        $scalarConfig = Scalar::getService
+        (
+            Scalar::SERVICE_SCALAR_CONFIG
+        );
+        $scalarConfig->setDefaultAndSave(self::CONFIG_CORE_LOG_ENABLED, true);
+        $scalarConfig->setDefaultAndSave(self::CONFIG_CORE_LOG_APPEND, false);
+        $scalarConfig->setDefaultAndSave(self::CONFIG_CORE_LOG_FILE, '{{App.Home}}/scalar.log');
+        $scalarConfig->setDefaultAndSave(self::CONFIG_CORE_LOG_LEVEL, CoreLogger::Warning);
+
+        $streamFactory = new StreamFactory();
+        $logStream = null;
+
+        if ($scalarConfig->get(self::CONFIG_CORE_LOG_ENABLED) === true) {
+            $mode = $scalarConfig->get(self::CONFIG_CORE_LOG_APPEND) ? 'a+' : 'w+';
+            $logStream = $streamFactory->createStreamFromFile
+            (
+                $scalarConfig->get(self::CONFIG_CORE_LOG_FILE),
+                $mode
+            );
+
+            if (!$logStream) {
+                $logStream = $streamFactory->createStream();
+            }
+
+        } else {
+            $logStream = $streamFactory->createStream();
+        }
         $this->logStream = $logStream;
-        $this->logLevel = $logLevel;
+        $this->logLevel = $scalarConfig->get(self::CONFIG_CORE_LOG_LEVEL);
         $this->logArray = [];
     }
 

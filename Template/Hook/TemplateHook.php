@@ -1,18 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nila
- * Date: 7/11/17
- * Time: 11:26 AM
- */
 
 namespace Scalar\Template\Hook;
 
+use Scalar\Core\Scalar;
 use Scalar\Http\Message\ResponseInterface;
 use Scalar\Http\Message\ServerRequestInterface;
 use Scalar\Http\Middleware\HttpMiddlewareInterface;
-use Scalar\Template\Templater;
-use Scalar\Template\ViewBag;
 
 class TemplateHook implements HttpMiddlewareInterface
 {
@@ -32,23 +25,23 @@ class TemplateHook implements HttpMiddlewareInterface
     )
     {
 
-
         /**
          * @var $response ResponseInterface
          */
         $response = $next($request, $response);
-        $template = null;
         if ($response->hasCustomArgument("Template")) {
             $templateName = $response->getCustomArgument("Template");
-            $template = Templater::getInstance()->buildFullTemplate($templateName);
-        }
-        if ($template) {
-            $renderEngine = new \Mustache_Engine;
-            $renderedTemplate = $renderEngine->render($template->getRawTemplate(), ViewBag::getArray());
-            $response->getBody()->write($renderedTemplate);
-        }
+            $templateEngine = Scalar::getService
+            (
+                Scalar::SERVICE_TEMPLATER
+            );
 
+            $template = $templateEngine->buildFullTemplate($templateName);
 
+            $response
+                ->getBody()
+                ->write($templateEngine->renderTemplate($template));
+        }
         return $response;
     }
 }
