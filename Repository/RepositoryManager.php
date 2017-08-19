@@ -10,7 +10,7 @@ namespace Scalar\Repository;
 
 
 use Scalar\Config\IniConfig;
-use Scalar\Core\Config\ScalarConfig;
+use Scalar\Core\Scalar;
 use Scalar\IO\Factory\UriFactory;
 use Scalar\IO\UriInterface;
 
@@ -26,20 +26,27 @@ class RepositoryManager implements RepositoryManagerInterface
      */
     private $iniConfig;
 
+    private $scalarConfig;
+
+
     public function __construct()
     {
-        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_REPO_LIST, '{{App.Home}}/repository.list');
-        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_REPO_DEFAULT, 'ScalarOfficial');
-        ScalarConfig::getInstance()->setDefaultAndSave(self::CONFIG_REPO_UPDATE, 'ScalarOfficial');
+        $this->scalarConfig = Scalar::getService
+        (
+            Scalar::SERVICE_SCALAR_CONFIG
+        );
+        $this->scalarConfig->setDefaultAndSave(self::CONFIG_REPO_LIST, '{{App.Home}}/repository.list');
+        $this->scalarConfig->setDefaultAndSave(self::CONFIG_REPO_DEFAULT, 'ScalarOfficial');
+        $this->scalarConfig->setDefaultAndSave(self::CONFIG_REPO_UPDATE, 'ScalarOfficial');
 
-        if (!file_exists(ScalarConfig::getInstance()->get(self::CONFIG_REPO_LIST))) {
-            $iniConfig = new IniConfig(ScalarConfig::getInstance()->get(self::CONFIG_REPO_LIST));
+        if (!file_exists($this->scalarConfig->get(self::CONFIG_REPO_LIST))) {
+            $iniConfig = new IniConfig($this->scalarConfig->get(self::CONFIG_REPO_LIST));
             $iniConfig->set('ScalarOfficial.Uri', 'https://repo.scaly.ch/v1');
             $iniConfig->set('ScalarOfficial.ApiKey', false);
             $iniConfig->save();
         }
 
-        $this->iniConfig = new IniConfig(ScalarConfig::getInstance()->get(self::CONFIG_REPO_LIST));
+        $this->iniConfig = new IniConfig($this->scalarConfig->get(self::CONFIG_REPO_LIST));
         $this->iniConfig->load();
     }
 
@@ -106,7 +113,7 @@ class RepositoryManager implements RepositoryManagerInterface
      */
     public function getDefaultRepository()
     {
-        $defaultRepository = ScalarConfig::getInstance()->get(self::CONFIG_REPO_DEFAULT);
+        $defaultRepository = $this->scalarConfig->get(self::CONFIG_REPO_DEFAULT);
         if ($this->hasRepository($defaultRepository)) {
             return $this->getRepository($defaultRepository);
         }
@@ -163,7 +170,7 @@ class RepositoryManager implements RepositoryManagerInterface
      */
     public function getUpdateRepository()
     {
-        $defaultRepository = ScalarConfig::getInstance()->get(self::CONFIG_REPO_UPDATE);
+        $defaultRepository = $this->scalarConfig->get(self::CONFIG_REPO_UPDATE);
         if ($this->hasRepository($defaultRepository)) {
             return $this->getRepository($defaultRepository);
         }

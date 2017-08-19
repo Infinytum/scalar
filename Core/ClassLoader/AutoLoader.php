@@ -5,28 +5,7 @@ namespace Scalar\Core\ClassLoader;
 class AutoLoader
 {
 
-
-    /**
-     * @var AutoLoader
-     */
-    protected static $instance;
     protected $prefixes = array();
-
-    function __construct()
-    {
-        self::$instance = $this;
-    }
-
-    /**
-     * @return AutoLoader
-     */
-    public static function getInstance()
-    {
-        if (!self::$instance)
-            new AutoLoader();
-        return self::$instance;
-    }
-
     /**
      * Register loader
      */

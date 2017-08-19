@@ -28,10 +28,18 @@ error_reporting(E_ALL);
 $scalar = Scalar::getInstance();
 $scalar->initialize();
 
+/**
+ * @var \Scalar\Core\Router\CoreRouter $router
+ */
+$router = Scalar::getService
+(
+    Scalar::SERVICE_ROUTER
+);
+
 $serverRequestFactory = new \Scalar\Http\Factory\ServerRequestFactory();
 $serverRequest = $serverRequestFactory->createServerRequestFromArray($_SERVER);
 
-$response = Scalar::getRouter()->dispatch($serverRequest);
+$response = $router->dispatch($serverRequest);
 
 if (!$response) {
     $responseFactory = new \Scalar\Http\Factory\ResponseFactory();
