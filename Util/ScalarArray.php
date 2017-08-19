@@ -11,7 +11,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * ScalarArray constructor.
      * @param $array array
      */
-    public function __construct($array)
+    public function __construct
+    (
+        $array = []
+    )
     {
         $this->array = $array;
     }
