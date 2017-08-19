@@ -24,7 +24,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param callable $lambda
      * @return $this
      */
-    public function select($lambda)
+    public function select
+    (
+        $lambda
+    )
     {
         $data = array();
         foreach ($this->array as $key => $value) {
@@ -39,7 +42,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param callable $lambda
      * @return $this
      */
-    public function where($lambda)
+    public function where
+    (
+        $lambda
+    )
     {
         $data = array();
         foreach ($this->array as $key => $value) {
@@ -56,7 +62,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param callable $comparable
      * @return $this
      */
-    public function orderBy($comparable)
+    public function orderBy
+    (
+        $comparable
+    )
     {
         if ($this->isAssoc($this->array)) {
             uasort($this->array, $comparable);
@@ -71,7 +80,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param array $arr
      * @return bool
      */
-    private function isAssoc(array $arr)
+    private function isAssoc
+    (
+        $arr
+    )
     {
         if (array() === $arr) {
             return false;
@@ -98,7 +110,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param callable $callback
      * @return $this
      */
-    public function each($callback)
+    public function each
+    (
+        $callback
+    )
     {
         foreach ($this->array as $key => $value) {
             $callback($key, $value);
@@ -122,7 +137,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param mixed $entryOrArray
      * @return $this
      */
-    public function except($entryOrArray)
+    public function except
+    (
+        $entryOrArray
+    )
     {
         if (is_array($entryOrArray)) {
             foreach ($entryOrArray as $key => $val) {
@@ -146,7 +164,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param $entry mixed
      * @return bool
      */
-    public function contains($entry)
+    public function contains
+    (
+        $entry
+    )
     {
         if ($this->isAssoc($this->array)) {
             return array_key_exists($entry, $this->array);
@@ -169,7 +190,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param $filter callable
      * @return bool
      */
-    public function all($filter)
+    public function all
+    (
+        $filter
+    )
     {
         foreach ($this->array as $key => $value) {
             if (!$filter($key, $value)) {
@@ -193,7 +217,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param $keyValueAssignment callable key value assigner
      * @return array;
      */
-    public function asDictionary($keyValueAssignment)
+    public function asDictionary
+    (
+        $keyValueAssignment
+    )
     {
         $dictionary = array();
         foreach ($this->array as $key => $value) {
@@ -207,7 +234,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param $default mixed
      * @return mixed
      */
-    public function firstOrDefault($default = null)
+    public function firstOrDefault
+    (
+        $default = null
+    )
     {
         if (count($this->array) > 0) {
             return $this->array[0];
@@ -221,7 +251,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @param $default mixed
      * @return mixed
      */
-    public function lastOrDefault($default = null)
+    public function lastOrDefault
+    (
+        $default = null
+    )
     {
         if (count($this->array) > 0) {
             return $this->array[count($this->array) - 1];
@@ -249,7 +282,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @return void
      * @since 5.0.0
      */
-    public function offsetUnset($offset)
+    public function offsetUnset
+    (
+        $offset
+    )
     {
         if ($this->offsetExists($offset)) {
             unset($this->array[$offset]);
@@ -268,17 +304,27 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * The return value will be casted to boolean if non-boolean was returned.
      * @since 5.0.0
      */
-    public function offsetExists($offset)
+    public function offsetExists
+    (
+        $offset
+    )
     {
         return $this->contains($offset);
     }
 
-    function __get($name)
+    function __get
+    (
+        $name
+    )
     {
         return $this->offsetGet($name);
     }
 
-    function __set($name, $value)
+    function __set
+    (
+        $name,
+        $value
+    )
     {
         $this->offsetSet($name, $value);
     }
@@ -292,7 +338,10 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @return mixed Can return all value types.
      * @since 5.0.0
      */
-    public function offsetGet($offset)
+    public function offsetGet
+    (
+        $offset
+    )
     {
         if ($this->offsetExists($offset)) {
             return $this->array[$offset];
@@ -312,7 +361,11 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
      * @return void
      * @since 5.0.0
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet
+    (
+        $offset,
+        $value
+    )
     {
         $this->array[$offset] = $value;
     }
