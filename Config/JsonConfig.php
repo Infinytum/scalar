@@ -2,7 +2,6 @@
 
 namespace Scalar\Config;
 
-use Scalar\Core\Scalar;
 use Scalar\IO\Factory\StreamFactory;
 use Scalar\IO\Stream\Stream;
 use Scalar\IO\Stream\StreamInterface;
@@ -39,10 +38,6 @@ class JsonConfig implements ConfigInterface
                 @mkdir(dirname($fileLocation), 0777, true);
                 @touch($fileLocation);
                 @chmod($fileLocation, 0777);
-                Scalar::getLogger()->i
-                (
-                    'File not found. Creating new file...'
-                );
             }
             $this->fileStream = $streamFactory->createStreamFromFile($fileLocation, "r+");
         } elseif (is_resource($fileLocation)) {
@@ -58,10 +53,6 @@ class JsonConfig implements ConfigInterface
 
         if ($this->fileStream == null) {
             $this->fileStream = $streamFactory->createStream();
-            Scalar::getLogger()->i
-            (
-                'Could not create file. Using in-memory json config! This may slow down performance.'
-            );
         }
 
         if (is_array($configArray) && !$configArray instanceof ScalarArray) {
