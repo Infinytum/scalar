@@ -195,9 +195,15 @@ class IniConfig implements ConfigInterface
                             $this->fileStream->write($key . "[] = \"$entry\"" . PHP_EOL);
                         }
                     } else {
+
+                        if (is_string($value) || is_object($value)) {
+                            $value = "\"$value\"";
+                        }
+
                         if (is_bool($value))
-                            $value = $value ? "true" : "false";
-                        $this->fileStream->write("$key = \"$value\"" . PHP_EOL);
+                            $value = $value ? "on" : "off";
+
+                        $this->fileStream->write("$key = $value" . PHP_EOL);
                     }
                 }
             }
@@ -208,7 +214,15 @@ class IniConfig implements ConfigInterface
                         $this->fileStream->write($key . "[] = \"$entry\"" . PHP_EOL);
                     }
                 } else {
-                    $this->fileStream->write("$key = \"$value\"" . PHP_EOL);
+
+                    if (is_string($value) || is_object($value)) {
+                        $value = "\"$value\"";
+                    }
+
+                    if (is_bool($value))
+                        $value = $value ? "on" : "off";
+
+                    $this->fileStream->write("$key = $value" . PHP_EOL);
                 }
             }
         }
@@ -232,6 +246,7 @@ class IniConfig implements ConfigInterface
                 $this->iniScannerMode
             )
         );
+
         return $this;
     }
 
