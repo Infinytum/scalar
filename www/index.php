@@ -23,9 +23,13 @@ include SCALAR_CORE . '/Core/Scalar.php';
 
 use Scalar\Core\Scalar;
 
-error_reporting(E_ALL);
 
 $scalar = Scalar::getInstance();
+
+if (!$scalar::isDeveloperMode()) {
+    error_reporting(0);
+}
+
 $scalar->initialize();
 
 /**
