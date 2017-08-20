@@ -25,12 +25,12 @@ use Scalar\Core\Scalar;
 
 
 $scalar = Scalar::getInstance();
+$scalar->initialize();
 
-if (!$scalar::isDeveloperMode()) {
+if (!Scalar::isDeveloperMode()) {
     error_reporting(0);
 }
 
-$scalar->initialize();
 
 /**
  * @var \Scalar\Core\Router\CoreRouter $router
