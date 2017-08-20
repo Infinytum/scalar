@@ -17,6 +17,8 @@ interface RestController
     /**
      * REST API GET method
      *
+     * @Path ${Controller}
+     *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param mixed $id Unique object identifier
@@ -32,6 +34,8 @@ interface RestController
     /**
      * REST API POST method
      *
+     * @Path ${Controller}
+     *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface Returns created object with it's new unique id
@@ -44,6 +48,8 @@ interface RestController
 
     /**
      * REST API PUT
+     *
+     * @Path ${Controller}
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
@@ -60,6 +66,8 @@ interface RestController
     /**
      * REST API PATCH
      *
+     * @Path ${Controller}
+     *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param mixed $id Unique object identifier
@@ -74,6 +82,8 @@ interface RestController
 
     /**
      * REST API DELETE
+     *
+     * @Path ${Controller}
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
