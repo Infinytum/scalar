@@ -57,7 +57,7 @@ class ServerRequestFactory implements ServerRequestFactoryInterface
         $body->rewind();
 
         $protocol = isset($server['SERVER_PROTOCOL']) ? str_replace('HTTP/', '', $server['SERVER_PROTOCOL']) : '1.0';
-        $serverRequest = new ServerRequest($method, $uri, $headers, $body, $protocol, $server);
+        $serverRequest = new ServerRequest($method, $uri, $headers, $protocol, $body, $server);
         return $serverRequest
             ->withCookieParams($_COOKIE)
             ->withParsedBody($_POST)
