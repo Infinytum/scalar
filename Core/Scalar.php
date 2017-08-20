@@ -382,7 +382,7 @@ class Scalar
         (
             self::SERVICE_SCALAR_CONFIG
         );
-        return $scalarConfig->asScalarArray()->getPath(self::CONFIG_CORE_DEV_MODE);
+        return $scalarConfig->asScalarArray()->getPath(self::CONFIG_CORE_DEV_MODE) === true;
     }
 
     public static function getService
