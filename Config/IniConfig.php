@@ -259,4 +259,23 @@ class IniConfig implements ConfigInterface
     {
         return clone $this->configArray;
     }
+
+    public function setConfigArray
+    (
+        $configArray
+    )
+    {
+        if (!is_array($configArray) && !$configArray instanceof ScalarArray) {
+            throw new \InvalidArgumentException
+            (
+                'Invalid object passed to setConfigArray'
+            );
+        }
+
+        if (is_array($configArray) && !$configArray instanceof ScalarArray) {
+            $configArray = new ScalarArray($configArray);
+        }
+
+        $this->configArray = $configArray;
+    }
 }
