@@ -1,18 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: teryx
- * Date: 7/11/17
- * Time: 11:26 AM
- */
 
-namespace Scaly\Template\Hook;
+namespace Scalar\Template\Hook;
 
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\Http\Middleware\HttpMiddlewareInterface;
-use Scaly\Template\Templater;
-use Scaly\Template\ViewBag;
+use Scalar\Core\Scalar;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\Http\Middleware\HttpMiddlewareInterface;
 
 class TemplateHook implements HttpMiddlewareInterface
 {
@@ -32,23 +25,23 @@ class TemplateHook implements HttpMiddlewareInterface
     )
     {
 
-
         /**
          * @var $response ResponseInterface
          */
         $response = $next($request, $response);
-        $template = null;
         if ($response->hasCustomArgument("Template")) {
             $templateName = $response->getCustomArgument("Template");
-            $template = Templater::getInstance()->buildFullTemplate($templateName);
-        }
-        if ($template) {
-            $renderEngine = new \Mustache_Engine;
-            $renderedTemplate = $renderEngine->render($template->getRawTemplate(), ViewBag::getArray());
-            $response->getBody()->write($renderedTemplate);
-        }
+            $templateEngine = Scalar::getService
+            (
+                Scalar::SERVICE_TEMPLATER
+            );
 
+            $template = $templateEngine->buildFullTemplate($templateName);
 
+            $response
+                ->getBody()
+                ->write($templateEngine->renderTemplate($template));
+        }
         return $response;
     }
 }

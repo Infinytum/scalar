@@ -1,10 +1,10 @@
 <?php
 
-namespace Scaly\Http\Middleware;
+namespace Scalar\Http\Middleware;
 
 
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
 
 class HttpMiddlewareDispatcher implements HttpMiddlewareDispatcherInterface
 {

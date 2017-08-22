@@ -6,13 +6,13 @@
  * Time: 19:00
  */
 
-namespace Scaly\Http\Factory;
+namespace Scalar\Http\Factory;
 
 
-use Scaly\Http\Message\Request;
-use Scaly\Http\Message\RequestInterface;
-use Scaly\IO\Factory\UriFactory;
-use Scaly\IO\UriInterface;
+use Scalar\Http\Message\Request;
+use Scalar\Http\Message\RequestInterface;
+use Scalar\IO\Factory\UriFactory;
+use Scalar\IO\UriInterface;
 
 class RequestFactory implements RequestFactoryInterface
 {

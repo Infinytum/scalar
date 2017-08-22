@@ -6,12 +6,12 @@
  * Time: 21:02
  */
 
-namespace Scaly\Cache;
+namespace Scalar\Cache;
 
 
-use Scaly\Cache\Exception\CacheStorageException;
-use Scaly\Cache\Exception\InvalidKeyException;
-use Scaly\Cache\Storage\CacheStorageInterface;
+use Scalar\Cache\Exception\CacheStorageException;
+use Scalar\Cache\Exception\InvalidKeyException;
+use Scalar\Cache\Storage\CacheStorageInterface;
 
 class Cache implements CacheInterface
 {
@@ -33,7 +33,7 @@ class Cache implements CacheInterface
      * @param string $key Unique identifier of your data
      * @param null $default What to return if requested data is not in cache
      * @return mixed Return cached data or default
-     * @throws \Scaly\Cache\Exception\InvalidArgumentException
+     * @throws \Scalar\Cache\Exception\InvalidArgumentException
      */
     public function get($key, $default = null)
     {
@@ -63,7 +63,7 @@ class Cache implements CacheInterface
      * Check if data is present on cache layer
      * @param string $key Unique identifier of your data
      * @return bool Returns if your data is present or not
-     * @throws \Scaly\Cache\Exception\InvalidArgumentException
+     * @throws \Scalar\Cache\Exception\InvalidArgumentException
      */
     public function has($key)
     {
@@ -80,7 +80,7 @@ class Cache implements CacheInterface
      * Remove data from cache layer
      * @param string $key Unique identifier of your data
      * @return bool True if removal was successful else false
-     * @throws \Scaly\Cache\Exception\InvalidArgumentException
+     * @throws \Scalar\Cache\Exception\InvalidArgumentException
      */
     public function delete($key)
     {
@@ -98,7 +98,7 @@ class Cache implements CacheInterface
      * @param string $key Unique identifier of your data
      * @param mixed $data to store in cache layer
      * @return bool True if storing was successful else false
-     * @throws \Scaly\Cache\Exception\InvalidArgumentException
+     * @throws \Scalar\Cache\Exception\InvalidArgumentException
      */
     public function set($key, $data)
     {

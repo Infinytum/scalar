@@ -1,8 +1,8 @@
 <?php
 
-namespace Scaly\Http\Factory;
+namespace Scalar\Http\Factory;
 
-use Scaly\Http\Message\UploadedFileInterface;
+use Scalar\Http\Message\UploadedFileInterface;
 
 interface UploadedFileFactoryInterface
 {

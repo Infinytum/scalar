@@ -6,12 +6,12 @@
  * Time: 21:40
  */
 
-namespace Scaly\Config;
+namespace Scalar\Config;
 
 
-use Scaly\IO\Stream\Stream;
-use Scaly\IO\Stream\StreamInterface;
-use Scaly\Util\ScalyArray;
+use Scalar\IO\Stream\Stream;
+use Scalar\IO\Stream\StreamInterface;
+use Scalar\Util\ScalarArray;
 
 class IniConfig implements ConfigInterface
 {
@@ -27,7 +27,7 @@ class IniConfig implements ConfigInterface
     private $sections;
 
     /**
-     * @var ScalyArray
+     * @var ScalarArray
      */
     private $configArray;
 
@@ -39,7 +39,7 @@ class IniConfig implements ConfigInterface
     /**
      * IniConfig constructor.
      * @param resource|Stream|string $fileLocation
-     * @param ScalyArray|array $configArray
+     * @param ScalarArray|array $configArray
      * @param bool $sections
      * @param int $iniScannerMode
      */
@@ -69,9 +69,9 @@ class IniConfig implements ConfigInterface
             );
         }
 
-        if (is_array($configArray) && !$configArray instanceof ScalyArray) {
-            $this->configArray = new ScalyArray($configArray);
-        } elseif ($configArray instanceof ScalyArray) {
+        if (is_array($configArray) && !$configArray instanceof ScalarArray) {
+            $this->configArray = new ScalarArray($configArray);
+        } elseif ($configArray instanceof ScalarArray) {
             $this->configArray = $configArray;
         } else {
             throw new \InvalidArgumentException
@@ -111,11 +111,12 @@ class IniConfig implements ConfigInterface
     )
     {
         if ($this->has($key)) {
-            return;
+            return $this;
         }
         $this->setDefault($key, $value);
         $this->save();
         $this->load();
+        return $this;
     }
 
     /**
@@ -141,7 +142,7 @@ class IniConfig implements ConfigInterface
      *
      * @param $key
      * @param $value
-     * @return void
+     * @return static
      */
     public function setDefault
     (
@@ -150,9 +151,10 @@ class IniConfig implements ConfigInterface
     )
     {
         if ($this->has($key)) {
-            return;
+            return $this;
         }
         $this->set($key, $value);
+        return $this;
     }
 
     /**
@@ -160,7 +162,7 @@ class IniConfig implements ConfigInterface
      *
      * @param string $key
      * @param mixed $value
-     * @return void
+     * @return static
      */
     public function set
     (
@@ -173,12 +175,13 @@ class IniConfig implements ConfigInterface
         } else {
             $this->configArray[$key] = $value;
         }
+        return $this;
     }
 
     /**
      * Save configuration
      *
-     * @return void
+     * @return static
      */
     public function save()
     {
@@ -192,9 +195,15 @@ class IniConfig implements ConfigInterface
                             $this->fileStream->write($key . "[] = \"$entry\"" . PHP_EOL);
                         }
                     } else {
+
+                        if (is_string($value) || is_object($value)) {
+                            $value = "\"$value\"";
+                        }
+
                         if (is_bool($value))
-                            $value = $value ? "true" : "false";
-                        $this->fileStream->write("$key = \"$value\"" . PHP_EOL);
+                            $value = $value ? "on" : "off";
+
+                        $this->fileStream->write("$key = $value" . PHP_EOL);
                     }
                 }
             }
@@ -205,21 +214,30 @@ class IniConfig implements ConfigInterface
                         $this->fileStream->write($key . "[] = \"$entry\"" . PHP_EOL);
                     }
                 } else {
-                    $this->fileStream->write("$key = \"$value\"" . PHP_EOL);
+
+                    if (is_string($value) || is_object($value)) {
+                        $value = "\"$value\"";
+                    }
+
+                    if (is_bool($value))
+                        $value = $value ? "on" : "off";
+
+                    $this->fileStream->write("$key = $value" . PHP_EOL);
                 }
             }
         }
+        return $this;
     }
 
     /**
      * Load configuration
      *
-     * @return void
+     * @return static
      */
     public function load()
     {
         $this->fileStream->rewind();
-        $this->configArray = new ScalyArray
+        $this->configArray = new ScalarArray
         (
             parse_ini_string
             (
@@ -228,15 +246,36 @@ class IniConfig implements ConfigInterface
                 $this->iniScannerMode
             )
         );
+
+        return $this;
     }
 
     /**
-     * Get config map as Scaly Array
+     * Get config map as Scalar Array
      *
-     * @return ScalyArray
+     * @return ScalarArray
      */
-    public function asScalyArray()
+    public function asScalarArray()
     {
         return clone $this->configArray;
+    }
+
+    public function setConfigArray
+    (
+        $configArray
+    )
+    {
+        if (!is_array($configArray) && !$configArray instanceof ScalarArray) {
+            throw new \InvalidArgumentException
+            (
+                'Invalid object passed to setConfigArray'
+            );
+        }
+
+        if (is_array($configArray) && !$configArray instanceof ScalarArray) {
+            $configArray = new ScalarArray($configArray);
+        }
+
+        $this->configArray = $configArray;
     }
 }

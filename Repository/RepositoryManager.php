@@ -6,13 +6,13 @@
  * Time: 23:50
  */
 
-namespace Scaly\Repository;
+namespace Scalar\Repository;
 
 
-use Scaly\Config\IniConfig;
-use Scaly\Core\Config\ScalyConfig;
-use Scaly\IO\Factory\UriFactory;
-use Scaly\IO\UriInterface;
+use Scalar\Config\IniConfig;
+use Scalar\Core\Scalar;
+use Scalar\IO\Factory\UriFactory;
+use Scalar\IO\UriInterface;
 
 class RepositoryManager implements RepositoryManagerInterface
 {
@@ -26,20 +26,27 @@ class RepositoryManager implements RepositoryManagerInterface
      */
     private $iniConfig;
 
+    private $scalarConfig;
+
+
     public function __construct()
     {
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_REPO_LIST, '{{App.Home}}/repository.list');
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_REPO_DEFAULT, 'ScalyOfficial');
-        ScalyConfig::getInstance()->setDefaultAndSave(self::CONFIG_REPO_UPDATE, 'ScalyOfficial');
+        $this->scalarConfig = Scalar::getService
+        (
+            Scalar::SERVICE_SCALAR_CONFIG
+        );
+        $this->scalarConfig->setDefaultAndSave(self::CONFIG_REPO_LIST, '{{App.Home}}/repository.list');
+        $this->scalarConfig->setDefaultAndSave(self::CONFIG_REPO_DEFAULT, 'ScalarOfficial');
+        $this->scalarConfig->setDefaultAndSave(self::CONFIG_REPO_UPDATE, 'ScalarOfficial');
 
-        if (!file_exists(ScalyConfig::getInstance()->get(self::CONFIG_REPO_LIST))) {
-            $iniConfig = new IniConfig(ScalyConfig::getInstance()->get(self::CONFIG_REPO_LIST));
-            $iniConfig->set('ScalyOfficial.Uri', 'https://repo.scaly.ch/v1');
-            $iniConfig->set('ScalyOfficial.ApiKey', false);
+        if (!file_exists($this->scalarConfig->get(self::CONFIG_REPO_LIST))) {
+            $iniConfig = new IniConfig($this->scalarConfig->get(self::CONFIG_REPO_LIST));
+            $iniConfig->set('ScalarOfficial.Uri', 'https://repo.scaly.ch/v1');
+            $iniConfig->set('ScalarOfficial.ApiKey', false);
             $iniConfig->save();
         }
 
-        $this->iniConfig = new IniConfig(ScalyConfig::getInstance()->get(self::CONFIG_REPO_LIST));
+        $this->iniConfig = new IniConfig($this->scalarConfig->get(self::CONFIG_REPO_LIST));
         $this->iniConfig->load();
     }
 
@@ -92,7 +99,7 @@ class RepositoryManager implements RepositoryManagerInterface
         $repositoryUri
     )
     {
-        return $this->iniConfig->asScalyArray()->where(
+        return $this->iniConfig->asScalarArray()->where(
             function ($repoName, $repoSettings) use ($repositoryUri) {
                 return $repoSettings['Uri'] == $repositoryUri->serialize();
             }
@@ -106,7 +113,7 @@ class RepositoryManager implements RepositoryManagerInterface
      */
     public function getDefaultRepository()
     {
-        $defaultRepository = ScalyConfig::getInstance()->get(self::CONFIG_REPO_DEFAULT);
+        $defaultRepository = $this->scalarConfig->get(self::CONFIG_REPO_DEFAULT);
         if ($this->hasRepository($defaultRepository)) {
             return $this->getRepository($defaultRepository);
         }
@@ -163,7 +170,7 @@ class RepositoryManager implements RepositoryManagerInterface
      */
     public function getUpdateRepository()
     {
-        $defaultRepository = ScalyConfig::getInstance()->get(self::CONFIG_REPO_UPDATE);
+        $defaultRepository = $this->scalarConfig->get(self::CONFIG_REPO_UPDATE);
         if ($this->hasRepository($defaultRepository)) {
             return $this->getRepository($defaultRepository);
         }
@@ -230,7 +237,7 @@ class RepositoryManager implements RepositoryManagerInterface
             return null;
         }
 
-        $repoName = $this->iniConfig->asScalyArray()->where(
+        $repoName = $this->iniConfig->asScalarArray()->where(
             function ($repoName, $repoSettings) use ($repositoryUri) {
                 return $repoSettings['Uri'] == $repositoryUri->serialize();
             }

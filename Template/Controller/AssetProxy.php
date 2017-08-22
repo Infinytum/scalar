@@ -6,12 +6,11 @@
  * Time: 10:51 AM
  */
 
-namespace Scaly\Template\Controller;
+namespace Scalar\Template\Controller;
 
 
-use Scaly\Core\Config\ScalyConfig;
-use Scaly\Core\Scaly;
-use Scaly\Http\Message\ResponseInterface;
+use Scalar\Core\Scalar;
+use Scalar\Http\Message\ResponseInterface;
 
 class AssetProxy
 {
@@ -29,12 +28,16 @@ class AssetProxy
         $assetPath
     )
     {
-        $fullPath = ScalyConfig::getInstance()->get(Scaly::CONFIG_ASSETS_DIR) . '/' . $assetPath;
+        $scalarConfig = Scalar::getService
+        (
+            Scalar::SERVICE_SCALAR_CONFIG
+        );
+        $fullPath = $scalarConfig->get(Scalar::CONFIG_ASSETS_DIR) . '/' . $assetPath;
         if (!file_exists($fullPath)) {
             return $response->withStatus(404);
         }
 
-        if (strpos(realpath($fullPath), ScalyConfig::getInstance()->get(Scaly::CONFIG_ASSETS_DIR)) == -1) {
+        if (strpos(realpath($fullPath), $scalarConfig->get(Scalar::CONFIG_ASSETS_DIR)) == -1) {
             return $response->withStatus(404);
         }
 

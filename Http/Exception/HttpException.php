@@ -6,7 +6,7 @@
  * Time: 23:23
  */
 
-namespace Scaly\Http\Exception;
+namespace Scalar\Http\Exception;
 
 
 abstract class HttpException extends \Exception

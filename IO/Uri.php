@@ -1,9 +1,9 @@
 <?php
 
-namespace Scaly\IO;
+namespace Scalar\IO;
 
 
-use Scaly\IO\Exception\MalformedUriException;
+use Scalar\IO\Exception\MalformedUriException;
 
 class Uri implements UriInterface
 {

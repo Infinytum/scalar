@@ -6,13 +6,13 @@
  * Time: 21:45
  */
 
-namespace Scaly\Cache\Storage;
+namespace Scalar\Cache\Storage;
 
 
-use Scaly\Cache\Exception\CacheStorageException;
-use Scaly\Cache\Exception\IllegalDirectoryTraversalException;
-use Scaly\Cache\Exception\PreconditionsNotMetException;
-use Scaly\IO\Stream\Stream;
+use Scalar\Cache\Exception\CacheStorageException;
+use Scalar\Cache\Exception\IllegalDirectoryTraversalException;
+use Scalar\Cache\Exception\PreconditionsNotMetException;
+use Scalar\IO\Stream\Stream;
 
 class FileCacheStorage implements CacheStorageInterface
 {

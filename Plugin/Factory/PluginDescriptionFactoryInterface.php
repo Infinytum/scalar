@@ -1,8 +1,8 @@
 <?php
 
-namespace Scaly\Plugin\Factory;
+namespace Scalar\Plugin\Factory;
 
-use Scaly\Plugin\PluginDescriptionInterface;
+use Scalar\Plugin\PluginDescriptionInterface;
 
 interface PluginDescriptionFactoryInterface
 {

@@ -1,18 +1,6 @@
 <?php
 
-/*
- * This file is part of Mustache.php.
- *
- * (c) 2010-2017 Justin Hileman
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
-use Scaly\Cache\Cache;
-use Scaly\Cache\Factory\FileCacheStorageFactory;
-use Scaly\Cache\Factory\MemCacheStorageFactory;
-use Scaly\Cache\Storage\MemCacheStorage;
+use Scalar\Core\Scalar;
 
 /**
  * Mustache Compiler class.
@@ -171,24 +159,26 @@ class Mustache_Compiler
      * Compile a Mustache token parse tree into PHP source code.
      *
      * @param string $source Mustache Template source code
-     * @param string $tree Parse tree of Mustache tokens
+     * @param array|string $tree Parse tree of Mustache tokens
      * @param string $name Mustache Template class name
      * @param bool $customEscape (default: false)
      * @param string $charset (default: 'UTF-8')
      * @param bool $strictCallables (default: false)
      * @param int $entityFlags (default: ENT_COMPAT)
-     *
      * @return string Generated PHP source code
      */
     public function compile($source, array $tree, $name, $customEscape = false, $charset = 'UTF-8', $strictCallables = false, $entityFlags = ENT_COMPAT)
     {
-
-        if (MemCacheStorage::isAvailable()) {
-            $memCacheStorageFactory = new MemCacheStorageFactory();
-            $this->cache = new Cache($memCacheStorageFactory->createMemCacheStorage());
+        if (Scalar::getServiceMap()->hasService(Scalar::SERVICE_MEM_CACHE)) {
+            $this->cache = Scalar::getService
+            (
+                Scalar::SERVICE_MEM_CACHE
+            );
         } else {
-            $fileStorageFactory = new FileCacheStorageFactory();
-            $this->cache = new Cache($fileStorageFactory->createFileCacheStorage());
+            $this->cache = Scalar::getService
+            (
+                Scalar::SERVICE_FILE_CACHE
+            );
         }
 
         $this->pragmas = $this->defaultPragmas;

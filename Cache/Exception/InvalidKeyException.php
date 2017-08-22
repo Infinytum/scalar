@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Cache\Exception;
+namespace Scalar\Cache\Exception;
 
 class InvalidKeyException extends \Exception implements InvalidArgumentException
 {

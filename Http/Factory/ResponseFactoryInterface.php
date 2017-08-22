@@ -1,9 +1,9 @@
 <?php
 
-namespace Scaly\Http\Factory;
+namespace Scalar\Http\Factory;
 
 
-use Scaly\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ResponseInterface;
 
 interface ResponseFactoryInterface
 {

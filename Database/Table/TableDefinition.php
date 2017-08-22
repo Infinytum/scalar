@@ -6,10 +6,10 @@
  * Time: 10:57 PM
  */
 
-namespace Scaly\Database\Table;
+namespace Scalar\Database\Table;
 
 
-use Scaly\Util\ScalyArray;
+use Scalar\Util\ScalarArray;
 
 class TableDefinition
 {
@@ -24,9 +24,9 @@ class TableDefinition
         $array
     )
     {
-        if (is_array($array) && !$array instanceof ScalyArray) {
-            $array = new ScalyArray($array);
-        } else if (!$array instanceof ScalyArray) {
+        if (is_array($array) && !$array instanceof ScalarArray) {
+            $array = new ScalarArray($array);
+        } else if (!$array instanceof ScalarArray) {
             throw new \RuntimeException
             (
                 'Invalid object passed to table definition'

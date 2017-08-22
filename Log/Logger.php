@@ -6,10 +6,10 @@
  * Time: 19:58
  */
 
-namespace Scaly\Log;
+namespace Scalar\Log;
 
 
-use Scaly\IO\Stream\StreamInterface;
+use Scalar\IO\Stream\StreamInterface;
 
 class Logger implements LoggerInterface
 {

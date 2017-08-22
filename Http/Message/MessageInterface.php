@@ -1,15 +1,15 @@
 <?php
 
-namespace Scaly\Http\Message;
+namespace Scalar\Http\Message;
 
-use Scaly\IO\Stream\StreamInterface;
+use Scalar\IO\Stream\StreamInterface;
 
 /**
  * Interface MessageInterface
  *
  * Abstract HTTP protocol implementation
  *
- * @package Scaly\Http\Message
+ * @package Scalar\Http\Message
  */
 interface MessageInterface
 {

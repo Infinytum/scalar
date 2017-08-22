@@ -1,8 +1,9 @@
 <?php
 
-namespace Scaly\Http\Client;
+namespace Scalar\Http\Client;
 
-use Scaly\Http\Message\ServerRequestInterface;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
 
 interface HttpClientInterface
 {
@@ -37,7 +38,7 @@ interface HttpClientInterface
     /**
      * Get response after execution
      *
-     * @return ServerRequestInterface
+     * @return ResponseInterface
      */
     public function getResponse();
 

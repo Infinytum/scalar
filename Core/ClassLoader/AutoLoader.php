@@ -1,32 +1,11 @@
 <?php
 
-namespace Scaly\Core\ClassLoader;
+namespace Scalar\Core\ClassLoader;
 
 class AutoLoader
 {
 
-
-    /**
-     * @var AutoLoader
-     */
-    protected static $instance;
     protected $prefixes = array();
-
-    function __construct()
-    {
-        self::$instance = $this;
-    }
-
-    /**
-     * @return AutoLoader
-     */
-    public static function getInstance(): AutoLoader
-    {
-        if (!self::$instance)
-            new AutoLoader();
-        return self::$instance;
-    }
-
     /**
      * Register loader
      */

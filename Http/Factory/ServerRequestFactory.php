@@ -6,14 +6,14 @@
  * Time: 19:07
  */
 
-namespace Scaly\Http\Factory;
+namespace Scalar\Http\Factory;
 
 
-use Scaly\Http\Message\ServerRequest;
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\IO\Factory\StreamFactory;
-use Scaly\IO\Factory\UriFactory;
-use Scaly\IO\UriInterface;
+use Scalar\Http\Message\ServerRequest;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\IO\Factory\StreamFactory;
+use Scalar\IO\Factory\UriFactory;
+use Scalar\IO\UriInterface;
 
 class ServerRequestFactory implements ServerRequestFactoryInterface
 {
@@ -57,7 +57,7 @@ class ServerRequestFactory implements ServerRequestFactoryInterface
         $body->rewind();
 
         $protocol = isset($server['SERVER_PROTOCOL']) ? str_replace('HTTP/', '', $server['SERVER_PROTOCOL']) : '1.0';
-        $serverRequest = new ServerRequest($method, $uri, $headers, $body, $protocol, $server);
+        $serverRequest = new ServerRequest($method, $uri, $headers, $protocol, $body, $server);
         return $serverRequest
             ->withCookieParams($_COOKIE)
             ->withParsedBody($_POST)

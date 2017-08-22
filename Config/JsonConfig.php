@@ -1,12 +1,11 @@
 <?php
 
-namespace Scaly\Config;
+namespace Scalar\Config;
 
-use Scaly\Core\Scaly;
-use Scaly\IO\Factory\StreamFactory;
-use Scaly\IO\Stream\Stream;
-use Scaly\IO\Stream\StreamInterface;
-use Scaly\Util\ScalyArray;
+use Scalar\IO\Factory\StreamFactory;
+use Scalar\IO\Stream\Stream;
+use Scalar\IO\Stream\StreamInterface;
+use Scalar\Util\ScalarArray;
 
 class JsonConfig implements ConfigInterface
 {
@@ -17,14 +16,14 @@ class JsonConfig implements ConfigInterface
     private $fileStream;
 
     /**
-     * @var ScalyArray
+     * @var ScalarArray
      */
     private $configArray;
 
     /**
      * JsonConfig constructor.
      * @param resource|Stream|string $fileLocation
-     * @param ScalyArray|array $configArray
+     * @param ScalarArray|array $configArray
      */
     public function __construct
     (
@@ -39,10 +38,6 @@ class JsonConfig implements ConfigInterface
                 @mkdir(dirname($fileLocation), 0777, true);
                 @touch($fileLocation);
                 @chmod($fileLocation, 0777);
-                Scaly::getLogger()->i
-                (
-                    'File not found. Creating new file...'
-                );
             }
             $this->fileStream = $streamFactory->createStreamFromFile($fileLocation, "r+");
         } elseif (is_resource($fileLocation)) {
@@ -58,15 +53,11 @@ class JsonConfig implements ConfigInterface
 
         if ($this->fileStream == null) {
             $this->fileStream = $streamFactory->createStream();
-            Scaly::getLogger()->i
-            (
-                'Could not create file. Using in-memory json config! This may slow down performance.'
-            );
         }
 
-        if (is_array($configArray) && !$configArray instanceof ScalyArray) {
-            $this->configArray = new ScalyArray($configArray);
-        } elseif ($configArray instanceof ScalyArray) {
+        if (is_array($configArray) && !$configArray instanceof ScalarArray) {
+            $this->configArray = new ScalarArray($configArray);
+        } elseif ($configArray instanceof ScalarArray) {
             $this->configArray = $configArray;
         } else {
             throw new \InvalidArgumentException
@@ -214,7 +205,7 @@ class JsonConfig implements ConfigInterface
             $array = [];
         }
 
-        $this->configArray = new ScalyArray($array);
+        $this->configArray = new ScalarArray($array);
     }
 
     public function setDefaultAndSavePath
@@ -281,11 +272,11 @@ class JsonConfig implements ConfigInterface
     }
 
     /**
-     * Get config map as Scaly Array
+     * Get config map as Scalar Array
      *
-     * @return ScalyArray
+     * @return ScalarArray
      */
-    public function asScalyArray()
+    public function asScalarArray()
     {
         return clone $this->configArray;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Updater;
+namespace Scalar\Updater;
 
 interface UpdaterInterface
 {

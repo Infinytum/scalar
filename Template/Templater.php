@@ -6,14 +6,9 @@
  * Time: 2:45 PM
  */
 
-namespace Scaly\Template;
+namespace Scalar\Template;
 
-
-use Scaly\Cache\Cache;
-use Scaly\Cache\Factory\FileCacheStorageFactory;
-use Scaly\Cache\Factory\MemCacheStorageFactory;
-use Scaly\Cache\Storage\MemCacheStorage;
-use Scaly\Core\Config\ScalyConfig;
+use Scalar\Core\Scalar;
 
 class Templater
 {
@@ -25,21 +20,29 @@ class Templater
     public function __construct()
     {
         self::$instance = $this;
-        if (MemCacheStorage::isAvailable()) {
-            $memCacheStorageFactory = new MemCacheStorageFactory();
-            $this->cache = new Cache($memCacheStorageFactory->createMemCacheStorage());
+        if (Scalar::getServiceMap()->hasService(Scalar::SERVICE_MEM_CACHE)) {
+            $this->cache = Scalar::getService
+            (
+                Scalar::SERVICE_MEM_CACHE
+            );
         } else {
-            $fileStorageFactory = new FileCacheStorageFactory();
-            $this->cache = new Cache($fileStorageFactory->createFileCacheStorage());
+            $this->cache = Scalar::getService
+            (
+                Scalar::SERVICE_FILE_CACHE
+            );
         }
     }
 
+    /**
+     * @deprecated
+     * @return Templater
+     */
     public static function getInstance()
     {
-        if (!self::$instance) {
-            new Templater();
-        }
-        return self::$instance;
+        return Scalar::getService
+        (
+            Scalar::SERVICE_TEMPLATER
+        );
     }
 
     public function buildFullTemplate
@@ -80,7 +83,12 @@ class Templater
         $template
     )
     {
-        $file = ScalyConfig::getInstance()->get("Template.Location") . $template . '.scaly';
+        $scalarConfig = Scalar::getService
+        (
+            Scalar::SERVICE_SCALAR_CONFIG
+        );
+
+        $file = $scalarConfig->get("Template.Location") . $template . '.scalar';
         if (file_exists($file)) {
             return new Template(file_get_contents($file));
         }

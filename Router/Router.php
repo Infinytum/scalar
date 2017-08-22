@@ -6,19 +6,20 @@
  * Time: 17:58
  */
 
-namespace Scaly\Router;
+namespace Scalar\Router;
 
-use Scaly\App\App;
-use Scaly\Config\JsonConfig;
-use Scaly\Core\ClassLoader\AutoLoader;
-use Scaly\Http\Message\Response;
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\Http\Middleware\HttpMiddlewareDispatcher;
-use Scaly\Http\Middleware\HttpMiddlewareInterface;
-use Scaly\IO\Stream\Stream;
-use Scaly\IO\UriInterface;
-use Scaly\Util\ScalyArray;
+use Scalar\App\App;
+use Scalar\Config\JsonConfig;
+use Scalar\Core\ClassLoader\AutoLoader;
+use Scalar\Core\Scalar;
+use Scalar\Http\Message\Response;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\Http\Middleware\HttpMiddlewareDispatcher;
+use Scalar\Http\Middleware\HttpMiddlewareInterface;
+use Scalar\IO\Stream\Stream;
+use Scalar\IO\UriInterface;
+use Scalar\Util\ScalarArray;
 
 class Router implements RouterInterface
 {
@@ -55,7 +56,13 @@ class Router implements RouterInterface
         $tempRouteMap = []
     )
     {
-
+        /**
+         * @var AutoLoader $autoLoader
+         */
+        $autoLoader = Scalar::getService
+        (
+            Scalar::SERVICE_AUTO_LOADER
+        );
 
         if (!file_exists($routeMapLocation)) {
             $this->routeMap = new JsonConfig($routeMapLocation);
@@ -67,11 +74,9 @@ class Router implements RouterInterface
         $this->controllerLocation = $controllerLocation;
         $this->middlewareDispatcher = new HttpMiddlewareDispatcher([]);
 
-        AutoLoader::getInstance()->addClassPath("\\", $controllerLocation);
+        $autoLoader->addClassPath("\\", $controllerLocation);
 
         $this->tempRouteMap = $tempRouteMap;
-
-
         $this->routeMap->load();
     }
 
@@ -142,15 +147,17 @@ class Router implements RouterInterface
     /**
      * @param \ReflectionClass $controllerReflect
      * @param $controller
+     * @param $controllerName
+     * @return array
      */
     private function generateMethodMap($controllerReflect, $controller, $controllerName)
     {
         $routes = [];
-        foreach ($controllerReflect->getMethods() as $phpmethod) {
+        foreach ($controllerReflect->getMethods() as $phpMethod) {
             $method = new \stdClass();
             $method->Controller = $controllerName;
-            $method->Function = $phpmethod->getName();
-            $methodData = $phpmethod->getDocComment();
+            $method->Function = $phpMethod->getName();
+            $methodData = $phpMethod->getDocComment();
             preg_match_all($this->phpDocRegex, $methodData, $matches, PREG_SET_ORDER, 0);
             foreach ($matches as $match) {
                 $property = $match["property"];
@@ -161,7 +168,7 @@ class Router implements RouterInterface
             }
 
             if (!isset($method->Path))
-                $method->Path = $controller->Path . '/' . lcfirst($phpmethod->getName());
+                $method->Path = $controller->Path . '/' . lcfirst($phpMethod->getName());
 
             if (is_array($method->Path)) {
                 foreach ($method->Path as $item) {
@@ -379,7 +386,7 @@ class Router implements RouterInterface
 
     /**
      * @param UriInterface|string $uri
-     * @param ScalyArray $route
+     * @param ScalarArray $route
      * @return \Closure
      */
     private function generateClosure($uri, $route)

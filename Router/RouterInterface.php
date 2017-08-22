@@ -1,11 +1,11 @@
 <?php
 
-namespace Scaly\Router;
+namespace Scalar\Router;
 
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\Http\Middleware\HttpMiddlewareInterface;
-use Scaly\IO\UriInterface;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\Http\Middleware\HttpMiddlewareInterface;
+use Scalar\IO\UriInterface;
 
 interface RouterInterface
 {

@@ -1,12 +1,12 @@
 <?php
 
-namespace Scaly\Http\Client;
+namespace Scalar\Http\Client;
 
 
-use Scaly\Http\Factory\ResponseFactory;
-use Scaly\Http\Message\ResponseInterface;
-use Scaly\Http\Message\ServerRequestInterface;
-use Scaly\IO\Factory\StreamFactory;
+use Scalar\Http\Factory\ResponseFactory;
+use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequestInterface;
+use Scalar\IO\Factory\StreamFactory;
 
 class CurlHttpClient implements HttpClientInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Scaly\Cache\Exception;
+namespace Scalar\Cache\Exception;
 
 
 /**
@@ -8,7 +8,7 @@ namespace Scaly\Cache\Exception;
  *
  * Dummy Interface for all Cache Exceptions
  *
- * @package Scaly\Cache
+ * @package Scalar\Cache
  */
 interface CacheException
 {
