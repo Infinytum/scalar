@@ -22,12 +22,11 @@
 namespace Scalar\Repository;
 
 use Scalar\Cache\Cache;
-use Scalar\Cache\Factory\FileCacheStorageFactory;
-use Scalar\Cache\Factory\MemCacheStorageFactory;
 use Scalar\Cache\Storage\MemCacheStorage;
+use Scalar\Core\Scalar;
 use Scalar\Http\Client\CurlHttpClient;
-use Scalar\Http\Factory\HttpClientFactory;
 use Scalar\Http\Message\ResponseInterface;
+use Scalar\Http\Message\ServerRequest;
 use Scalar\IO\UriInterface;
 use Scalar\Plugin\Factory\PluginDescriptionFactory;
 use Scalar\Plugin\PluginDescription;
@@ -76,12 +75,9 @@ class Repository implements RepositoryInterface
         $this->apiToken = $apiToken;
 
         if (MemCacheStorage::isAvailable()) {
-            $memCacheStorageFactory = new MemCacheStorageFactory();
-            $this->cache = new Cache($memCacheStorageFactory->createMemCacheStorage());
+            $this->cache = Scalar::getService(Scalar::SERVICE_MEM_CACHE);
         } else {
-
-            $fileStorageFactory = new FileCacheStorageFactory();
-            $this->cache = new Cache($fileStorageFactory->createFileCacheStorage());
+            $this->cache = Scalar::getService(Scalar::SERVICE_FILE_CACHE);
         }
     }
 
@@ -235,15 +231,14 @@ class Repository implements RepositoryInterface
         $this->cache->set(Repository::CACHE_PACKAGE_LIST . $this->getName(), $json['packages']);
     }
 
-    private function createHttpRequest($path)
+    private function createHttpRequest($path, $method = 'GET')
     {
-        $httpClientFactory = new HttpClientFactory();
-        $httpClient = $httpClientFactory->createHttpClient
-        (
-            new CurlHttpClient(),
-            $this->uri->withPath($path)
-        );
-
+        /**
+         * @var CurlHttpClient $httpClient
+         */
+        $httpClient = Scalar::getService(Scalar::SERVICE_HTTP_CLIENT);
+        $serverRequest = new ServerRequest($method, $this->uri->withPath($path));
+        $httpClient->setRequest($serverRequest);
 
         if ($this->apiToken) {
             $httpClient->setRequest
