@@ -21,8 +21,8 @@
 
 namespace Scalar\Updater;
 
-use Scalar\Http\Client\CurlHttpClient;
-use Scalar\Http\Factory\HttpClientFactory;
+use Scalar\Core\Scalar;
+use Scalar\Http\Message\ServerRequest;
 use Scalar\IO\Factory\StreamFactory;
 use Scalar\IO\Factory\UriFactory;
 use Scalar\Repository\Repository;
@@ -77,18 +77,15 @@ class Updater implements UpdaterInterface
 
     private function fetchChannelInfo()
     {
-        $httpClientFactory = new HttpClientFactory();
-
         $uri = $this->updateRepository->getUri()->withPath
         (
             self::REPO_UPDATE . $this->channel
         );
 
-        $httpClient = $httpClientFactory->createHttpClient
-        (
-            new CurlHttpClient(),
-            $uri
-        );
+        $httpClient = Scalar::getService(Scalar::SERVICE_HTTP_CLIENT);
+        $serverRequest = new ServerRequest('GET', $uri);
+        $httpClient->setRequest($serverRequest);
+
 
         $httpClient->request();
 
@@ -119,12 +116,9 @@ class Updater implements UpdaterInterface
         $uriFactory = new UriFactory();
         $uri = $uriFactory->createUri($json['uri']);
 
-        $httpClientFactory = new HttpClientFactory();
-        $httpClient = $httpClientFactory->createHttpClient
-        (
-            new CurlHttpClient(),
-            $uri
-        );
+        $httpClient = Scalar::getService(Scalar::SERVICE_HTTP_CLIENT);
+        $serverRequest = new ServerRequest('GET', $uri);
+        $httpClient->setRequest($serverRequest);
 
         $httpClient->request();
 
