@@ -19,13 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Created by PhpStorm.
- * User: teryx
- * Date: 12.06.17
- * Time: 16:01
- */
-
 namespace Scalar\Database\Table;
 
 use Scalar\Config\JsonConfig;
@@ -36,7 +29,7 @@ use Scalar\Util\Factory\AnnotationFactory;
 use Scalar\Util\FilterableInterface;
 use Scalar\Util\ScalarArray;
 
-abstract class MysqlTable implements FilterableInterface
+abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 {
 
     /**
@@ -147,7 +140,7 @@ abstract class MysqlTable implements FilterableInterface
     /**
      * Get all SQL fields
      */
-    private function getFields()
+    public function getFields()
     {
         if ($this->fields) {
             return $this->fields;
@@ -851,4 +844,26 @@ abstract class MysqlTable implements FilterableInterface
     {
         // TODO: Implement asArray() method.
     }
+
+    public function offsetGet($offset)
+    {
+        return $this->getFieldValue($offset);
+    }
+
+    public function offsetExists($offset)
+    {
+        return $this->getFieldValue($offset) !== null;
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        $this->setFieldValue($offset, $value);
+    }
+
+    public function offsetUnset($offset)
+    {
+        $this->setFieldValue($offset, null);
+    }
+
+
 }
