@@ -29,8 +29,54 @@
 namespace Scalar\Plugin;
 
 
+use Scalar\Config\JsonConfig;
+use Scalar\Core\ClassLoader\AutoLoader;
+use Scalar\Core\Log\CoreLogger;
+use Scalar\Core\Scalar;
+use Scalar\Core\Service\ServiceMap;
+use Scalar\Plugin\Factory\PluginDescriptionFactory;
+use Scalar\Util\ScalarArray;
+
 class PluginManager implements PluginManagerInterface
 {
+
+    const PLUGIN_DESCRIPTION_FILE = 'plugin.json';
+
+    const ERROR_MISSING_DESCRIBER = 'Plugin Describer \'plugin.json\' was not found';
+    const ERROR_ALREADY_REGISTERED = 'Plugin tried to register twice! Check if you have duplicates.';
+    const ERROR_MISSING_DEPENDENCY = 'Plugin could not be loaded because of missing dependencies';
+    const ERROR_PLUGIN_LOAD_FAILURE = 'Plugin returned an internal load failure.';
+
+    private $pluginMap;
+
+    private $waitMap;
+
+    private $failMap;
+
+    /**
+     * @var CoreLogger $logger
+     */
+    private $logger;
+
+    /**
+     * @var AutoLoader $autoLoader
+     */
+    private $autoLoader;
+
+    public function __construct()
+    {
+        $this->pluginMap = new ServiceMap();
+        $this->waitMap = new ScalarArray();
+        $this->failMap = new ScalarArray();
+
+        $this->logger = Scalar::getService(Scalar::SERVICE_CORE_LOGGER);
+        $this->autoLoader = Scalar::getService(Scalar::SERVICE_AUTO_LOADER);
+    }
+
+    public static function getPluginDirectory()
+    {
+        return SCALAR_APP . '/plugins/';
+    }
 
     /**
      * Load a plugin's metadata from location
@@ -43,49 +89,136 @@ class PluginManager implements PluginManagerInterface
         $pluginLocation
     )
     {
-        // TODO: Implement loadPluginFromLocation() method.
+        $pluginLocation = realpath($pluginLocation);
+
+        $this->logger->v('Loading plugin at "' . $pluginLocation . '"');
+
+        $descriptorFile = $pluginLocation . '/' . self::PLUGIN_DESCRIPTION_FILE;
+        if (!file_exists($descriptorFile)) {
+            $this->failMap->set($pluginLocation, self::ERROR_MISSING_DESCRIBER);
+            return false;
+        }
+
+        $jsonConfig = new JsonConfig($descriptorFile);
+        $jsonConfig->load();
+
+        $pluginDescriptionFactory = new PluginDescriptionFactory();
+        $pluginDescription = $pluginDescriptionFactory->createPluginDescriptionFromPackage($jsonConfig->asScalarArray()->asArray());
+
+        $this->logger->i('Loading plugin ' . $pluginDescription->getName() . ' version ' . $pluginDescription->getVersion());
+
+        if ($this->pluginMap->hasService($pluginDescription->getId())) {
+            $this->failMap->set($pluginDescription->getId(), self::ERROR_ALREADY_REGISTERED);
+            return false;
+        }
+
+        foreach ($pluginDescription->getDependencies() as $dependency) {
+            if ($this->pluginMap->hasService($dependency)) {
+                continue;
+            }
+            $this->waitMap->putPath($dependency, $pluginLocation);
+            $this->failMap->set($pluginLocation, self::ERROR_MISSING_DEPENDENCY);
+            $this->logger->i('Plugin needs ' . $dependency . ' to work correctly. Waiting for dependency to load');
+            return false;
+        }
+
+        $this->autoLoader->addClassPath
+        (
+            $pluginDescription->getAbsoluteNamespace(),
+            $pluginLocation
+        );
+
+        $reflectionClass = new \ReflectionClass($pluginDescription->getAbsoluteMain());
+
+        /**
+         * @var Plugin $pluginInstance
+         */
+        $pluginInstance = $reflectionClass->newInstanceArgs([$pluginDescription]);
+
+        if ($pluginInstance->onLoad()) {
+            $this->pluginMap->registerServiceValue($pluginDescription->getId(), $pluginInstance);
+
+            if ($this->waitMap->containsPath($pluginDescription->getId())) {
+                $waitMap = $this->waitMap->getPath($pluginDescription->getId());
+                unset($this->waitMap[$pluginDescription->getId()]);
+                foreach ($waitMap as $pluginLocation) {
+                    $this->logger->i('Loading dependency-queued plugin...');
+                    if ($this->loadPluginFromLocation($pluginLocation)) {
+                        unset($this->failMap[$pluginLocation]);
+                    }
+                }
+            }
+            $this->logger->i('Plugin ' . $pluginDescription->getName() . ' successfully loaded.');
+
+            return true;
+        }
+
+        $this->failMap->set($pluginDescription->getName(), self::ERROR_PLUGIN_LOAD_FAILURE);
+        return false;
     }
 
     /**
      * Load plugin
      *
      * @param $pluginName
-     * @return void
+     * @return bool
      */
     public function loadPlugin
     (
         $pluginName
     )
     {
-        // TODO: Implement loadPlugin() method.
+        return $this->loadPluginFromLocation(self::getPluginDirectory() . '/' . $pluginName);
     }
 
     /**
      * Enable plugin
      *
      * @param $pluginName
-     * @return void
+     * @return bool
      */
     public function enablePlugin
     (
         $pluginName
     )
     {
-        // TODO: Implement enablePlugin() method.
+        if (!$this->pluginMap->hasService($pluginName)) {
+            return false;
+        }
+
+        $plugin = $this->pluginMap->getService($pluginName);
+
+        if ($plugin->onEnable()) {
+            return true;
+        }
+
+        $this->logger->e('Error while enabling ' . $pluginName);
+        return false;
     }
 
     /**
      * Disable plugin
      *
      * @param $pluginName
-     * @return void
+     * @return bool
      */
     public function disablePlugin
     (
         $pluginName
     )
     {
-        // TODO: Implement disablePlugin() method.
+        if (!$this->pluginMap->hasService($pluginName)) {
+            return false;
+        }
+
+        $plugin = $this->pluginMap->getService($pluginName);
+
+        if ($plugin->onEnable()) {
+            return true;
+        }
+
+        $this->logger->e('Error while disabling ' . $pluginName);
+        return false;
     }
 
     /**
@@ -128,5 +261,28 @@ class PluginManager implements PluginManagerInterface
     )
     {
         // TODO: Implement installPlugin() method.
+    }
+
+    public function loadPluginDirectory()
+    {
+        $directories = glob(self::getPluginDirectory() . '/*', GLOB_ONLYDIR);
+
+        foreach ($directories as $pluginLocation) {
+            $this->loadPluginFromLocation($pluginLocation);
+            echo $pluginLocation . '<br>';
+        }
+
+        foreach ($this->failMap->asArray() as $plugin => $failureReason) {
+            $this->logger->e($plugin . ':' . $failureReason);
+        }
+
+        foreach ($this->waitMap->asArray() as $dependency => $pluginLocations) {
+            $this->logger->e('Could not fulfill dependency "' . $dependency . '" for [' . join(',', $pluginLocations) . ']');
+        }
+
+        foreach ($this->pluginMap->getServices() as $pluginName) {
+            $this->enablePlugin($pluginName);
+        }
+
     }
 }
