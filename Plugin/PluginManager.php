@@ -269,7 +269,6 @@ class PluginManager implements PluginManagerInterface
 
         foreach ($directories as $pluginLocation) {
             $this->loadPluginFromLocation($pluginLocation);
-            echo $pluginLocation . '<br>';
         }
 
         foreach ($this->failMap->asArray() as $plugin => $failureReason) {
