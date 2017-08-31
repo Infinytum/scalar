@@ -286,4 +286,14 @@ class ServiceMap
         return $this;
     }
 
+    /**
+     * Returns a list of all registered services
+     *
+     * @return string[]
+     */
+    public function getServices()
+    {
+        return array_keys($this->services->asArray());
+    }
+
 }
