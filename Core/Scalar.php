@@ -38,6 +38,7 @@ use Scalar\Core\Service\ServiceMap;
 use Scalar\Core\Updater\CoreUpdater;
 use Scalar\Database\DatabaseManager;
 use Scalar\Http\Client\CurlHttpClient;
+use Scalar\Plugin\PluginManager;
 use Scalar\Repository\RepositoryManager;
 use Scalar\Router\Router;
 use Scalar\Template\Controller\AssetProxy;
@@ -77,6 +78,7 @@ class Scalar
     const SERVICE_REPOSITORY_MANAGER = 'RepositoryManager';
     const SERVICE_UPDATER = 'Updater';
     const SERVICE_HTTP_CLIENT = 'HttpClient';
+    const SERVICE_PLUGIN_MANAGER = 'PluginManager';
 
     /**
      * Services
@@ -120,6 +122,7 @@ class Scalar
         $this->initializeConfiguration();
         $this->initializeApp();
         $this->initializeServices();
+        $this->initializePlugins();
     }
 
     private function initializeCoreServices()
@@ -202,6 +205,14 @@ class Scalar
             self::SERVICE_HTTP_CLIENT,
             CurlHttpClient::class,
             []
+        );
+
+        $this->serviceMap->registerServiceClass
+        (
+            self::SERVICE_PLUGIN_MANAGER,
+            PluginManager::class,
+            [],
+            true
         );
     }
 
@@ -393,6 +404,20 @@ class Scalar
                 ]
             );
         }
+    }
+
+    private function initializePlugins()
+    {
+
+        /**
+         * @var PluginManager $pluginManager
+         */
+        $pluginManager = self::getService
+        (
+            self::SERVICE_PLUGIN_MANAGER
+        );
+
+        $pluginManager->loadPluginDirectory();
     }
 
     public static function isDeveloperMode()
