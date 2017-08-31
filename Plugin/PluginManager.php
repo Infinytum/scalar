@@ -186,9 +186,11 @@ class PluginManager implements PluginManagerInterface
             return false;
         }
 
+        $this->logger->i('Loading plugin ' . $pluginName);
         $plugin = $this->pluginMap->getService($pluginName);
 
         if ($plugin->onEnable()) {
+            $this->logger->i('Successfully enabled plugin ' . $pluginName);
             return true;
         }
 
@@ -211,9 +213,11 @@ class PluginManager implements PluginManagerInterface
             return false;
         }
 
+        $this->logger->i('Disabling plugin ' . $pluginName);
         $plugin = $this->pluginMap->getService($pluginName);
 
-        if ($plugin->onEnable()) {
+        if ($plugin->onDisable()) {
+            $this->logger->i('Successfully disabled plugin ' . $pluginName);
             return true;
         }
 
