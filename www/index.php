@@ -36,6 +36,8 @@ if (!function_exists('getallheaders')) {
     }
 }
 
+umask(0);
+
 #endregion
 
 include SCALAR_CORE . '/Core/Scalar.php';
