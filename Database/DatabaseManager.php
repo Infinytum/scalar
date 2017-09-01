@@ -47,7 +47,7 @@ class DatabaseManager
 
         if (!file_exists($scalarConfig->get(self::CONFIG_DATABASE_LIST))) {
             $iniConfig = new IniConfig($scalarConfig->get(self::CONFIG_DATABASE_LIST), [], true, INI_SCANNER_RAW);
-            $iniConfig->set('MyDatabase.ConnectionString', 'mysql:host=localhost:33q06;dbname=myDatabase;charset=utf8');
+            $iniConfig->set('MyDatabase.ConnectionString', 'mysql:host=localhost:3306;dbname=myDatabase;charset=utf8');
             $iniConfig->set('MyDatabase.User', 'root');
             $iniConfig->set('MyDatabase.Pass', 'password');
             $iniConfig->save();
