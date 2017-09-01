@@ -23,6 +23,8 @@
 namespace Scalar\Plugin;
 
 
+use Scalar\Config\IniConfig;
+
 abstract class Plugin
 {
 
@@ -31,11 +33,28 @@ abstract class Plugin
      */
     private $pluginDescription;
 
+    /**
+     * @var string $pluginLocation
+     */
+    private $pluginLocation;
+
+    /**
+     * @var IniConfig $globalConfig
+     */
+    private $globalConfig = null;
+
+    /**
+     * @var IniConfig $appConfig
+     */
+    private $appConfig = null;
+
     public function __construct
     (
+        $pluginLocation,
         $pluginDescription
     )
     {
+        $this->pluginLocation = $pluginLocation;
         $this->pluginDescription = $pluginDescription;
     }
 
@@ -44,9 +63,36 @@ abstract class Plugin
         return $this->pluginDescription;
     }
 
+    /**
+     * Returns this plugins home folder
+     *
+     * @return string
+     */
     public function getPluginFolder()
     {
-        return PluginManager::getPluginDirectory() . '/' . $this->pluginDescription->getName();
+        return $this->pluginLocation;
+    }
+
+    public function getGlobalConfig()
+    {
+        if (!$this->globalConfig) {
+            $this->globalConfig = new IniConfig
+            (
+                PluginManager::getGlobalPluginDirectory() . $this->pluginDescription->getName() . '/config.ini'
+            );
+        }
+        return $this->globalConfig;
+    }
+
+    public function getAppConfig()
+    {
+        if (!$this->globalConfig) {
+            $this->globalConfig = new IniConfig
+            (
+                PluginManager::getAppPluginDirectory() . $this->pluginDescription->getName() . '/config.ini'
+            );
+        }
+        return $this->globalConfig;
     }
 
     /**
