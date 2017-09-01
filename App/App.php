@@ -28,7 +28,6 @@
 
 namespace Scalar\App;
 
-
 use Scalar\Http\Message\RequestInterface;
 use Scalar\Http\Message\ResponseInterface;
 use Scalar\Router\AppInterface;
@@ -47,7 +46,8 @@ class App implements AppInterface
         $request
     )
     {
-        // TODO: Implement startup() method.
+
+        return $request;
     }
 
     /**
@@ -64,6 +64,7 @@ class App implements AppInterface
         $response
     )
     {
-        // TODO: Implement shutdown() method.
+
+        return $response;
     }
 }
