@@ -43,18 +43,19 @@ class PluginDescriptionFactory implements PluginDescriptionFactoryInterface
         $pluginInfo
     )
     {
-        return new PluginDescription
+
+        return $this->createPluginDescription
         (
-            $pluginInfo['_id'],
-            $pluginInfo['_repository'],
-            $pluginInfo['name'],
-            $pluginInfo['version'],
-            $pluginInfo['main'],
-            $pluginInfo['namespace'],
-            $pluginInfo['package_version'],
-            $pluginInfo['author'],
-            $pluginInfo['description'],
-            $pluginInfo['depends']
+            isset($pluginInfo['_id']) ? $pluginInfo['_id'] : null,
+            isset($pluginInfo['_repository']) ? $pluginInfo['_repository'] : null,
+            isset($pluginInfo['name']) ? $pluginInfo['name'] : null,
+            isset($pluginInfo['version']) ? $pluginInfo['version'] : null,
+            isset($pluginInfo['main']) ? $pluginInfo['main'] : null,
+            isset($pluginInfo['namespace']) ? $pluginInfo['namespace'] : null,
+            isset($pluginInfo['package_version']) ? $pluginInfo['package_version'] : null,
+            isset($pluginInfo['author']) ? $pluginInfo['author'] : null,
+            isset($pluginInfo['description']) ? $pluginInfo['description'] : null,
+            isset($pluginInfo['depends']) ? $pluginInfo['depends'] : []
         );
     }
 
@@ -79,8 +80,8 @@ class PluginDescriptionFactory implements PluginDescriptionFactoryInterface
         $repository = 'undefined',
         $name = 'undefined',
         $version = 'undefined',
-        $namespace = 'undefined',
         $main = 'main',
+        $namespace = 'undefined',
         $packageVersion = -1,
         $author = 'undefined',
         $description = 'undefined',
