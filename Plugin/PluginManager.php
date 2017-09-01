@@ -73,7 +73,12 @@ class PluginManager implements PluginManagerInterface
         $this->autoLoader = Scalar::getService(Scalar::SERVICE_AUTO_LOADER);
     }
 
-    public static function getPluginDirectory()
+    public static function getAppPluginDirectory()
+    {
+        return SCALAR_APP . '/plugins/';
+    }
+
+    public static function getGlobalPluginDirectory()
     {
         return SCALAR_APP . '/plugins/';
     }
@@ -133,7 +138,7 @@ class PluginManager implements PluginManagerInterface
         /**
          * @var Plugin $pluginInstance
          */
-        $pluginInstance = $reflectionClass->newInstanceArgs([$pluginDescription]);
+        $pluginInstance = $reflectionClass->newInstanceArgs([$pluginLocation, $pluginDescription]);
 
         if ($pluginInstance->onLoad()) {
             $this->pluginMap->registerServiceValue($pluginDescription->getId(), $pluginInstance);
@@ -161,14 +166,16 @@ class PluginManager implements PluginManagerInterface
      * Load plugin
      *
      * @param $pluginName
+     * @param bool $globalPlugin
      * @return bool
      */
     public function loadPlugin
     (
-        $pluginName
+        $pluginName,
+        $globalPlugin = false
     )
     {
-        return $this->loadPluginFromLocation(self::getPluginDirectory() . '/' . $pluginName);
+        return $this->loadPluginFromLocation($globalPlugin ? self::getGlobalPluginDirectory() : self::getAppPluginDirectory() . '/' . $pluginName);
     }
 
     /**
@@ -269,7 +276,10 @@ class PluginManager implements PluginManagerInterface
 
     public function loadPluginDirectory()
     {
-        $directories = glob(self::getPluginDirectory() . '/*', GLOB_ONLYDIR);
+        $directories = array_merge(
+            glob(self::getGlobalPluginDirectory() . '/*', GLOB_ONLYDIR),
+            glob(self::getAppPluginDirectory() . '/*', GLOB_ONLYDIR)
+        );
 
         foreach ($directories as $pluginLocation) {
             $this->loadPluginFromLocation($pluginLocation);
