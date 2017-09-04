@@ -34,6 +34,7 @@ use Scalar\Core\ClassLoader\AutoLoader;
 use Scalar\Core\Log\CoreLogger;
 use Scalar\Core\Scalar;
 use Scalar\Core\Service\ServiceMap;
+use Scalar\IO\File;
 use Scalar\Plugin\Factory\PluginDescriptionFactory;
 use Scalar\Util\ScalarArray;
 
@@ -104,7 +105,7 @@ class PluginManager implements PluginManagerInterface
             return false;
         }
 
-        $jsonConfig = new JsonConfig($descriptorFile);
+        $jsonConfig = new JsonConfig(new File($descriptorFile, true));
         $jsonConfig->load();
 
         $pluginDescriptionFactory = new PluginDescriptionFactory();

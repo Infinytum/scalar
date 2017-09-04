@@ -32,6 +32,7 @@ namespace Scalar\Database;
 use Scalar\Config\IniConfig;
 use Scalar\Database\Table\FieldDefinition;
 use Scalar\Database\Table\TableDefinition;
+use Scalar\IO\File;
 use Scalar\Util\ScalarArray;
 
 class QueryFlavor extends IniConfig
@@ -67,11 +68,13 @@ class QueryFlavor extends IniConfig
     {
         parent::__construct
         (
-            SCALAR_CORE . '/Database/Query/' . $flavor . '.ini',
+            new File(SCALAR_CORE . '/Database/Query/' . $flavor . '.ini', true),
             [],
             true,
             INI_SCANNER_RAW
         );
+
+        $this->load();
     }
 
     /**
@@ -83,13 +86,13 @@ class QueryFlavor extends IniConfig
         $tableDefinition
     )
     {
-        $baseQuery = $this->get(self::CONFIG_CREATE_BASE);
+        $baseQuery = $this->getPath(self::CONFIG_CREATE_BASE);
 
         $columns = [];
         $primaryKeys = [];
         $constraints = [];
 
-        $columnTemplate = $this->get(self::CONFIG_CREATE_COLUMN);
+        $columnTemplate = $this->getPath(self::CONFIG_CREATE_COLUMN);
 
         foreach ($tableDefinition->getFieldDefinitions() as $fieldDefinition) {
             $column = [];
@@ -117,7 +120,7 @@ class QueryFlavor extends IniConfig
         }
 
         if (count($primaryKeys) > 0) {
-            $primaryTemplate = $this->get(self::CONFIG_CREATE_PRIMARY_KEY);
+            $primaryTemplate = $this->getPath(self::CONFIG_CREATE_PRIMARY_KEY);
 
             array_push
             (
@@ -133,7 +136,7 @@ class QueryFlavor extends IniConfig
         }
 
         if (count($constraints) > 0) {
-            $constraintTemplate = $this->get(self::CONFIG_CREATE_FOREIGN_KEY);
+            $constraintTemplate = $this->getPath(self::CONFIG_CREATE_FOREIGN_KEY);
 
             /**
              * @var FieldDefinition $fieldDefinition
@@ -190,10 +193,10 @@ class QueryFlavor extends IniConfig
     )
     {
         $placeholders = new ScalarArray($placeholders);
-        $baseQuery = $this->get(self::CONFIG_INSERT_BASE);
+        $baseQuery = $this->getPath(self::CONFIG_INSERT_BASE);
 
         if ($placeholders->contains('Fields')) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_INSERT_VALUES)]);
+            $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_INSERT_VALUES)]);
 
             $preparedFields = [];
             foreach ($placeholders->getPath('Fields') as $field) {
@@ -205,7 +208,7 @@ class QueryFlavor extends IniConfig
         }
 
         if ($placeholders->contains('Ignore') && $placeholders->getPath('Ignore')) {
-            $placeholders->setPath('Ignore', $this->get(self::CONFIG_INSERT_IGNORE));
+            $placeholders->setPath('Ignore', $this->getPath(self::CONFIG_INSERT_IGNORE));
         }
 
         return [$this->replacePlaceholders($baseQuery, $placeholders)];
@@ -217,16 +220,16 @@ class QueryFlavor extends IniConfig
     )
     {
         $placeholders = new ScalarArray($placeholders);
-        $baseQuery = $this->get(self::CONFIG_UPDATE_BASE);
+        $baseQuery = $this->getPath(self::CONFIG_UPDATE_BASE);
 
         if ($placeholders->contains("Filter")) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_UPDATE_WHERE)]);
+            $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_UPDATE_WHERE)]);
         }
 
         if ($placeholders->contains('Fields')) {
             $preparedFields = [];
             foreach ($placeholders->getPath('Fields') as $field) {
-                $conditionTemplate = $this->get(self::CONFIG_UPDATE_VALUES);
+                $conditionTemplate = $this->getPath(self::CONFIG_UPDATE_VALUES);
                 $placeholderKey = str_replace('.', '_', $field);
 
                 $parameters = new ScalarArray(['Column' => $field, 'Value' => ':updated_' . $placeholderKey]);
@@ -243,32 +246,32 @@ class QueryFlavor extends IniConfig
             $conditions = [];
 
             if ($whereArguments->contains('Equal')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_EQUAL);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_EQUAL);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Equal'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
             }
 
             if ($whereArguments->contains('NotEqual')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_NOT_EQUAL);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_NOT_EQUAL);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotEqual'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
             }
 
             if ($whereArguments->contains('Like')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_LIKE);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_LIKE);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Like'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
             }
 
             if ($whereArguments->contains('NotLike')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_NOT_LIKE);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_NOT_LIKE);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotLike'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
             }
 
             $placeholders->setPath('Filter', join(' AND ', $conditions));
 
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_UPDATE_WHERE)]);
+            $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_UPDATE_WHERE)]);
         }
         return [$this->replacePlaceholders($baseQuery, $placeholders)];
     }
@@ -310,11 +313,11 @@ class QueryFlavor extends IniConfig
     )
     {
         $placeholders = new ScalarArray($placeholders);
-        $baseQuery = $this->get(self::CONFIG_DELETE_BASE);
+        $baseQuery = $this->getPath(self::CONFIG_DELETE_BASE);
         $pdoData = [];
 
         if ($placeholders->contains("Filter")) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_DELETE_WHERE)]);
+            $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_DELETE_WHERE)]);
         }
 
         if ($placeholders->contains("Where")) {
@@ -324,7 +327,7 @@ class QueryFlavor extends IniConfig
             $conditions = [];
 
             if ($whereArguments->contains('Equal')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_EQUAL);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_EQUAL);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Equal'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
                 $pdoData = array_merge($pdoData, $whereFilter[1]);
@@ -332,21 +335,21 @@ class QueryFlavor extends IniConfig
             }
 
             if ($whereArguments->contains('NotEqual')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_NOT_EQUAL);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_NOT_EQUAL);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotEqual'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
                 $pdoData = array_merge($pdoData, $whereFilter[1]);
             }
 
             if ($whereArguments->contains('Like')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_LIKE);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_LIKE);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Like'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
                 $pdoData = array_merge($pdoData, $whereFilter[1]);
             }
 
             if ($whereArguments->contains('NotLike')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_NOT_LIKE);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_NOT_LIKE);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotLike'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
                 $pdoData = array_merge($pdoData, $whereFilter[1]);
@@ -354,7 +357,7 @@ class QueryFlavor extends IniConfig
 
             $placeholders->setPath('Filter', join(' AND ', $conditions));
 
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_DELETE_WHERE)]);
+            $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_DELETE_WHERE)]);
         }
 
         return [$this->replacePlaceholders($baseQuery, $placeholders), $pdoData];
@@ -366,7 +369,7 @@ class QueryFlavor extends IniConfig
     )
     {
         $placeholders = new ScalarArray($placeholders);
-        $baseQuery = $this->get(self::CONFIG_SELECT_BASE);
+        $baseQuery = $this->getPath(self::CONFIG_SELECT_BASE);
         $pdoData = [];
 
         if ($placeholders->contains("Join")) {
@@ -385,7 +388,7 @@ class QueryFlavor extends IniConfig
                             $baseQuery,
                             $this->replacePlaceholders
                             (
-                                $this->get
+                                $this->getPath
                                 (
                                     self::CONFIG_SELECT_JOIN
                                 ),
@@ -398,7 +401,7 @@ class QueryFlavor extends IniConfig
         }
 
         if ($placeholders->contains("Filter")) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_WHERE)]);
+            $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_SELECT_WHERE)]);
         }
 
         $placeholders->setPath('Distinct', $placeholders->getPath('Distinct', false));
@@ -411,7 +414,7 @@ class QueryFlavor extends IniConfig
             $conditions = [];
 
             if ($whereArguments->contains('Equal')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_EQUAL);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_EQUAL);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Equal'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
                 $pdoData = array_merge($pdoData, $whereFilter[1]);
@@ -419,21 +422,21 @@ class QueryFlavor extends IniConfig
             }
 
             if ($whereArguments->contains('NotEqual')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_NOT_EQUAL);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_NOT_EQUAL);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotEqual'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
                 $pdoData = array_merge($pdoData, $whereFilter[1]);
             }
 
             if ($whereArguments->contains('Like')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_LIKE);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_LIKE);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Like'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
                 $pdoData = array_merge($pdoData, $whereFilter[1]);
             }
 
             if ($whereArguments->contains('NotLike')) {
-                $conditionTemplate = $this->get(self::CONFIG_SELECT_WHERE_NOT_LIKE);
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_NOT_LIKE);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotLike'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
                 $pdoData = array_merge($pdoData, $whereFilter[1]);
@@ -441,19 +444,19 @@ class QueryFlavor extends IniConfig
 
             $placeholders->setPath('Filter', join(' AND ', $conditions));
 
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_WHERE)]);
+            $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_SELECT_WHERE)]);
         }
 
         if ($placeholders->contains("Group")) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_GROUP)]);
+            $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_SELECT_GROUP)]);
         }
 
         if ($placeholders->contains("Order") && $placeholders->contains("Direction")) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_ORDER)]);
+            $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_SELECT_ORDER)]);
         }
 
         if ($placeholders->contains("Limit")) {
-            $baseQuery = join(' ', [$baseQuery, $this->get(self::CONFIG_SELECT_LIMIT)]);
+            $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_SELECT_LIMIT)]);
         }
 
         return [$this->replacePlaceholders($baseQuery, $placeholders), $pdoData];

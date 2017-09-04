@@ -24,6 +24,7 @@ namespace Scalar\Database;
 
 use Scalar\Config\IniConfig;
 use Scalar\Core\Scalar;
+use Scalar\IO\File;
 
 class DatabaseManager
 {
@@ -43,18 +44,29 @@ class DatabaseManager
             Scalar::SERVICE_SCALAR_CONFIG
         );
 
-        $scalarConfig->setDefaultAndSave(self::CONFIG_DATABASE_LIST, '{{App.Home}}/database.list');
+        $scalarConfig->setDefaultPath(self::CONFIG_DATABASE_LIST, '{{App.Home}}/database.list')
+            ->save();
 
-        if (!file_exists($scalarConfig->get(self::CONFIG_DATABASE_LIST))) {
-            $iniConfig = new IniConfig($scalarConfig->get(self::CONFIG_DATABASE_LIST), [], true, INI_SCANNER_RAW);
-            $iniConfig->set('MyDatabase.ConnectionString', 'mysql:host=localhost:3306;dbname=myDatabase;charset=utf8');
-            $iniConfig->set('MyDatabase.User', 'root');
-            $iniConfig->set('MyDatabase.Pass', 'password');
-            $iniConfig->save();
-        }
-
-        $this->iniConfig = new IniConfig($scalarConfig->get(self::CONFIG_DATABASE_LIST), [], true, INI_SCANNER_RAW);
+        $this->iniConfig = new IniConfig
+        (
+            new File
+            (
+                $scalarConfig->get
+                (
+                    self::CONFIG_DATABASE_LIST
+                )
+            ),
+            [],
+            true,
+            INI_SCANNER_RAW
+        );
         $this->iniConfig->load();
+
+        $this->iniConfig
+            ->setDefaultPath('MyDatabase.ConnectionString', 'mysql:host=localhost:3306;dbname=myDatabase;charset=utf8')
+            ->setDefaultPath('MyDatabase.User', 'root')
+            ->setDefaultPath('MyDatabase.Pass', 'password')
+            ->save();
     }
 
     /**
@@ -81,9 +93,9 @@ class DatabaseManager
         return new PDODatabase
         (
             $database,
-            $this->iniConfig->get($database . '.ConnectionString'),
-            $this->iniConfig->get($database . '.User'),
-            $this->iniConfig->get($database . '.Pass')
+            $this->iniConfig->getPath($database . '.ConnectionString'),
+            $this->iniConfig->getPath($database . '.User'),
+            $this->iniConfig->getPath($database . '.Pass')
         );
     }
 

@@ -29,7 +29,7 @@
 namespace Scalar\Router;
 
 use Scalar\App\App;
-use Scalar\Config\JsonConfig;
+use Scalar\Config\Config;
 use Scalar\Core\ClassLoader\AutoLoader;
 use Scalar\Core\Scalar;
 use Scalar\Http\Message\Response;
@@ -55,7 +55,7 @@ class Router implements RouterInterface
     private $phpDocRegex = '/@(?<property>[A-Z][a-z]+)(?:\s){0,1}(?<values>.*)/';
 
     /**
-     * @var array
+     * @var Config
      */
     private $routeMap;
 
@@ -69,9 +69,15 @@ class Router implements RouterInterface
      */
     private $controllerLocation;
 
+    /**
+     * Router constructor.
+     * @param Config $routeMap
+     * @param string $controllerLocation
+     * @param array $tempRouteMap
+     */
     function __construct
     (
-        $routeMapLocation,
+        $routeMap,
         $controllerLocation,
         $tempRouteMap = []
     )
@@ -84,23 +90,23 @@ class Router implements RouterInterface
             Scalar::SERVICE_AUTO_LOADER
         );
 
-        if (!file_exists($routeMapLocation)) {
-            $this->routeMap = new JsonConfig($routeMapLocation);
-            $this->generateRouteMap();
-        } else {
-            $this->routeMap = new JsonConfig($routeMapLocation);
-        }
+        $this->routeMap = $routeMap;
 
         $this->controllerLocation = $controllerLocation;
         $this->middlewareDispatcher = new HttpMiddlewareDispatcher([]);
-
         $autoLoader->addClassPath("\\", $controllerLocation);
 
         $this->tempRouteMap = $tempRouteMap;
+
+
+        if (!$routeMap->has('routes') || Scalar::isDeveloperMode()) {
+            $this->regenerateRouteMap();
+        }
+
         $this->routeMap->load();
     }
 
-    public function generateRouteMap()
+    public function regenerateRouteMap()
     {
         $result = glob($this->controllerLocation . '/*.php');
         $classes = [];
