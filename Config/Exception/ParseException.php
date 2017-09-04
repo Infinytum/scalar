@@ -21,17 +21,17 @@
 
 /**
  * Created by PhpStorm.
- * User: teryx
- * Date: 19.05.17
- * Time: 18:57
+ * User: nila
+ * Date: 04/09/17
+ * Time: 17:45
  */
 
-namespace Scalar\IO\Exception;
+namespace Scalar\Config\Exception;
 
 
 use Throwable;
 
-class IOException extends \Exception
+class ParseException extends \Exception
 {
 
     public function __construct($message = "", $code = 0, Throwable $previous = null)

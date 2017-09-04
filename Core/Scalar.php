@@ -236,51 +236,51 @@ class Scalar
             self::SERVICE_SCALAR_CONFIG
         );
 
-        $scalarConfig->setDefaultAndSave
+        $scalarConfig->setDefaultPath
         (
             self::CONFIG_CORE_DEV_MODE,
             false
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_CORE_DEBUG_MODE,
             false
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_APP_PATH,
             dirname(SCALAR_CORE) . '/scalar_app'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_ROUTER_MAP,
             '{{App.Home}}/route.map'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_ROUTER_CONTROLLER,
             '{{App.Home}}/Controller'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_TEMPLATE_DIR,
             '{{App.Home}}/Resources/Templates/'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_ASSETS_DIR,
             '{{App.Home}}/Resources/Assets/'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_UPDATE_CHANNEL,
             'stable'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_STORAGE_PATH,
             sys_get_temp_dir() . '/Scalar.cache/{{App.Home}}'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_MEMCACHE_HOST,
             'localhost'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_MEMCACHE_PORT,
             '11211'
-        );
+        )->save();
     }
 
     private function initializeApp()

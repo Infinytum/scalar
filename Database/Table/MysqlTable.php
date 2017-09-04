@@ -24,6 +24,7 @@ namespace Scalar\Database\Table;
 use Scalar\Config\JsonConfig;
 use Scalar\Database\PDODatabase;
 use Scalar\Database\QueryFlavor;
+use Scalar\IO\File;
 use Scalar\Util\Annotation\PHPDoc;
 use Scalar\Util\Factory\AnnotationFactory;
 use Scalar\Util\FilterableInterface;
@@ -325,7 +326,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         $reflectionClass = new \ReflectionClass(get_called_class());
         $definitionPath = dirname($reflectionClass->getFileName()) . '/' . $reflectionClass->getShortName() . '.json';
 
-        $definitionLoader = new JsonConfig($definitionPath, []);
+        $definitionLoader = new JsonConfig(new File($definitionPath, true), []);
         $definitionLoader->load();
 
         if (!$definitionLoader->has('Table')) {

@@ -22,6 +22,10 @@
 namespace Scalar\Config;
 
 
+use Scalar\Config\Exception\ParseException;
+use Scalar\IO\Exception\IOException;
+use Scalar\Util\ScalarArray;
+
 interface ConfigInterface
 {
 
@@ -30,9 +34,35 @@ interface ConfigInterface
      *
      * @param string $key
      * @param mixed $value
-     * @return void
+     * @return static
      */
     public function set
+    (
+        $key,
+        $value
+    );
+
+    /**
+     * Set a config value at path
+     *
+     * @param string $path
+     * @param mixed $value
+     * @return static
+     */
+    public function setPath
+    (
+        $path,
+        $value
+    );
+
+    /**
+     * Set default value in config if not present
+     *
+     * @param $key
+     * @param $value
+     * @return static
+     */
+    public function setDefault
     (
         $key,
         $value
@@ -43,9 +73,9 @@ interface ConfigInterface
      *
      * @param $key
      * @param $value
-     * @return void
+     * @return static
      */
-    public function setDefault
+    public function setDefaultPath
     (
         $key,
         $value
@@ -63,6 +93,17 @@ interface ConfigInterface
     );
 
     /**
+     * Check if the config contains this key
+     *
+     * @param $path
+     * @return bool
+     */
+    public function hasPath
+    (
+        $path
+    );
+
+    /**
      * Retrieve value stored in config
      *
      * @param $key
@@ -76,16 +117,45 @@ interface ConfigInterface
     );
 
     /**
+     * Retrieve value stored in config
+     *
+     * @param $path
+     * @param $default
+     * @return mixed
+     */
+    public function getPath
+    (
+        $path,
+        $default
+    );
+
+    /**
      * Load configuration
      *
-     * @return void
+     * @return static
+     * @throws IOException Will be thrown if data could not be read from disk
+     * @throws ParseException Will be thrown if configuration could not be parsed
      */
     public function load();
 
     /**
      * Save configuration
      *
-     * @return void
+     * @return static
+     * @throws IOException Will be thrown if writing data to disk fails
      */
     public function save();
+
+    /**
+     * Get config map as Scalar Array
+     *
+     * @return ScalarArray
+     */
+    public function asScalarArray();
+
+
+    public function setConfigArray
+    (
+        $config
+    );
 }
