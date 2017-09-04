@@ -24,6 +24,7 @@ namespace Scalar\Core\Config;
 
 use Scalar\Config\IniConfig;
 use Scalar\Core\Scalar;
+use Scalar\IO\File;
 use Scalar\Util\ScalarArray;
 
 class ScalarConfig extends IniConfig
@@ -37,7 +38,11 @@ class ScalarConfig extends IniConfig
 
     function __construct()
     {
-        parent::__construct(SCALAR_CORE . '/config.ini', []);
+        parent::__construct
+        (
+            new File(SCALAR_CORE . '/config.ini', true),
+            []
+        );
         $this->load();
         self::$instance = $this;
         $this->overrides = new ScalarArray([]);
@@ -64,7 +69,7 @@ class ScalarConfig extends IniConfig
         $placeholder = true
     )
     {
-        $result = parent::get($key, $default);
+        $result = parent::getPath($key, $default);
         if (is_string($result) && $placeholder) {
             preg_match_all
             (

@@ -24,6 +24,7 @@ namespace Scalar\Plugin;
 
 
 use Scalar\Config\IniConfig;
+use Scalar\IO\File;
 
 abstract class Plugin
 {
@@ -78,7 +79,11 @@ abstract class Plugin
         if (!$this->globalConfig) {
             $this->globalConfig = new IniConfig
             (
-                PluginManager::getGlobalPluginDirectory() . $this->pluginDescription->getName() . '/config.ini'
+                new File
+                (
+                    PluginManager::getGlobalPluginDirectory() . $this->pluginDescription->getName() . '/config.ini',
+                    true
+                )
             );
         }
         return $this->globalConfig;
@@ -89,7 +94,11 @@ abstract class Plugin
         if (!$this->globalConfig) {
             $this->globalConfig = new IniConfig
             (
-                PluginManager::getAppPluginDirectory() . $this->pluginDescription->getName() . '/config.ini'
+                new File
+                (
+                    PluginManager::getAppPluginDirectory() . $this->pluginDescription->getName() . '/config.ini',
+                    true
+                )
             );
         }
         return $this->globalConfig;
