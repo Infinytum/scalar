@@ -77,10 +77,12 @@ abstract class Config implements ConfigInterface
             $this->resource = $resource;
         } else if ($resource instanceof File) {
             if (!$resource->exists()) {
-                $resource->create('0777', true);
+                $resource->create(0777, true);
+                $this->resource = $resource->toStream();
                 $this->save();
+            } else {
+                $this->resource = $resource->toStream();
             }
-            $this->resource = $resource->toStream();
         } else if (is_resource($resource)) {
             $streamFactory = new StreamFactory();
             $this->resource = $streamFactory->createStreamFromResource($resource);

@@ -62,13 +62,13 @@ class File
     /**
      * Create file if not already existent
      *
-     * @param string $chmod
+     * @param int $chmod
      * @param bool $recursive
      * @return bool
      */
     public function createIfNotExists
     (
-        $chmod = '0777',
+        $chmod = 0777,
         $recursive = false
     )
     {
@@ -95,24 +95,28 @@ class File
     /**
      * Create file
      *
-     * @param string $chmod
+     * @param int $chmod
      * @param bool $recursive
      * @return bool
      */
     public function create
     (
-        $chmod = '0777',
+        $chmod = 0777,
         $recursive = false
     )
     {
         if ($this->suppressWarnings) {
             if ($recursive) {
-                @mkdir(dirname($this->path), $chmod, $recursive);
+                if (!file_exists(dirname($this->path))) {
+                    @mkdir(dirname($this->path), $chmod, $recursive);
+                }
             }
             $retVal = @touch($this->path);
         } else {
             if ($recursive) {
-                mkdir(dirname($this->path), $chmod, $recursive);
+                if (!file_exists(dirname($this->path))) {
+                    mkdir(dirname($this->path), $chmod, $recursive);
+                }
             }
             $retVal = touch($this->path);
         }
@@ -123,7 +127,7 @@ class File
     /**
      * Change file permissions. This only works on UNIX like systems.
      *
-     * @param $mode
+     * @param int $mode
      * @return bool
      */
     public function chmod
