@@ -85,8 +85,8 @@ class ScalarConfig extends IniConfig
                 $path = $injectable['Path'];
                 if ($this->overrides->containsPath($path)) {
                     $result = str_replace($injectable[0], $this->overrides->getPath($path), $result);
-                } else if ($this->has($path)) {
-                    $result = str_replace($injectable[0], $this->get($path), $result);
+                } else if ($this->hasPath($path)) {
+                    $result = str_replace($injectable[0], $this->getPath($path), $result);
                 }
             }
 
