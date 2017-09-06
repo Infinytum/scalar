@@ -24,6 +24,7 @@ namespace Scalar\Database;
 
 use Scalar\Config\IniConfig;
 use Scalar\Core\Scalar;
+use Scalar\Database\Exception\NoSuchDatabaseException;
 use Scalar\IO\File;
 
 class DatabaseManager
@@ -81,13 +82,20 @@ class DatabaseManager
         );
     }
 
+    /**
+     * Get instance of database connection
+     *
+     * @param string $database Name of database
+     * @return PDODatabase
+     * @throws NoSuchDatabaseException
+     */
     public function getDatabase
     (
         $database
     )
     {
         if (!$this->hasDatabase($database)) {
-            return null;
+            throw new NoSuchDatabaseException($database);
         }
 
         return new PDODatabase
