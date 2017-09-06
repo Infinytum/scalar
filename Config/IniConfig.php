@@ -121,9 +121,15 @@ class IniConfig extends Config
                             $this->resource->write($key . "[] = \"$entry\"" . PHP_EOL);
                         }
                     } else {
+
+                        if (is_string($value) || is_object($value)) {
+                            $value = "\"$value\"";
+                        }
+
                         if (is_bool($value))
-                            $value = $value ? "true" : "false";
-                        $this->resource->write("$key = \"$value\"" . PHP_EOL);
+                            $value = $value ? "on" : "off";
+
+                        $this->resource->write("$key = $value" . PHP_EOL);
                     }
                 }
             }
@@ -134,9 +140,18 @@ class IniConfig extends Config
                         $this->resource->write($key . "[] = \"$entry\"" . PHP_EOL);
                     }
                 } else {
-                    $this->resource->write("$key = \"$value\"" . PHP_EOL);
+
+                    if (is_string($value) || is_object($value)) {
+                        $value = "\"$value\"";
+                    }
+
+                    if (is_bool($value))
+                        $value = $value ? "on" : "off";
+
+                    $this->resource->write("$key = $value" . PHP_EOL);
                 }
             }
         }
+        return $this;
     }
 }
