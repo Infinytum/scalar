@@ -59,8 +59,7 @@ class RestControllerHook implements HttpMiddlewareInterface
         $next
     )
     {
-
-        if ($response->hasCustomArgument(self::ARG_CONTROLLER)) {
+        if ($response && $response->hasCustomArgument(self::ARG_CONTROLLER)) {
             $interfaces = class_implements($response->getCustomArgument(self::ARG_CONTROLLER));
 
             if (is_array($interfaces) && in_array(RestController::class, $interfaces)) {
@@ -81,13 +80,8 @@ class RestControllerHook implements HttpMiddlewareInterface
                         $response = $response->withAddedCustomArgument('Function', self::FUNC_DELETE);
                         break;
                 }
-
             }
-
         }
-
-        $response = $next($request, $response);
-
-        return $response;
+        return $next($request, $response);
     }
 }
