@@ -49,7 +49,7 @@ class MethodFilterMiddleware implements HttpMiddlewareInterface
         $next
     )
     {
-        if ($response->hasCustomArgument("Method")) {
+        if ($response && $response->hasCustomArgument("Method")) {
             $supportedMethods = $response->getCustomArgument("Method");
             if (!is_array($supportedMethods)) {
                 $supportedMethods = [$supportedMethods];
