@@ -28,6 +28,8 @@
 
 namespace Scalar\Router;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Scalar\App\App;
 use Scalar\Config\Config;
 use Scalar\Core\ClassLoader\AutoLoader;
@@ -108,11 +110,13 @@ class Router implements RouterInterface
 
     public function regenerateRouteMap()
     {
-        $result = glob($this->controllerLocation . '/*.php');
         $classes = [];
         $routes = [];
 
-        foreach ($result as $item) {
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->controllerLocation . '/')) as $item) {
+            if (strpos($item, '.php') < 1) {
+                continue;
+            }
             require_once $item;
             $ns = $this->extract_namespace($item);
             array_push($classes, $ns . "\\" . pathinfo(basename($item), PATHINFO_FILENAME));
