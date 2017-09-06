@@ -111,6 +111,32 @@ class IniConfig extends Config
      */
     public function save()
     {
-
+        $this->resource->wipe();
+        if ($this->sections) {
+            foreach ($this->config->asArray() as $section => $section_data) {
+                $this->resource->write("[$section]" . PHP_EOL);
+                foreach ($section_data as $key => $value) {
+                    if (is_array($value)) {
+                        foreach ($value as $entry) {
+                            $this->resource->write($key . "[] = \"$entry\"" . PHP_EOL);
+                        }
+                    } else {
+                        if (is_bool($value))
+                            $value = $value ? "true" : "false";
+                        $this->resource->write("$key = \"$value\"" . PHP_EOL);
+                    }
+                }
+            }
+        } else {
+            foreach ($this->config->asArray() as $key => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $entry) {
+                        $this->resource->write($key . "[] = \"$entry\"" . PHP_EOL);
+                    }
+                } else {
+                    $this->resource->write("$key = \"$value\"" . PHP_EOL);
+                }
+            }
+        }
     }
 }
