@@ -46,8 +46,7 @@ class ControllerDependencyInjectionHook implements HttpMiddlewareInterface
         $next
     )
     {
-
-        if ($response->hasCustomArgument('Controller') && class_exists($response->getCustomArgument('Controller'))) {
+        if ($response && $response->hasCustomArgument('Controller') && class_exists($response->getCustomArgument('Controller'))) {
             $reflectionClass = new \ReflectionClass($response->getCustomArgument('Controller'));
 
             foreach ($reflectionClass->getProperties() as $reflectionProperty) {
@@ -61,9 +60,6 @@ class ControllerDependencyInjectionHook implements HttpMiddlewareInterface
                 }
             }
         }
-
-        $response = $next($request, $response);
-
-        return $response;
+        return $next($request, $response);
     }
 }
