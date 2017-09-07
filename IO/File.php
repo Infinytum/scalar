@@ -44,19 +44,24 @@ class File
      */
     private $suppressWarnings;
 
+    private $streamMode;
+
     /**
      * File constructor.
      * @param string $filePath Path to file
      * @param bool $suppressWarnings
+     * @param string $streamMode
      */
     public function __construct
     (
         $filePath,
-        $suppressWarnings = false
+        $suppressWarnings = false,
+        $streamMode = 'r+'
     )
     {
         $this->path = $filePath;
         $this->suppressWarnings = $suppressWarnings;
+        $this->streamMode = $streamMode;
     }
 
     /**
@@ -176,9 +181,13 @@ class File
      */
     public function toStream
     (
-        $mode = 'r+'
+        $mode = null
     )
     {
+        if (!$mode) {
+            $mode = $this->streamMode;
+        }
+
         $streamFactory = new StreamFactory();
         return $streamFactory->createStreamFromFile
         (
