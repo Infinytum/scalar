@@ -275,6 +275,14 @@ class PluginManager implements PluginManagerInterface
         // TODO: Implement installPlugin() method.
     }
 
+    public function disableAllPlugins()
+    {
+        foreach ($this->pluginMap->getServices() as $pluginName) {
+            $plugin = $this->pluginMap->getService($pluginName);
+            $plugin->onDisable();
+        }
+    }
+
     public function loadPluginDirectory()
     {
         $directories = array_merge(
