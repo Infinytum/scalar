@@ -63,15 +63,24 @@ abstract class Plugin
     {
         return $this->pluginDescription;
     }
+    /**
+     * Returns this plugins home folder
+     *
+     * @return string
+     */
+    public function getAppPluginFolder()
+    {
+        return PluginManager::getAppPluginDirectory() . $this->pluginDescription->getName();
+    }
 
     /**
      * Returns this plugins home folder
      *
      * @return string
      */
-    public function getPluginFolder()
+    public function getGlobalPluginFolder()
     {
-        return $this->pluginLocation;
+        return PluginManager::getGlobalPluginDirectory() . $this->pluginDescription->getName();
     }
 
     public function getGlobalConfig()
