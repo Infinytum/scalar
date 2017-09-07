@@ -105,7 +105,7 @@ class PluginManager implements PluginManagerInterface
             return false;
         }
 
-        $jsonConfig = new JsonConfig(new File($descriptorFile, true));
+        $jsonConfig = new JsonConfig(new File($descriptorFile, true, 'r'));
         $jsonConfig->load();
 
         $pluginDescriptionFactory = new PluginDescriptionFactory();
