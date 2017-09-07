@@ -442,4 +442,18 @@ class Scalar
         return self::getInstance()->serviceMap;
     }
 
+    public function shutdown()
+    {
+
+        /**
+         * @var PluginManager $pluginManager
+         */
+        $pluginManager = self::getService
+        (
+            self::SERVICE_PLUGIN_MANAGER
+        );
+
+        $pluginManager->disableAllPlugins();
+    }
+
 }

@@ -86,3 +86,4 @@ foreach ($response->getHeaders() as $headerName => $headerValue) {
 
 echo $response->getBody()->getContents();
 
+$scalar->shutdown();
