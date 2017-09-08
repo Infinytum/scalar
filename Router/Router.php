@@ -113,6 +113,10 @@ class Router implements RouterInterface
         $classes = [];
         $routes = [];
 
+        if (!file_exists($this->controllerLocation)) {
+            @mkdir($this->controllerLocation, 0777, true);
+        }
+
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->controllerLocation . '/')) as $item) {
             if (strpos($item, '.php') < 1) {
                 continue;
