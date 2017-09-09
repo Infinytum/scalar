@@ -72,8 +72,7 @@ class CoreLogger implements LoggerInterface
         $scalarConfig->setDefaultPath(self::CONFIG_CORE_LOG_ENABLED, true)
             ->setDefaultPath(self::CONFIG_CORE_LOG_APPEND, false)
             ->setDefaultPath(self::CONFIG_CORE_LOG_FILE, '{{App.Home}}/scalar.log')
-            ->setDefaultPath(self::CONFIG_CORE_LOG_LEVEL, CoreLogger::Warning)
-            ->save();
+            ->setDefaultPath(self::CONFIG_CORE_LOG_LEVEL, CoreLogger::Warning);
 
         $streamFactory = new StreamFactory();
         $logStream = null;

@@ -78,10 +78,9 @@ abstract class Config implements ConfigInterface
         } else if ($resource instanceof File) {
             if (!$resource->exists()) {
                 $resource->create(0777, true);
-                $this->resource = $resource->toStream();
-                $this->save();
+                $this->resource = $resource->toStream('c+');
             } else {
-                $this->resource = $resource->toStream();
+                $this->resource = $resource->toStream('c+');
             }
         } else if (is_resource($resource)) {
             $streamFactory = new StreamFactory();
@@ -162,6 +161,7 @@ abstract class Config implements ConfigInterface
             return $this;
         }
         $this->config->set($key, $value);
+        $this->save();
         return $this;
     }
 
@@ -196,6 +196,7 @@ abstract class Config implements ConfigInterface
             return $this;
         }
         $this->config->setPath($path, $value);
+        $this->save();
         return $this;
     }
 
