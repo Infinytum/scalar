@@ -29,17 +29,23 @@
 namespace Scalar\Template;
 
 
+use Scalar\Util\ScalarArray;
+
 class ViewBag
 {
 
-    private static $array = [];
+    /**
+     * @var ScalarArray
+     */
+    private static $array;
 
     /**
      * Add value to existing template string
      * This will convert your value to an array
      *
-     * @param $key
-     * @param $val
+     * @param string $key
+     * @param mixed $val
+     * @return void
      */
     public static function add
     (
@@ -47,6 +53,8 @@ class ViewBag
         $val
     )
     {
+        self::__staticConstructor();
+
         $array = [];
         if (self::has($key)) {
             $value = self::get($key);
@@ -61,12 +69,52 @@ class ViewBag
         self::set($key, $array);
     }
 
+    /**
+     * Add value to existing template string at given path
+     * This will convert your value to an array
+     *
+     * @param string $key
+     * @param mixed $val
+     * @return void
+     */
+    public static function putPath
+    (
+        $key,
+        $val
+    )
+    {
+        self::__staticConstructor();
+        self::$array->putPath($key, $val);
+    }
+
+    /**
+     * Check if given template string already exists
+     *
+     * @param string $key
+     * @return bool
+     */
     public static function has
     (
         $key
     )
     {
-        return array_key_exists($key, self::$array);
+        self::__staticConstructor();
+        return self::$array->contains($key);
+    }
+
+    /**
+     * Check if given template string path already exists
+     *
+     * @param string $key
+     * @return bool
+     */
+    public static function hasPath
+    (
+        $key
+    )
+    {
+        self::__staticConstructor();
+        return self::$array->containsPath($key);
     }
 
     /**
@@ -82,18 +130,33 @@ class ViewBag
         $default = null
     )
     {
-        if (self::has($key)) {
-            return self::$array[$key];
-        }
+        self::__staticConstructor();
+        return self::$array->get($key, $default);
+    }
 
-        return $default;
+    /**
+     * Returns current definition of template string at given path
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public static function getPath
+    (
+        $key,
+        $default = null
+    )
+    {
+        self::__staticConstructor();
+        return self::$array->getPath($key, $default);
     }
 
     /**
      * Set template string to specific value
      *
-     * @param $key
-     * @param $val
+     * @param string $key
+     * @param mixed $val
+     * @return void
      */
     public static function set
     (
@@ -101,12 +164,43 @@ class ViewBag
         $val
     )
     {
-        self::$array[$key] = $val;
+        self::__staticConstructor();
+        self::$array->set($key, $val);
     }
 
+    /**
+     * Set template string to specific value at given path
+     *
+     * @param string $key
+     * @param mixed $val
+     * @return void
+     */
+    public static function setPath
+    (
+        $key,
+        $val
+    )
+    {
+        self::__staticConstructor();
+        self::$array->setPath($key, $val);
+    }
+
+    /**
+     * Get ViewBag as array
+     *
+     * @return array
+     */
     public static function getArray()
     {
-        return self::$array;
+        self::__staticConstructor();
+        return self::$array->asArray();
+    }
+
+    private static function __staticConstructor()
+    {
+        if (self::$array === null) {
+            self::$array = new ScalarArray();
+        }
     }
 
 }
