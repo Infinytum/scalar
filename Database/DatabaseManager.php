@@ -45,8 +45,7 @@ class DatabaseManager
             Scalar::SERVICE_SCALAR_CONFIG
         );
 
-        $scalarConfig->setDefaultPath(self::CONFIG_DATABASE_LIST, '{{App.Home}}/database.list')
-            ->save();
+        $scalarConfig->setDefaultPath(self::CONFIG_DATABASE_LIST, '{{App.Home}}/database.list');
 
         $this->iniConfig = new IniConfig
         (
@@ -66,8 +65,7 @@ class DatabaseManager
         $this->iniConfig
             ->setDefaultPath('MyDatabase.ConnectionString', 'mysql:host=localhost:3306;dbname=myDatabase;charset=utf8')
             ->setDefaultPath('MyDatabase.User', 'root')
-            ->setDefaultPath('MyDatabase.Pass', 'password')
-            ->save();
+            ->setDefaultPath('MyDatabase.Pass', 'password');
     }
 
     /**

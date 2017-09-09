@@ -280,7 +280,7 @@ class Scalar
         (
             self::CONFIG_MEMCACHE_PORT,
             '11211'
-        )->save();
+        );
     }
 
     private function initializeApp()
