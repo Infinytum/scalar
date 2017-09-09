@@ -58,14 +58,12 @@ class RepositoryManager implements RepositoryManagerInterface
         );
         $this->scalarConfig->setDefaultPath(self::CONFIG_REPO_LIST, '{{App.Home}}/repository.list')
             ->setDefaultPath(self::CONFIG_REPO_DEFAULT, 'ScalarOfficial')
-            ->setDefaultPath(self::CONFIG_REPO_UPDATE, 'ScalarOfficial')
-            ->save();
+            ->setDefaultPath(self::CONFIG_REPO_UPDATE, 'ScalarOfficial');
         $this->iniConfig = new IniConfig(new File($this->scalarConfig->get(self::CONFIG_REPO_LIST), true));
         $this->iniConfig->load();
 
         $this->iniConfig->set('ScalarOfficial.Uri', 'https://repo.scaly.ch/v1')
-            ->set('ScalarOfficial.ApiKey', false)
-            ->save();
+            ->set('ScalarOfficial.ApiKey', false);
     }
 
     /**
