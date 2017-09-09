@@ -32,6 +32,7 @@ namespace Scalar\Repository;
 use Scalar\Config\IniConfig;
 use Scalar\Core\Scalar;
 use Scalar\IO\Factory\UriFactory;
+use Scalar\IO\File;
 use Scalar\IO\UriInterface;
 
 class RepositoryManager implements RepositoryManagerInterface
@@ -55,19 +56,16 @@ class RepositoryManager implements RepositoryManagerInterface
         (
             Scalar::SERVICE_SCALAR_CONFIG
         );
-        $this->scalarConfig->setDefaultAndSave(self::CONFIG_REPO_LIST, '{{App.Home}}/repository.list');
-        $this->scalarConfig->setDefaultAndSave(self::CONFIG_REPO_DEFAULT, 'ScalarOfficial');
-        $this->scalarConfig->setDefaultAndSave(self::CONFIG_REPO_UPDATE, 'ScalarOfficial');
-
-        if (!file_exists($this->scalarConfig->get(self::CONFIG_REPO_LIST))) {
-            $iniConfig = new IniConfig($this->scalarConfig->get(self::CONFIG_REPO_LIST));
-            $iniConfig->set('ScalarOfficial.Uri', 'https://repo.scaly.ch/v1');
-            $iniConfig->set('ScalarOfficial.ApiKey', false);
-            $iniConfig->save();
-        }
-
-        $this->iniConfig = new IniConfig($this->scalarConfig->get(self::CONFIG_REPO_LIST));
+        $this->scalarConfig->setDefaultPath(self::CONFIG_REPO_LIST, '{{App.Home}}/repository.list')
+            ->setDefaultPath(self::CONFIG_REPO_DEFAULT, 'ScalarOfficial')
+            ->setDefaultPath(self::CONFIG_REPO_UPDATE, 'ScalarOfficial')
+            ->save();
+        $this->iniConfig = new IniConfig(new File($this->scalarConfig->get(self::CONFIG_REPO_LIST), true));
         $this->iniConfig->load();
+
+        $this->iniConfig->set('ScalarOfficial.Uri', 'https://repo.scaly.ch/v1')
+            ->set('ScalarOfficial.ApiKey', false)
+            ->save();
     }
 
     /**

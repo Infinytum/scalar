@@ -29,27 +29,20 @@
 namespace Scalar\Config;
 
 
+use Scalar\Config\Exception\ParseException;
+use Scalar\IO\Exception\IOException;
 use Scalar\IO\Stream\Stream;
-use Scalar\IO\Stream\StreamInterface;
 use Scalar\Util\ScalarArray;
 
-class IniConfig implements ConfigInterface
+class IniConfig extends Config
 {
 
-    /**
-     * @var Stream
-     */
-    private $fileStream;
+    const ERR_INVALID_INI = 'Tried to load malformed ini file!';
 
     /**
      * @var bool
      */
     private $sections;
-
-    /**
-     * @var ScalarArray
-     */
-    private $configArray;
 
     /**
      * @var int
@@ -58,143 +51,55 @@ class IniConfig implements ConfigInterface
 
     /**
      * IniConfig constructor.
-     * @param resource|Stream|string $fileLocation
+     * @param resource|Stream|string $resource
      * @param ScalarArray|array $configArray
      * @param bool $sections
      * @param int $iniScannerMode
      */
     function __construct
     (
-        $fileLocation,
+        $resource,
         $configArray = [],
         $sections = true,
         $iniScannerMode = INI_SCANNER_TYPED
     )
     {
-        if (is_string($fileLocation)) {
-            if (!file_exists($fileLocation)) {
-                @mkdir(dirname($fileLocation), 0777, true);
-                @touch($fileLocation);
-                @chmod($fileLocation, 0777);
-            }
-            $this->fileStream = new Stream(fopen($fileLocation, "r+"));
-        } elseif (is_resource($fileLocation)) {
-            $this->fileStream = new Stream($fileLocation);
-        } elseif ($fileLocation instanceof StreamInterface) {
-            $this->fileStream = $fileLocation;
-        } else {
-            throw new \InvalidArgumentException
-            (
-                'Invalid file location passed to ini config'
-            );
-        }
+        parent::__construct
+        (
+            $resource,
+            $configArray
+        );
 
-        if (is_array($configArray) && !$configArray instanceof ScalarArray) {
-            $this->configArray = new ScalarArray($configArray);
-        } elseif ($configArray instanceof ScalarArray) {
-            $this->configArray = $configArray;
-        } else {
-            throw new \InvalidArgumentException
-            (
-                'Invalid config array passed to ini config'
-            );
-        }
         $this->sections = $sections;
         $this->iniScannerMode = $iniScannerMode;
     }
 
     /**
-     * Retrieve value stored in config
+     * Load configuration
      *
-     * @param $key
-     * @param $default
-     * @return mixed
-     */
-    public function get
-    (
-        $key,
-        $default = null
-    )
-    {
-        if ($this->sections) {
-            return $this->configArray->getPath($key);
-        } elseif ($this->configArray->contains($key)) {
-            return $this->configArray[$key];
-        }
-        return $default;
-    }
-
-    public function setDefaultAndSave
-    (
-        $key,
-        $value
-    )
-    {
-        if ($this->has($key)) {
-            return $this;
-        }
-        $this->setDefault($key, $value);
-        $this->save();
-        $this->load();
-        return $this;
-    }
-
-    /**
-     * Check if the config contains this key
-     *
-     * @param $key
-     * @return bool
-     */
-    public function has
-    (
-        $key
-    )
-    {
-        if ($this->sections) {
-            return $this->configArray->containsPath($key);
-        } else {
-            return $this->configArray->contains($key);
-        }
-    }
-
-    /**
-     * Set default value in config if not present
-     *
-     * @param $key
-     * @param $value
      * @return static
+     * @throws IOException Will be thrown if data could not be read from disk
+     * @throws ParseException Will be thrown if configuration could not be parsed
      */
-    public function setDefault
-    (
-        $key,
-        $value
-    )
+    public function load()
     {
-        if ($this->has($key)) {
-            return $this;
-        }
-        $this->set($key, $value);
-        return $this;
-    }
+        $iniArray = parse_ini_string
+        (
+            $this->resource->getContents(),
+            $this->sections,
+            $this->iniScannerMode
+        );
 
-    /**
-     * Set a config value
-     *
-     * @param string $key
-     * @param mixed $value
-     * @return static
-     */
-    public function set
-    (
-        $key,
-        $value
-    )
-    {
-        if ($this->sections) {
-            $this->configArray->setPath($key, $value);
-        } else {
-            $this->configArray[$key] = $value;
+        if ($iniArray === false) {
+            throw new ParseException
+            (
+                self::ERR_INVALID_INI
+            );
         }
+
+        $this->resource->rewind();
+        $this->config = new ScalarArray($iniArray);
+
         return $this;
     }
 
@@ -202,17 +107,18 @@ class IniConfig implements ConfigInterface
      * Save configuration
      *
      * @return static
+     * @throws IOException Will be thrown if writing data to disk fails
      */
     public function save()
     {
-        $this->fileStream->wipe();
+        $this->resource->wipe();
         if ($this->sections) {
-            foreach ($this->configArray->asArray() as $section => $section_data) {
-                $this->fileStream->write("[$section]" . PHP_EOL);
+            foreach ($this->config->asArray() as $section => $section_data) {
+                $this->resource->write("[$section]" . PHP_EOL);
                 foreach ($section_data as $key => $value) {
                     if (is_array($value)) {
                         foreach ($value as $entry) {
-                            $this->fileStream->write($key . "[] = \"$entry\"" . PHP_EOL);
+                            $this->resource->write($key . "[] = \"$entry\"" . PHP_EOL);
                         }
                     } else {
 
@@ -223,15 +129,15 @@ class IniConfig implements ConfigInterface
                         if (is_bool($value))
                             $value = $value ? "on" : "off";
 
-                        $this->fileStream->write("$key = $value" . PHP_EOL);
+                        $this->resource->write("$key = $value" . PHP_EOL);
                     }
                 }
             }
         } else {
-            foreach ($this->configArray->asArray() as $key => $value) {
+            foreach ($this->config->asArray() as $key => $value) {
                 if (is_array($value)) {
                     foreach ($value as $entry) {
-                        $this->fileStream->write($key . "[] = \"$entry\"" . PHP_EOL);
+                        $this->resource->write($key . "[] = \"$entry\"" . PHP_EOL);
                     }
                 } else {
 
@@ -242,60 +148,10 @@ class IniConfig implements ConfigInterface
                     if (is_bool($value))
                         $value = $value ? "on" : "off";
 
-                    $this->fileStream->write("$key = $value" . PHP_EOL);
+                    $this->resource->write("$key = $value" . PHP_EOL);
                 }
             }
         }
         return $this;
-    }
-
-    /**
-     * Load configuration
-     *
-     * @return static
-     */
-    public function load()
-    {
-        $this->fileStream->rewind();
-        $this->configArray = new ScalarArray
-        (
-            parse_ini_string
-            (
-                $this->fileStream->getContents(),
-                $this->sections,
-                $this->iniScannerMode
-            )
-        );
-
-        return $this;
-    }
-
-    /**
-     * Get config map as Scalar Array
-     *
-     * @return ScalarArray
-     */
-    public function asScalarArray()
-    {
-        return clone $this->configArray;
-    }
-
-    public function setConfigArray
-    (
-        $configArray
-    )
-    {
-        if (!is_array($configArray) && !$configArray instanceof ScalarArray) {
-            throw new \InvalidArgumentException
-            (
-                'Invalid object passed to setConfigArray'
-            );
-        }
-
-        if (is_array($configArray) && !$configArray instanceof ScalarArray) {
-            $configArray = new ScalarArray($configArray);
-        }
-
-        $this->configArray = $configArray;
     }
 }

@@ -43,15 +43,19 @@ class PluginDescriptionFactory implements PluginDescriptionFactoryInterface
         $pluginInfo
     )
     {
-        return new PluginDescription
+
+        return $this->createPluginDescription
         (
-            $pluginInfo['_id'],
-            $pluginInfo['_repository'],
-            $pluginInfo['name'],
-            $pluginInfo['version'],
-            $pluginInfo['package_version'],
-            $pluginInfo['author'],
-            $pluginInfo['description']
+            isset($pluginInfo['_id']) ? $pluginInfo['_id'] : null,
+            isset($pluginInfo['_repository']) ? $pluginInfo['_repository'] : null,
+            isset($pluginInfo['name']) ? $pluginInfo['name'] : null,
+            isset($pluginInfo['version']) ? $pluginInfo['version'] : null,
+            isset($pluginInfo['main']) ? $pluginInfo['main'] : null,
+            isset($pluginInfo['namespace']) ? $pluginInfo['namespace'] : null,
+            isset($pluginInfo['package_version']) ? $pluginInfo['package_version'] : null,
+            isset($pluginInfo['author']) ? $pluginInfo['author'] : null,
+            isset($pluginInfo['description']) ? $pluginInfo['description'] : null,
+            isset($pluginInfo['depends']) ? $pluginInfo['depends'] : []
         );
     }
 
@@ -62,49 +66,28 @@ class PluginDescriptionFactory implements PluginDescriptionFactoryInterface
      * @param string|null $repository
      * @param string|null $name
      * @param string|null $version
+     * @param string $namespace
+     * @param string $main
      * @param int|null $packageVersion
      * @param string|null $author
      * @param string|null $description
+     * @param array $dependency
      * @return PluginDescription
      */
     public function createPluginDescription
     (
-        $id = null,
-        $repository = null,
-        $name = null,
-        $version = null,
-        $packageVersion = null,
-        $author = null,
-        $description = null
+        $id = 'undefined',
+        $repository = 'undefined',
+        $name = 'undefined',
+        $version = 'undefined',
+        $main = 'main',
+        $namespace = 'undefined',
+        $packageVersion = -1,
+        $author = 'undefined',
+        $description = 'undefined',
+        $dependency = []
     )
     {
-        if ($id == null) {
-            $id = 'undefined';
-        }
-
-        if ($repository == null) {
-            $repository = 'undefined';
-        }
-
-        if ($name == null) {
-            $name = 'undefined';
-        }
-
-        if ($version == null) {
-            $version = 'undefined';
-        }
-
-        if ($packageVersion == null) {
-            $packageVersion = -1;
-        }
-
-        if ($author == null) {
-            $author = 'undefined';
-        }
-
-        if ($description == null) {
-            $description = 'undefined';
-        }
 
         return new PluginDescription
         (
@@ -112,9 +95,12 @@ class PluginDescriptionFactory implements PluginDescriptionFactoryInterface
             $repository,
             $name,
             $version,
+            $main,
+            $namespace,
             $packageVersion,
             $author,
-            $description
+            $description,
+            $dependency
         );
     }
 }

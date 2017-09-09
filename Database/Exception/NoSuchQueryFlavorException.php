@@ -22,49 +22,30 @@
 /**
  * Created by PhpStorm.
  * User: nila
- * Date: 8/19/17
- * Time: 7:10 PM
+ * Date: 05/09/17
+ * Time: 23:13
  */
 
-namespace Scalar\App;
+namespace Scalar\Database\Exception;
 
-use Scalar\Http\Message\RequestInterface;
-use Scalar\Http\Message\ResponseInterface;
-use Scalar\Router\AppInterface;
 
-class App implements AppInterface
+class NoSuchQueryFlavorException extends DatabaseException
 {
 
-    /**
-     * This function is being executed before the request is dispatched
-     *
-     * @param RequestInterface $request
-     * @return RequestInterface
-     */
-    public function startup
+    const ERR_MESSAGE = 'Could not find query flavor "%s" in scalar.';
+
+    const ERR_CODE = 0x3246;
+
+    public function __construct
     (
-        $request
+        $queryFlavor
     )
     {
-
-        return $request;
+        parent::__construct
+        (
+            sprintf(self::ERR_MESSAGE, $queryFlavor),
+            self::ERR_CODE
+        );
     }
 
-    /**
-     * This function is being executed after the request has been dispatched
-     * and the response is ready to be returned to the client
-     *
-     * @param RequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    public function shutdown
-    (
-        $request,
-        $response
-    )
-    {
-
-        return $response;
-    }
 }

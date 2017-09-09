@@ -21,10 +21,13 @@
 
 namespace Scalar\Core\Router;
 
+use Scalar\Config\JsonConfig;
+use Scalar\Core\Config\ScalarConfig;
 use Scalar\Core\Router\Hook\ControllerDependencyInjectionHook;
 use Scalar\Core\Router\Hook\MethodFilterMiddleware;
 use Scalar\Core\Router\Hook\RestControllerHook;
 use Scalar\Core\Scalar;
+use Scalar\IO\File;
 use Scalar\Router\Router;
 use Scalar\Template\Hook\TemplateHook;
 
@@ -33,10 +36,23 @@ class CoreRouter extends Router
 
     public function __construct()
     {
+        /**
+         * @var ScalarConfig $scalarConfig
+         */
         $scalarConfig = Scalar::getService(Scalar::SERVICE_SCALAR_CONFIG);
+
+        $routeMap = new JsonConfig
+        (
+            new File
+            (
+                $scalarConfig->get(Scalar::CONFIG_ROUTER_MAP),
+                true
+            )
+        );
+
         parent::__construct
         (
-            $scalarConfig->get(Scalar::CONFIG_ROUTER_MAP),
+            $routeMap,
             $scalarConfig->get(Scalar::CONFIG_ROUTER_CONTROLLER)
         );
 
@@ -46,7 +62,7 @@ class CoreRouter extends Router
         $this->addHandler(new ControllerDependencyInjectionHook());
 
         if (Scalar::isDeveloperMode()) {
-            $this->generateRouteMap();
+            $this->regenerateRouteMap();
         }
     }
 

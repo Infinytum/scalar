@@ -28,8 +28,10 @@
 
 namespace Scalar\Router;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Scalar\App\App;
-use Scalar\Config\JsonConfig;
+use Scalar\Config\Config;
 use Scalar\Core\ClassLoader\AutoLoader;
 use Scalar\Core\Scalar;
 use Scalar\Http\Message\Response;
@@ -55,7 +57,7 @@ class Router implements RouterInterface
     private $phpDocRegex = '/@(?<property>[A-Z][a-z]+)(?:\s){0,1}(?<values>.*)/';
 
     /**
-     * @var array
+     * @var Config
      */
     private $routeMap;
 
@@ -69,9 +71,15 @@ class Router implements RouterInterface
      */
     private $controllerLocation;
 
+    /**
+     * Router constructor.
+     * @param Config $routeMap
+     * @param string $controllerLocation
+     * @param array $tempRouteMap
+     */
     function __construct
     (
-        $routeMapLocation,
+        $routeMap,
         $controllerLocation,
         $tempRouteMap = []
     )
@@ -84,29 +92,35 @@ class Router implements RouterInterface
             Scalar::SERVICE_AUTO_LOADER
         );
 
-        if (!file_exists($routeMapLocation)) {
-            $this->routeMap = new JsonConfig($routeMapLocation);
-            $this->generateRouteMap();
-        } else {
-            $this->routeMap = new JsonConfig($routeMapLocation);
-        }
+        $this->routeMap = $routeMap;
 
         $this->controllerLocation = $controllerLocation;
         $this->middlewareDispatcher = new HttpMiddlewareDispatcher([]);
-
         $autoLoader->addClassPath("\\", $controllerLocation);
 
         $this->tempRouteMap = $tempRouteMap;
+
+
+        if (!$routeMap->has('routes') || Scalar::isDeveloperMode()) {
+            $this->regenerateRouteMap();
+        }
+
         $this->routeMap->load();
     }
 
-    public function generateRouteMap()
+    public function regenerateRouteMap()
     {
-        $result = glob($this->controllerLocation . '/*.php');
         $classes = [];
         $routes = [];
 
-        foreach ($result as $item) {
+        if (!file_exists($this->controllerLocation)) {
+            @mkdir($this->controllerLocation, 0777, true);
+        }
+
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->controllerLocation . '/')) as $item) {
+            if (strpos($item, '.php') < 1) {
+                continue;
+            }
             require_once $item;
             $ns = $this->extract_namespace($item);
             array_push($classes, $ns . "\\" . pathinfo(basename($item), PATHINFO_FILENAME));

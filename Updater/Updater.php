@@ -129,26 +129,26 @@ class Updater implements UpdaterInterface
         }
 
         $streamFactory = new StreamFactory();
-        $stream = $streamFactory->createStreamFromFile('/tmp/scalar.zip', 'w+');
+        $stream = $streamFactory->createStreamFromFile(sys_get_temp_dir() . '/scalar.zip', 'w+');
         $stream->write($response->getBody()->getContents());
         $stream->close();
 
-        $sha1 = sha1_file('/tmp/scalar.zip');
+        $sha1 = sha1_file(sys_get_temp_dir() . '/scalar.zip');
 
         if ($sha1 != $json['sha1']) {
             return false;
         }
 
-        $zip = new \ZipArchive;
-        $res = $zip->open('/tmp/scalar.zip');
-        if ($res === TRUE) {
-            $zip->extractTo(SCALAR_CORE . '../');
-            $zip->close();
-            unlink('/tmp/scalar.zip');
-        } else {
-            return false;
-        }
-
+        /** $zip = new \ZipArchive;
+        * $res = $zip->open('/tmp/scalar.zip');
+        * if ($res === TRUE) {
+            * $zip->extractTo(SCALAR_CORE . '../');
+            * $zip->close();
+            * unlink('/tmp/scalar.zip');
+        * } else {
+            * return false;
+         * }
+         **/
         return true;
     }
 

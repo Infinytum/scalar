@@ -22,6 +22,8 @@
 namespace Scalar\IO\Stream;
 
 
+use Scalar\IO\Exception\IOException;
+
 class Stream implements StreamInterface
 {
 
@@ -131,13 +133,13 @@ class Stream implements StreamInterface
     /**
      * Get current pointer position
      * @return int
-     * @throws \RuntimeException on error.
+     * @throws IOException on error.
      */
     public function getPointerPosition()
     {
         $result = ftell($this->stream);
         if ($result === false) {
-            throw new \RuntimeException('Unable to determine stream position');
+            throw new IOException('Unable to determine stream position');
         }
         return $result;
     }
@@ -146,17 +148,17 @@ class Stream implements StreamInterface
      * Write to stream
      * @param string $string Data to be written
      * @return int Amount of bytes written
-     * @throws \RuntimeException on error.
+     * @throws IOException
      */
     public function write($string)
     {
         if (!$this->writable) {
-            throw new \RuntimeException('Cannot write to a non-writable stream');
+            throw new IOException('Cannot write to a non-writable stream');
         }
         $this->size = null;
         $result = fwrite($this->stream, $string);
         if ($result === false) {
-            throw new \RuntimeException('Unable to write to stream');
+            throw new IOException('Unable to write to stream');
         }
         return $result;
     }
@@ -164,22 +166,22 @@ class Stream implements StreamInterface
     /**
      * @param int $length Amount of bytes to read
      * @return string Data read from stream or empty
-     * @throws \RuntimeException on error.
+     * @throws IOException
      */
     public function read($length)
     {
         if ($this->atEof())
             return '';
         if (!$this->isReadable())
-            throw new \RuntimeException("Stream is not readable");
+            throw new IOException("Stream is not readable");
         if ($length < 0)
-            throw new \RuntimeException("Cannot read backwards");
+            throw new IOException("Cannot read backwards");
         if (0 === $length) {
             return '';
         }
         $string = fread($this->stream, $length);
         if (false === $string) {
-            throw new \RuntimeException('Unable to read from stream');
+            throw new IOException('Unable to read from stream');
         }
         return $string;
     }
@@ -205,9 +207,9 @@ class Stream implements StreamInterface
     public function wipe()
     {
         if (!$this->isReadable())
-            throw new \RuntimeException("Stream is not readable");
+            throw new IOException("Stream is not readable");
         if (!$this->isWritable())
-            throw new \RuntimeException("Stream is not writeable");
+            throw new IOException("Stream is not writeable");
 
         if ($this->isSeekable())
             $this->rewind();
@@ -245,14 +247,14 @@ class Stream implements StreamInterface
      * Seek pointer to stream position
      * @param int $offset
      * @param int $whence Calculation type
-     * @throws \RuntimeException on error.
+     * @throws IOException
      */
     public function seek($offset, $whence = SEEK_SET)
     {
         if (!$this->isSeekable())
-            throw new \RuntimeException("Cannot seek stream");
+            throw new IOException("Cannot seek stream");
         elseif (fseek($this->stream, $offset, $whence) === -1) {
-            throw new \RuntimeException('Unable to seek to stream position ' . $offset
+            throw new IOException('Unable to seek to stream position ' . $offset
                 . ' with whence ' .
                 var_export($whence, true));
         }
@@ -307,13 +309,13 @@ class Stream implements StreamInterface
     /**
      * Get remaining contents in a string
      * @return string
-     * @throws \RuntimeException on error.
+     * @throws IOException
      */
     public function getContents()
     {
         $contents = stream_get_contents($this->stream);
         if ($contents === false) {
-            throw new \RuntimeException('Unable to read stream content');
+            throw new IOException('Unable to read stream content');
         }
         return $contents;
     }

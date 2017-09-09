@@ -43,12 +43,11 @@ class TemplateHook implements HttpMiddlewareInterface
         $next
     )
     {
-
         /**
          * @var $response ResponseInterface
          */
         $response = $next($request, $response);
-        if ($response->hasCustomArgument("Template")) {
+        if ($response && $response->hasCustomArgument("Template")) {
             $templateName = $response->getCustomArgument("Template");
             $templateEngine = Scalar::getService
             (

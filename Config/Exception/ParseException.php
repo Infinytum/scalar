@@ -22,49 +22,21 @@
 /**
  * Created by PhpStorm.
  * User: nila
- * Date: 8/19/17
- * Time: 7:10 PM
+ * Date: 04/09/17
+ * Time: 17:45
  */
 
-namespace Scalar\App;
+namespace Scalar\Config\Exception;
 
-use Scalar\Http\Message\RequestInterface;
-use Scalar\Http\Message\ResponseInterface;
-use Scalar\Router\AppInterface;
 
-class App implements AppInterface
+use Throwable;
+
+class ParseException extends \Exception
 {
 
-    /**
-     * This function is being executed before the request is dispatched
-     *
-     * @param RequestInterface $request
-     * @return RequestInterface
-     */
-    public function startup
-    (
-        $request
-    )
+    public function __construct($message = "", $code = 0, Throwable $previous = null)
     {
-
-        return $request;
+        parent::__construct($message, $code, $previous);
     }
 
-    /**
-     * This function is being executed after the request has been dispatched
-     * and the response is ready to be returned to the client
-     *
-     * @param RequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    public function shutdown
-    (
-        $request,
-        $response
-    )
-    {
-
-        return $response;
-    }
 }

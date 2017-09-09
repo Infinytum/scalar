@@ -21,282 +21,76 @@
 
 namespace Scalar\Config;
 
-use Scalar\IO\Factory\StreamFactory;
+use Scalar\Config\Exception\ParseException;
+use Scalar\IO\Exception\IOException;
+use Scalar\IO\File;
 use Scalar\IO\Stream\Stream;
-use Scalar\IO\Stream\StreamInterface;
 use Scalar\Util\ScalarArray;
 
-class JsonConfig implements ConfigInterface
+class JsonConfig extends Config
 {
 
-    /**
-     * @var Stream
-     */
-    private $fileStream;
 
-    /**
-     * @var ScalarArray
-     */
-    private $configArray;
 
     /**
      * JsonConfig constructor.
-     * @param resource|Stream|string $fileLocation
+     * @param resource|Stream|File $resource
      * @param ScalarArray|array $configArray
      */
     public function __construct
     (
-        $fileLocation,
+        $resource,
         $configArray = []
     )
     {
-        $streamFactory = new StreamFactory();
-
-        if (is_string($fileLocation)) {
-            if (!file_exists($fileLocation)) {
-                @mkdir(dirname($fileLocation), 0777, true);
-                @touch($fileLocation);
-                @chmod($fileLocation, 0777);
-            }
-            $this->fileStream = $streamFactory->createStreamFromFile($fileLocation, "r+");
-        } elseif (is_resource($fileLocation)) {
-            $this->fileStream = $streamFactory->createStreamFromResource($fileLocation);
-        } elseif ($fileLocation instanceof StreamInterface) {
-            $this->fileStream = $fileLocation;
-        } else {
-            throw new \InvalidArgumentException
-            (
-                'Invalid file location passed to json config'
-            );
-        }
-
-        if ($this->fileStream == null) {
-            $this->fileStream = $streamFactory->createStream();
-        }
-
-        if (is_array($configArray) && !$configArray instanceof ScalarArray) {
-            $this->configArray = new ScalarArray($configArray);
-        } elseif ($configArray instanceof ScalarArray) {
-            $this->configArray = $configArray;
-        } else {
-            throw new \InvalidArgumentException
-            (
-                'Invalid config array passed to json config'
-            );
-        }
-    }
-
-    /**
-     * Retrieve value stored in config
-     *
-     * @param $key
-     * @param $default
-     * @return mixed
-     */
-    public function get
-    (
-        $key,
-        $default = null
-    )
-    {
-        if ($this->configArray->contains($key)) {
-            return $this->configArray[$key];
-        }
-        return $default;
-    }
-
-    /**
-     * Retrieve value stored in config
-     *
-     * @param $key
-     * @param $default
-     * @return mixed
-     */
-    public function getPath
-    (
-        $key,
-        $default = null
-    )
-    {
-        if ($this->configArray->containsPath($key)) {
-            return $this->configArray->getPath($key);
-        }
-        return $default;
-    }
-
-    public function setDefaultAndSave
-    (
-        $key,
-        $value
-    )
-    {
-        if ($this->has($key)) {
-            return;
-        }
-        $this->setDefault($key, $value);
-        $this->save();
-        $this->load();
-    }
-
-    /**
-     * Check if the config contains this key
-     *
-     * @param $key
-     * @return bool
-     */
-    public function has
-    (
-        $key
-    )
-    {
-        return $this->configArray->contains($key);
-    }
-
-    /**
-     * Set default value in config if not present
-     *
-     * @param $key
-     * @param $value
-     * @return void
-     */
-    public function setDefault
-    (
-        $key,
-        $value
-    )
-    {
-        if ($this->has($key)) {
-            return;
-        }
-        $this->set($key, $value);
-    }
-
-    /**
-     * Set a config value
-     *
-     * @param string $key
-     * @param mixed $value
-     * @return void
-     */
-    public function set
-    (
-        $key,
-        $value
-    )
-    {
-        $this->configArray[$key] = $value;
-    }
-
-    /**
-     * Save configuration
-     *
-     * @return void
-     */
-    public function save()
-    {
-        $this->fileStream->wipe();
-        $this->fileStream->write
+        parent::__construct
         (
-            json_encode
-            (
-                $this->configArray->asArray(),
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-            )
+            $resource,
+            $configArray
         );
     }
 
     /**
      * Load configuration
      *
-     * @return void
+     * @return static
+     * @throws IOException Will be thrown if data could not be read from disk
+     * @throws ParseException Will be thrown if configuration could not be parsed
      */
     public function load()
     {
-        $this->fileStream->rewind();
+        $this->resource->rewind();
         $array = json_decode
         (
-            $this->fileStream->getContents(),
+            $this->resource->getContents(),
             true
         );
-
 
         if (!$array) {
             $array = [];
         }
 
-        $this->configArray = new ScalarArray($array);
-    }
-
-    public function setDefaultAndSavePath
-    (
-        $key,
-        $value
-    )
-    {
-        if ($this->hasPath($key)) {
-            return;
-        }
-        $this->setDefaultPath($key, $value);
-        $this->save();
-        $this->load();
+        $this->config = new ScalarArray($array);
+        return $this;
     }
 
     /**
-     * Check if the config contains this key
+     * Save configuration
      *
-     * @param $key
-     * @return bool
+     * @return static
+     * @throws IOException Will be thrown if writing data to disk fails
      */
-    public function hasPath
-    (
-        $key
-    )
+    public function save()
     {
-        return $this->configArray->containsPath($key);
-    }
-
-    /**
-     * Set default value in config if not present
-     *
-     * @param $key
-     * @param $value
-     * @return void
-     */
-    public function setDefaultPath
-    (
-        $key,
-        $value
-    )
-    {
-        if ($this->hasPath($key)) {
-            return;
-        }
-        $this->setPath($key, $value);
-    }
-
-    /**
-     * Set a config value
-     *
-     * @param string $key
-     * @param mixed $value
-     * @return void
-     */
-    public function setPath
-    (
-        $key,
-        $value
-    )
-    {
-        $this->configArray->setPath($key, $value);
-    }
-
-    /**
-     * Get config map as Scalar Array
-     *
-     * @return ScalarArray
-     */
-    public function asScalarArray()
-    {
-        return clone $this->configArray;
+        $this->resource->wipe();
+        $this->resource->write
+        (
+            json_encode
+            (
+                $this->config->asArray(),
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+            )
+        );
+        return $this;
     }
 }

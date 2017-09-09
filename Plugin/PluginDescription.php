@@ -57,6 +57,20 @@ class PluginDescription
     private $version;
 
     /**
+     * Plugin namespace
+     *
+     * @var string
+     */
+    private $namespace;
+
+    /**
+     * Plugin main class
+     *
+     * @var string
+     */
+    private $main;
+
+    /**
      * Auto-incremental package version identifier
      *
      * @var int
@@ -78,14 +92,24 @@ class PluginDescription
     private $description;
 
     /**
+     * Plugins this plugin depends on
+     *
+     * @var array
+     */
+    private $dependencies;
+
+    /**
      * PluginDescription constructor.
      * @param string $id
      * @param string $repository
      * @param string $name
      * @param string $version
+     * @param string $main
+     * @param string $namespace
      * @param int $packageVersion
      * @param string $author
      * @param string $description
+     * @param array $dependencies
      */
     public function __construct
     (
@@ -93,18 +117,24 @@ class PluginDescription
         $repository,
         $name,
         $version,
+        $main,
+        $namespace,
         $packageVersion,
         $author,
-        $description
+        $description,
+        $dependencies = []
     )
     {
         $this->id = $id;
         $this->repository = $repository;
         $this->name = $name;
         $this->version = $version;
+        $this->namespace = $namespace;
+        $this->main = $main;
         $this->packageVersion = $packageVersion;
         $this->author = $author;
         $this->description = $description;
+        $this->dependencies = $dependencies;
     }
 
 
@@ -185,6 +215,60 @@ class PluginDescription
     }
 
     /**
+     * @return string
+     */
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAbsoluteNamespace()
+    {
+        return '\\Scalar\\App\\Plugin\\' . $this->namespace . '\\';
+    }
+
+    /**
+     * @param string $namespace
+     * @return PluginDescription
+     */
+    public function withNamespace($namespace)
+    {
+        $newInstance = clone $this;
+        $newInstance->namespace = $namespace;
+        return $newInstance;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMain()
+    {
+        return $this->main;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAbsoluteMain()
+    {
+        return $this->getAbsoluteNamespace() . $this->main;
+    }
+
+    /**
+     * @param string $main
+     * @return PluginDescription
+     */
+    public function withMain($main)
+    {
+        $newInstance = clone $this;
+        $newInstance->main = $main;
+        return $newInstance;
+    }
+
+    /**
      * @return int
      */
     public function getPackageVersion()
@@ -240,6 +324,27 @@ class PluginDescription
         $newInstance->description = $description;
         return $newInstance;
     }
+
+    /**
+     * @return array
+     */
+    public function getDependencies()
+    {
+        return $this->dependencies;
+    }
+
+    /**
+     * @param array $dependencies
+     * @return PluginDescription
+     */
+    public function setDependencies($dependencies)
+    {
+        $newInstance = clone $this;
+        $newInstance->dependencies = $dependencies;
+        return $newInstance;
+    }
+
+
 
 
 }

@@ -38,6 +38,7 @@ use Scalar\Core\Service\ServiceMap;
 use Scalar\Core\Updater\CoreUpdater;
 use Scalar\Database\DatabaseManager;
 use Scalar\Http\Client\CurlHttpClient;
+use Scalar\Plugin\PluginManager;
 use Scalar\Repository\RepositoryManager;
 use Scalar\Router\Router;
 use Scalar\Template\Controller\AssetProxy;
@@ -77,6 +78,7 @@ class Scalar
     const SERVICE_REPOSITORY_MANAGER = 'RepositoryManager';
     const SERVICE_UPDATER = 'Updater';
     const SERVICE_HTTP_CLIENT = 'HttpClient';
+    const SERVICE_PLUGIN_MANAGER = 'PluginManager';
 
     /**
      * Services
@@ -120,6 +122,7 @@ class Scalar
         $this->initializeConfiguration();
         $this->initializeApp();
         $this->initializeServices();
+        $this->initializePlugins();
     }
 
     private function initializeCoreServices()
@@ -203,6 +206,14 @@ class Scalar
             CurlHttpClient::class,
             []
         );
+
+        $this->serviceMap->registerServiceClass
+        (
+            self::SERVICE_PLUGIN_MANAGER,
+            PluginManager::class,
+            [],
+            true
+        );
     }
 
     private function initializeAutoLoader()
@@ -225,51 +236,51 @@ class Scalar
             self::SERVICE_SCALAR_CONFIG
         );
 
-        $scalarConfig->setDefaultAndSave
+        $scalarConfig->setDefaultPath
         (
             self::CONFIG_CORE_DEV_MODE,
             false
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_CORE_DEBUG_MODE,
             false
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_APP_PATH,
             dirname(SCALAR_CORE) . '/scalar_app'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_ROUTER_MAP,
             '{{App.Home}}/route.map'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_ROUTER_CONTROLLER,
             '{{App.Home}}/Controller'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_TEMPLATE_DIR,
             '{{App.Home}}/Resources/Templates/'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_ASSETS_DIR,
             '{{App.Home}}/Resources/Assets/'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_UPDATE_CHANNEL,
             'stable'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_STORAGE_PATH,
             sys_get_temp_dir() . '/Scalar.cache/{{App.Home}}'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_MEMCACHE_HOST,
             'localhost'
-        )->setDefaultAndSave
+        )->setDefaultPath
         (
             self::CONFIG_MEMCACHE_PORT,
             '11211'
-        );
+        )->save();
     }
 
     private function initializeApp()
@@ -395,6 +406,20 @@ class Scalar
         }
     }
 
+    private function initializePlugins()
+    {
+
+        /**
+         * @var PluginManager $pluginManager
+         */
+        $pluginManager = self::getService
+        (
+            self::SERVICE_PLUGIN_MANAGER
+        );
+
+        $pluginManager->loadPluginDirectory();
+    }
+
     public static function isDeveloperMode()
     {
         $scalarConfig = self::getService
@@ -415,6 +440,20 @@ class Scalar
     public static function getServiceMap()
     {
         return self::getInstance()->serviceMap;
+    }
+
+    public function shutdown()
+    {
+
+        /**
+         * @var PluginManager $pluginManager
+         */
+        $pluginManager = self::getService
+        (
+            self::SERVICE_PLUGIN_MANAGER
+        );
+
+        $pluginManager->disableAllPlugins();
     }
 
 }
