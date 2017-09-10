@@ -181,6 +181,9 @@ class Router implements RouterInterface
             $method = new \stdClass();
             $method->Controller = $controllerName;
             $method->Function = $phpMethod->getName();
+            if ($phpMethod->getName() == '__construct') {
+                continue;
+            }
             $methodData = $phpMethod->getDocComment();
             preg_match_all($this->phpDocRegex, $methodData, $matches, PREG_SET_ORDER, 0);
             foreach ($matches as $match) {
