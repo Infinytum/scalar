@@ -244,7 +244,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 
     /**
      * Fetch data
-     * @return mixed
+     * @return ScalarArray
      */
     public function fetch()
     {
@@ -253,7 +253,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         $rows = self::getPDO()->execute($query[0], $query[1]);
 
         if (!$rows) {
-            return null;
+            return new ScalarArray();
         }
 
 
@@ -309,11 +309,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
             array_push($data, $method->invoke(null, $row));
 
         }
-
-        if (count($data) == 1) {
-            return $data[0];
-        }
-        return $data;
+        return new ScalarArray($data);
     }
 
     /**
