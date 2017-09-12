@@ -79,6 +79,7 @@ abstract class Config implements ConfigInterface
             if (!$resource->exists()) {
                 $resource->create(0777, true);
                 $this->resource = $resource->toStream('c+');
+                $this->save();
             } else {
                 $this->resource = $resource->toStream('c+');
             }
