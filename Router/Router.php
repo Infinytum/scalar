@@ -32,7 +32,6 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Scalar\App\App;
 use Scalar\Config\Config;
-use Scalar\Core\ClassLoader\AutoLoader;
 use Scalar\Core\Scalar;
 use Scalar\Http\Message\Response;
 use Scalar\Http\Message\ResponseInterface;
@@ -84,19 +83,10 @@ class Router implements RouterInterface
         $tempRouteMap = []
     )
     {
-        /**
-         * @var AutoLoader $autoLoader
-         */
-        $autoLoader = Scalar::getService
-        (
-            Scalar::SERVICE_AUTO_LOADER
-        );
-
         $this->routeMap = $routeMap;
 
         $this->controllerLocation = $controllerLocation;
         $this->middlewareDispatcher = new HttpMiddlewareDispatcher([]);
-        $autoLoader->addClassPath("\\", $controllerLocation);
 
         $this->tempRouteMap = $tempRouteMap;
 
@@ -191,6 +181,9 @@ class Router implements RouterInterface
             $method = new \stdClass();
             $method->Controller = $controllerName;
             $method->Function = $phpMethod->getName();
+            if ($phpMethod->getName() == '__construct') {
+                continue;
+            }
             $methodData = $phpMethod->getDocComment();
             preg_match_all($this->phpDocRegex, $methodData, $matches, PREG_SET_ORDER, 0);
             foreach ($matches as $match) {

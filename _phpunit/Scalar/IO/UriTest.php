@@ -19,55 +19,199 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Created by PhpStorm.
- * User: nila
- * Date: 8/18/17
- * Time: 1:27 PM
- */
-
 namespace Scalar\IO;
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * This class tests the functionality of the {@see Scalar\IO\Uri} Scalar\IO\Uri class.
+ *
+ * @author Cedric Lewe
+ * @covers Uri
+ */
 class UriTest extends TestCase
 {
+    /**
+     * @var Uri
+     */
+    private static $uri;
 
-    public function testUriFromString()
+    /**
+     * @covers Uri::__construct()
+     */
+    public static function setUpBeforeClass()
     {
-        $uri = new Uri();
-        /**
-         * @var $uri Uri
-         */
-        $uri = $uri->fromString("Http://user:pass@www.scaly.ch:345/path/to/file?query=param#fragment");
-        self::assertEquals("www.scaly.ch", $uri->getHost());
-        self::assertEquals("Http", $uri->getScheme());
-        self::assertEquals("user:pass", $uri->getUserInfo());
-        self::assertEquals(345, $uri->getPort());
-        self::assertEquals("/path/to/file", $uri->getPath());
-        self::assertEquals("query=param", $uri->getQuery());
-        self::assertEquals("fragment", $uri->getFragment());
-        self::assertEquals("Http://user:pass@www.scaly.ch:345/path/to/file?query=param#fragment", $uri);
-
-        /**
-         * @var $uri Uri
-         */
-        $uri = $uri->fromString("Http://www.scaly.ch/path/to/file?query=param");
-        self::assertEquals("www.scaly.ch", $uri->getHost());
-        self::assertEquals("Http", $uri->getScheme());
-        self::assertEquals("", $uri->getUserInfo());
-        self::assertEquals(null, $uri->getPort());
-        self::assertEquals("/path/to/file", $uri->getPath());
-        self::assertEquals("query=param", $uri->getQuery());
-        self::assertEquals("", $uri->getFragment());
-        self::assertEquals("Http://www.scaly.ch/path/to/file?query=param", $uri->__toString());
-
-        $newUri = $uri->withScheme("sftp");
-        self::assertNotEquals("sftp", $uri->getScheme());
-        self::assertEquals("sftp", $newUri->getScheme());
-
-        $serializedUri = serialize($uri);
-        self::assertEquals($uri, unserialize($serializedUri));
+        self::$uri = new Uri();
     }
 
+    /**
+     * @covers Uri::fromString()
+     */
+    public function testFromString()
+    {
+        self::$uri = self::$uri->fromString("Http://user:pass@www.scaly.ch:345/path/to/file?query=param#fragment");
+        self::assertNotNull(self::$uri);
+    }
+
+    /**
+     * @covers  Uri::getHost()
+     * @depends testFromString
+     */
+    public function testGetHost()
+    {
+        self::assertSame("www.scaly.ch", self::$uri->getHost());
+    }
+
+    /**
+     * @covers  Uri::getScheme()
+     * @depends testFromString
+     */
+    public function testGetScheme()
+    {
+        self::assertSame("Http", self::$uri->getScheme());
+    }
+
+    /**
+     * @covers  Uri::getUserInfo()
+     * @depends testFromString
+     */
+    public function testGetUserInfo()
+    {
+        self::assertSame("user:pass", self::$uri->getUserInfo());
+    }
+
+    /**
+     * @covers  Uri::getPort()
+     * @depends testFromString
+     */
+    public function testGetPort()
+    {
+        self::assertSame(345, self::$uri->getPort());
+    }
+
+    /**
+     * @covers  Uri::getPath()
+     * @depends testFromString
+     */
+    public function testGetPath()
+    {
+        self::assertSame("/path/to/file", self::$uri->getPath());
+    }
+
+    /**
+     * @covers  Uri::getQuery()
+     * @depends testFromString
+     */
+    public function testGetQuery()
+    {
+        self::assertSame("query=param", self::$uri->getQuery());
+    }
+
+    /**
+     * @covers  Uri::getQuery()
+     * @depends testFromString
+     */
+    public function testGetFragment()
+    {
+        self::assertSame("fragment", self::$uri->getFragment());
+    }
+
+    /**
+     * @covers  Uri::__toString()
+     * @depends testFromString
+     */
+    public function testToString()
+    {
+        self::assertSame("Http://user:pass@www.scaly.ch:345/path/to/file?query=param#fragment", self::$uri->__toString());
+    }
+
+    /**
+     * @covers  Uri::withHost()
+     * @depends testGetHost
+     */
+    public function testWithHost()
+    {
+        $uri = self::$uri->withHost("www.example.com");
+        self::assertSame("www.example.com", $uri->getHost());
+    }
+
+    /**
+     * @covers  Uri::withPort()
+     * @depends testGetPort
+     */
+    public function testWithPort()
+    {
+        $uri = self::$uri->withPort(675);
+        self::assertSame(675, $uri->getPort());
+    }
+
+    /**
+     * @covers  Uri::withPath()
+     * @depends testGetPath
+     */
+    public function testWithPath()
+    {
+        $uri = self::$uri->withPath("/foo/bar");
+        self::assertSame("/foo/bar", $uri->getPath());
+    }
+
+    /**
+     * @covers  Uri::withScheme()
+     * @depends testGetScheme
+     */
+    public function testWithScheme()
+    {
+        $uri = self::$uri->withScheme("https");
+        self::assertSame("https", $uri->getScheme());
+    }
+
+    /**
+     * @covers  Uri::withUserInfo()
+     * @depends testGetUserInfo
+     */
+    public function testWithUserInfo()
+    {
+        $uri = self::$uri->withUserInfo("chuck", "norris");
+        self::assertSame("chuck:norris", $uri->getUserInfo());
+    }
+
+    /**
+     * @covers  Uri::withQuery()
+     * @depends testGetQuery
+     */
+    public function testWithQuery()
+    {
+        $uri = self::$uri->withQuery("q");
+        self::assertSame("q", $uri->getQuery());
+    }
+
+    /**
+     * @covers  Uri::withFragment()
+     * @depends testGetFragment
+     */
+    public function testWithFragment()
+    {
+        $uri = self::$uri->withFragment("q");
+        self::assertSame("q", $uri->getFragment());
+    }
+
+    /**
+     * @covers  Uri::serialize()
+     * @depends testFromString
+     */
+    public function testSerialize()
+    {
+        self::assertSame("Http://user:pass@www.scaly.ch:345/path/to/file?query=param#fragment", self::$uri->serialize());
+    }
+
+    /**
+     * @covers  Uri::unserialize()
+     * @depends testFromString
+     */
+    public function testUnserialize()
+    {
+        $uri = self::$uri;
+        self::$uri->unserialize(self::$uri->serialize());
+        self::assertSame(self::$uri, $uri);
+    }
 }

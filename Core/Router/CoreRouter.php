@@ -60,10 +60,6 @@ class CoreRouter extends Router
         $this->addHandler(new TemplateHook());
         $this->addHandler(new RestControllerHook());
         $this->addHandler(new ControllerDependencyInjectionHook());
-
-        if (Scalar::isDeveloperMode()) {
-            $this->regenerateRouteMap();
-        }
     }
 
 }
