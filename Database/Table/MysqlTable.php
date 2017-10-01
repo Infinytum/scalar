@@ -844,12 +844,25 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 
     public function offsetGet($offset)
     {
+        if (substr($offset, -2) === '()') {
+            $offset = substr($offset, 0, -2);
+            $reflectionClass = new \ReflectionClass(get_called_class());
+
+            if (!$reflectionClass->hasMethod($offset)) {
+                return null;
+            }
+
+            $property = $reflectionClass->getMethod($offset);
+            $property->setAccessible(true);
+            return $property->invoke($this);
+        }
+
         return $this->getFieldValue($offset);
     }
 
     public function offsetExists($offset)
     {
-        return $this->getFieldValue($offset) !== null;
+        return $this->offsetGet($offset) !== null;
     }
 
     public function offsetSet($offset, $value)
