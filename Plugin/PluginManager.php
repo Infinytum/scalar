@@ -81,7 +81,7 @@ class PluginManager implements PluginManagerInterface
 
     public static function getGlobalPluginDirectory()
     {
-        return SCALAR_APP . '/plugins/';
+        return SCALAR_CORE . '/_plugins/';
     }
 
     /**
