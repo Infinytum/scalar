@@ -121,7 +121,7 @@ class FieldDefinition
      */
     public function isNotNull()
     {
-        return $this->array->getPath(self::FIELD_NOT_NULL, true);
+        return $this->array->getPath(self::FIELD_NOT_NULL, false);
     }
 
     /**
