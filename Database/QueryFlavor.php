@@ -102,6 +102,8 @@ class QueryFlavor extends IniConfig
 
             if ($fieldDefinition->isNotNull()) {
                 array_push($column, 'NOT NULL');
+            } else {
+                array_push($column, 'NULL');
             }
 
             if ($fieldDefinition->isAutoIncrement()) {
