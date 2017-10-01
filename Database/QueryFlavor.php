@@ -92,8 +92,6 @@ class QueryFlavor extends IniConfig
         $primaryKeys = [];
         $constraints = [];
 
-        $columnTemplate = $this->getPath(self::CONFIG_CREATE_COLUMN);
-
         foreach ($tableDefinition->getFieldDefinitions() as $fieldDefinition) {
             $column = [];
 
