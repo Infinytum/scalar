@@ -20,35 +20,30 @@
  */
 
 /**
- * Created by PhpStorm.
- * User: nila
- * Date: 8/19/17
- * Time: 11:39 PM
+ * Handlebars loader interface
+ *
+ * @category  Xamin
+ * @package   Handlebars
+ * @author    fzerorubigd <fzerorubigd@gmail.com>
+ * @author    Behrooz Shabani <everplays@gmail.com>
+ * @copyright 2012 (c) ParsPooyesh Co
+ * @copyright 2013 (c) Behrooz Shabani
+ * @license   MIT
+ * @link      http://voodoophp.org/docs/handlebars
  */
 
-namespace Scalar\Core\Updater;
+namespace Handlebars;
 
-
-use Scalar\Core\Scalar;
-use Scalar\Repository\RepositoryManager;
-use Scalar\Updater\Updater;
-
-class CoreUpdater extends Updater
+interface Loader
 {
 
-    public function __construct()
-    {
-        $scalarConfig = Scalar::getService(Scalar::SERVICE_CORE_CONFIG);
-        /**
-         * @var RepositoryManager $repoManager
-         */
-        $repoManager = Scalar::getService(Scalar::SERVICE_REPOSITORY_MANAGER);
-
-        parent::__construct
-        (
-            $repoManager->getUpdateRepository(),
-            $scalarConfig->asScalarArray()->getPath(Scalar::CONFIG_UPDATE_CHANNEL)
-        );
-    }
+    /**
+     * Load a Template by name.
+     *
+     * @param string $name template name to load
+     *
+     * @return String
+     */
+    public function load($name);
 
 }

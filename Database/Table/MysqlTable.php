@@ -23,7 +23,7 @@ namespace Scalar\Database\Table;
 
 use Scalar\Config\JsonConfig;
 use Scalar\Database\PDODatabase;
-use Scalar\Database\QueryFlavor;
+use Scalar\Database\Query\Flavor;
 use Scalar\IO\File;
 use Scalar\Util\Annotation\PHPDoc;
 use Scalar\Util\Factory\AnnotationFactory;
@@ -34,25 +34,31 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 {
 
     /**
-     * @var PDODatabase
+     * Connection pool
+     * @var ScalarArray
      */
-    private static $database;
+    private static $databaseConnections;
+
     /**
      * @var \stdClass
      */
     private $mockObject;
+
     /**
      * @var \ReflectionProperty[]
      */
     private $fields;
+
     /**
      * @var ScalarArray
      */
     private $query;
+
     /**
-     * @var QueryFlavor
+     * @var Flavor
      */
     private $queryFlavor;
+
     /**
      * @var string
      */
@@ -72,7 +78,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         $this->tableName = $tableName;
         $this->updateOverrides = $updateFieldOverrides;
         $this->resetQuery();
-        $this->queryFlavor = new QueryFlavor('mysql');
+        $this->queryFlavor = new Flavor('mysql');
         $this->queryFlavor->load();
     }
 
@@ -88,16 +94,20 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
     }
 
     /**
-     * Set global PDO instance
+     * Add PDO instance
      *
      * @param PDODatabase $pdo
      */
-    public static function setPDO
+    public static function registerPDO
     (
+        $databaseName,
         $pdo
     )
     {
-        self::$database = $pdo;
+        if (self::$databaseConnections === null) {
+            self::$databaseConnections = new ScalarArray();
+        }
+        self::$databaseConnections->set($databaseName, $pdo);
     }
 
     public abstract static function fromRow
@@ -250,7 +260,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
     {
         $tableDefinition = self::getTableDefinition();
         $query = $this->getSelectQuery();
-        $rows = self::getPDO()->execute($query[0], $query[1]);
+        $rows = $this->getPDO()->execute($query[0], $query[1]);
 
         if (!$rows) {
             return new ScalarArray();
@@ -294,7 +304,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
                     }
                 );;
                 $query = $this->getSelectQuery();
-                $result = self::getPDO()->execute($query[0], $query[1]);
+                $result = $this->getPDO()->execute($query[0], $query[1]);
 
                 $ids = [];
                 $fieldName = $fieldDefinition->getForeignTableDefinition()->getTableName();
@@ -330,9 +340,11 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 
             $definitionLoader->set('Table', self::getParameters($reflectionClass));
 
-            if (!$definitionLoader->hasPath('Table.Table')) {
+            if (!$definitionLoader->hasPath('Table.Table') || !$definitionLoader->hasPath('Table.Database')) {
                 return null;
             }
+
+            $definitionLoader->setPath('Table.Class', $reflectionClass->getName());
 
             foreach ($reflectionFields as $reflectionField) {
                 $params = self::getParameters($reflectionField);
@@ -368,9 +380,9 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
      *
      * @return PDODatabase
      */
-    public static function getPDO()
+    public function getPDO()
     {
-        return self::$database;
+        return self::$databaseConnections->get(self::getTableDefinition()->getDatabase());
     }
 
     /**
@@ -531,7 +543,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         }
         $query = $this->getDeleteQuery();
 
-        return self::getPDO()->execute($query[0], $query[1]);
+        return $this->getPDO()->execute($query[0], $query[1]);
     }
 
     public function getFieldValue
@@ -613,7 +625,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 
         $query = $this->getUpdateQuery();
 
-        if (self::getPDO()->execute($query[0], $selectorData) !== false) {
+        if ($this->getPDO()->execute($query[0], $selectorData) !== false) {
             foreach ($this->updateOverrides as $overrideKey => $val) {
                 $this->updateOverrides[$overrideKey] = $this->getFieldValue($overrideKey);
             }
@@ -649,7 +661,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 
             $query = $this->getDeleteQuery();
 
-            self::getPDO()->execute($query[0], $query[1]);
+            $this->getPDO()->execute($query[0], $query[1]);
             $this->resetQuery();
             $this->query->setPath('Ignore', true);
             $this->query->setPath('Table', $helperTable->getTableName());
@@ -671,7 +683,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 
             foreach ($remoteObjects as $remoteObject) {
 
-                self::getPDO()->execute($query[0],
+                $this->getPDO()->execute($query[0],
                     [
                         $tableDefinition->getField($fieldDefinition->getLocalHelperColumn())->getHelperColumnName() => $this->getFieldValue($fieldDefinition->getLocalHelperColumn()),
                         $fieldDefinition
@@ -750,9 +762,9 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         });
         $query = $this->getInsertQuery();
 
-        if (self::getPDO()->execute($query[0], $selectorData) !== false) {
+        if ($this->getPDO()->execute($query[0], $selectorData) !== false) {
             if ($fieldDefinition = $tableDefinition->getAutoIncrementField()) {
-                $this->setFieldValue($tableDefinition->getAutoIncrementField()->getFieldName(), self::getPDO()->getPdoInstance()->lastInsertId());
+                $this->setFieldValue($tableDefinition->getAutoIncrementField()->getFieldName(), $this->getPDO()->getPdoInstance()->lastInsertId());
             }
         }
 
@@ -787,7 +799,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 
             foreach ($remoteObjects as $remoteObject) {
 
-                self::getPDO()->execute($query[0],
+                $this->getPDO()->execute($query[0],
                     [
                         $tableDefinition->getField($fieldDefinition->getLocalHelperColumn())->getHelperColumnName() => $this->getFieldValue($fieldDefinition->getLocalHelperColumn()),
                         $fieldDefinition

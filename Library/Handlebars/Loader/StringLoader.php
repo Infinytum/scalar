@@ -20,35 +20,38 @@
  */
 
 /**
- * Created by PhpStorm.
- * User: nila
- * Date: 8/19/17
- * Time: 11:39 PM
+ * Handlebars Template string Loader implementation.
+ *
+ * @category  Xamin
+ * @package   Handlebars
+ * @author    fzerorubigd <fzerorubigd@gmail.com>
+ * @author    Behrooz Shabani <everplays@gmail.com>
+ * @author    Mardix <https://github.com/mardix>
+ * @copyright 2012 (c) ParsPooyesh Co
+ * @copyright 2013 (c) Behrooz Shabani
+ * @copyright 2013 (c) Mardix
+ * @license   MIT
+ * @link      http://voodoophp.org/docs/handlebars
  */
 
-namespace Scalar\Core\Updater;
+namespace Handlebars\Loader;
 
+use Handlebars\HandlebarsString;
+use Handlebars\Loader;
 
-use Scalar\Core\Scalar;
-use Scalar\Repository\RepositoryManager;
-use Scalar\Updater\Updater;
-
-class CoreUpdater extends Updater
+class StringLoader implements Loader
 {
 
-    public function __construct()
+    /**
+     * Load a Template by source.
+     *
+     * @param string $name Handlebars Template source
+     *
+     * @return HandlebarsString Handlebars Template source
+     */
+    public function load($name)
     {
-        $scalarConfig = Scalar::getService(Scalar::SERVICE_CORE_CONFIG);
-        /**
-         * @var RepositoryManager $repoManager
-         */
-        $repoManager = Scalar::getService(Scalar::SERVICE_REPOSITORY_MANAGER);
-
-        parent::__construct
-        (
-            $repoManager->getUpdateRepository(),
-            $scalarConfig->asScalarArray()->getPath(Scalar::CONFIG_UPDATE_CHANNEL)
-        );
+        return new HandlebarsString($name);
     }
 
 }

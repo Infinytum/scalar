@@ -22,10 +22,6 @@
 
 namespace Scalar\Plugin;
 
-
-use Scalar\Config\IniConfig;
-use Scalar\IO\File;
-
 abstract class Plugin
 {
 
@@ -38,16 +34,6 @@ abstract class Plugin
      * @var string $pluginLocation
      */
     private $pluginLocation;
-
-    /**
-     * @var IniConfig $globalConfig
-     */
-    private $globalConfig = null;
-
-    /**
-     * @var IniConfig $appConfig
-     */
-    private $appConfig = null;
 
     public function __construct
     (
@@ -63,54 +49,10 @@ abstract class Plugin
     {
         return $this->pluginDescription;
     }
-    /**
-     * Returns this plugins home folder
-     *
-     * @return string
-     */
-    public function getAppPluginFolder()
-    {
-        return PluginManager::getAppPluginDirectory() . $this->pluginDescription->getName();
-    }
 
-    /**
-     * Returns this plugins home folder
-     *
-     * @return string
-     */
-    public function getGlobalPluginFolder()
+    public function getPluginLocation()
     {
-        return PluginManager::getGlobalPluginDirectory() . $this->pluginDescription->getName();
-    }
-
-    public function getGlobalConfig()
-    {
-        if (!$this->globalConfig) {
-            $this->globalConfig = new IniConfig
-            (
-                new File
-                (
-                    PluginManager::getGlobalPluginDirectory() . $this->pluginDescription->getName() . '/config.ini',
-                    true
-                )
-            );
-        }
-        return $this->globalConfig;
-    }
-
-    public function getAppConfig()
-    {
-        if (!$this->globalConfig) {
-            $this->globalConfig = new IniConfig
-            (
-                new File
-                (
-                    PluginManager::getAppPluginDirectory() . $this->pluginDescription->getName() . '/config.ini',
-                    true
-                )
-            );
-        }
-        return $this->globalConfig;
+        return $this->pluginLocation;
     }
 
     /**

@@ -80,8 +80,10 @@ abstract class Config implements ConfigInterface
                 $resource->create(0777, true);
                 $this->resource = $resource->toStream('c+');
                 $this->save();
+            } else if ($resource->isWritable()) {
+                $this->resource = $resource->toStream('r');
             } else {
-                $this->resource = $resource->toStream('c+');
+                $this->resource = $resource->toStream('r');
             }
         } else if (is_resource($resource)) {
             $streamFactory = new StreamFactory();

@@ -54,7 +54,7 @@ class RepositoryManager implements RepositoryManagerInterface
     {
         $this->scalarConfig = Scalar::getService
         (
-            Scalar::SERVICE_SCALAR_CONFIG
+            Scalar::SERVICE_CORE_CONFIG
         );
         $this->scalarConfig->setDefaultPath(self::CONFIG_REPO_LIST, '{{App.Home}}/repository.list')
             ->setDefaultPath(self::CONFIG_REPO_DEFAULT, 'ScalarOfficial')

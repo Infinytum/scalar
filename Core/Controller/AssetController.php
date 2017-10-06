@@ -22,42 +22,60 @@
 /**
  * Created by PhpStorm.
  * User: nila
- * Date: 7/13/17
- * Time: 10:51 AM
+ * Date: 10/6/17
+ * Time: 4:31 PM
  */
 
-namespace Scalar\Template\Controller;
+namespace Scalar\Core\Controller;
 
 
 use Scalar\Core\Scalar;
+use Scalar\Core\Service\CoreConfigurationService;
+use Scalar\Core\Service\CoreTemplateService;
+use Scalar\Http\Message\RequestInterface;
 use Scalar\Http\Message\ResponseInterface;
 
-class AssetProxy
+class AssetController
 {
 
     /**
-     * @param $request
-     * @param $response ResponseInterface
-     * @param $assetPath
+     * CoreConfig instance
+     * @var CoreConfigurationService
+     */
+    private $coreConfig;
+
+    /**
+     * CoreTemplate instance
+     * @var CoreTemplateService
+     */
+    private $coreTemplate;
+
+    public function __construct()
+    {
+        $this->coreConfig = Scalar::getService(Scalar::SERVICE_CORE_CONFIG);
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @param ResponseInterface $response
+     * @param array ...$path
      * @return ResponseInterface
      */
-    public function proxy
+    public function assets
     (
         $request,
         $response,
-        $assetPath
+        ...$path
     )
     {
-        $scalarConfig = Scalar::getService
-        (
-            Scalar::SERVICE_CORE_CONFIG
-        );
-        $fullPath = $scalarConfig->get(Scalar::CONFIG_ASSETS_DIR) . '/' . $assetPath;
+        $this->coreTemplate = Scalar::getService(Scalar::SERVICE_CORE_TEMPLATE);
+        $fullPath = $this->coreTemplate->getAssetDirectory() . '/' . join('/', $path);
+
         if (!file_exists($fullPath)) {
             return $response->withStatus(404);
         }
 
-        if (strpos(realpath($fullPath), $scalarConfig->get(Scalar::CONFIG_ASSETS_DIR)) == -1) {
+        if (strpos(realpath($fullPath), $this->coreConfig->get(CoreTemplateService::CONFIG_ASSETS_DIR)) == -1) {
             return $response->withStatus(404);
         }
 
@@ -67,7 +85,7 @@ class AssetProxy
         return $response;
     }
 
-    function mime_content_type($filename)
+    private function mime_content_type($filename)
     {
 
         $mime_types = array(
