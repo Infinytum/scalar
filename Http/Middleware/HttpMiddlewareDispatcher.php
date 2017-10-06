@@ -38,7 +38,10 @@ class HttpMiddlewareDispatcher implements HttpMiddlewareDispatcherInterface
      *
      * @param $middleware HttpMiddlewareInterface[]
      */
-    public function __construct($middleware)
+    public function __construct
+    (
+        $middleware = []
+    )
     {
         $this->middlewareLayers = $middleware;
     }

@@ -21,30 +21,34 @@
 
 namespace Scalar\Core;
 
-require_once 'ClassLoader/AutoLoader.php';
+require_once 'AppInterface.php';
+require_once 'Service/CoreService.php';
+require_once 'Service/CoreLoaderService.php';
 require_once '../Util/FilterableInterface.php';
 require_once '../Util/ScalarArray.php';
-require_once 'Service/ServiceMap.php';
-require_once '../Library/Mustache/MustacheLoader.php';
+require_once '../Service/ServiceMap.php';
 
+use Scalar\App\App;
 use Scalar\Cache\Cache;
 use Scalar\Cache\Storage\FileCacheStorage;
 use Scalar\Cache\Storage\MemCacheStorage;
-use Scalar\Core\ClassLoader\AutoLoader;
-use Scalar\Core\Config\ScalarConfig;
-use Scalar\Core\Log\CoreLogger;
-use Scalar\Core\Router\CoreRouter;
-use Scalar\Core\Service\ServiceMap;
+use Scalar\Core\Service\CoreConfigurationService;
+use Scalar\Core\Service\CoreDatabaseService;
+use Scalar\Core\Service\CoreLoaderService;
+use Scalar\Core\Service\CoreLoggerService;
+use Scalar\Core\Service\CorePluginService;
+use Scalar\Core\Service\CoreRouterService;
+use Scalar\Core\Service\CoreTemplateService;
 use Scalar\Core\Updater\CoreUpdater;
-use Scalar\Database\DatabaseManager;
 use Scalar\Http\Client\CurlHttpClient;
-use Scalar\Plugin\PluginManager;
+use Scalar\Http\Message\RequestInterface;
+use Scalar\Http\Message\ResponseInterface;
 use Scalar\Repository\RepositoryManager;
-use Scalar\Template\Controller\AssetProxy;
-use Scalar\Template\Templater;
+use Scalar\Router\AppInterface;
+use Scalar\Service\ServiceMap;
 
 
-class Scalar
+class Scalar implements AppInterface
 {
 
     /**
@@ -55,10 +59,6 @@ class Scalar
     const CONFIG_APP_PATH = 'App.Home';
     const CONFIG_APP_RESOURCE_PATH = 'App.Resources';
     const CONFIG_VIRTUAL_HOST_PREFIX = 'VirtualHost.';
-    const CONFIG_ROUTER_MAP = 'Router.Map';
-    const CONFIG_ROUTER_CONTROLLER = 'Router.Controller';
-    const CONFIG_TEMPLATE_DIR = 'Template.Location';
-    const CONFIG_ASSETS_DIR = 'Template.Assets';
     const CONFIG_UPDATE_CHANNEL = 'Updater.Channel';
     const CONFIG_STORAGE_PATH = 'FileCache.StoragePath';
     const CONFIG_MEMCACHE_HOST = 'Memcache.Host';
@@ -67,17 +67,16 @@ class Scalar
     /**
      * Core Services
      */
-    const SERVICE_AUTO_LOADER = 'AutoLoader';
-    const SERVICE_CORE_LOGGER = 'Logger';
-    const SERVICE_SCALAR_CONFIG = 'ScalarConfig';
-    const SERVICE_ROUTER = 'Router';
-    const SERVICE_MUSTACHE_ENGINE = 'MustacheEngine';
-    const SERVICE_TEMPLATER = 'Templater';
-    const SERVICE_DATABASE_MANAGER = 'DatabaseManager';
+    const SERVICE_CORE_LOADER = 'CoreLoader';
+    const SERVICE_CORE_LOGGER = 'CoreLogger';
+    const SERVICE_CORE_CONFIG = 'CoreConfig';
+    const SERVICE_CORE_ROUTER = 'CoreRouter';
+    const SERVICE_CORE_PLUGIN = 'CorePlugin';
+    const SERVICE_CORE_TEMPLATE = 'CoreTemplate';
+    const SERVICE_CORE_DATABASE = 'CoreDatabase';
     const SERVICE_REPOSITORY_MANAGER = 'RepositoryManager';
     const SERVICE_UPDATER = 'Updater';
     const SERVICE_HTTP_CLIENT = 'HttpClient';
-    const SERVICE_PLUGIN_MANAGER = 'PluginManager';
 
     /**
      * Services
@@ -100,33 +99,51 @@ class Scalar
 
     /**
      * Scalar Core AutoLoader
-     * @var AutoLoader
+     * @var CoreLoaderService
      */
-    private $autoLoader;
+    private $coreLoader;
 
     /**
      * Scalar Core Logger
-     * @var CoreLogger
+     * @var CoreLoggerService
      */
     private $coreLogger;
 
     /**
      * Scalar Core Plugin Manager
-     * @var PluginManager
+     * @var CorePluginService
      */
-    private $pluginManager;
+    private $corePlugin;
 
     /**
      * Scalar Core Configuration
-     * @var ScalarConfig
+     * @var CoreConfigurationService
      */
-    private $scalarConfig;
+    private $coreConfig;
 
     /**
      * Scalar Core Router
-     * @var CoreRouter
+     * @var CoreRouterService
      */
-    private $router;
+    private $coreRouter;
+
+    /**
+     * Scalar Core sub application
+     * @var AppInterface
+     */
+    private $app;
+
+    /**
+     * CoreTemplate instance
+     * @var CoreTemplateService
+     */
+    private $coreTemplate;
+
+    /**
+     * CoreDatabase instance
+     * @var CoreDatabaseService
+     */
+    private $coreDatabase;
 
     /**
      * Never call this! Use getInstance!
@@ -137,6 +154,7 @@ class Scalar
     {
         self::$instance = $this;
         $this->serviceMap = new ServiceMap();
+        $this->initializeAutoLoader();
     }
 
     /**
@@ -150,19 +168,20 @@ class Scalar
         }
         return self::$instance;
     }
-
     /**
-     * Enable Scalar Core functionality
+     * Add Scalar Core home directory to autoloader
      */
-    public function initialize()
+    private function initializeAutoLoader()
     {
-        $this->initializeCoreServices();
-        $this->initializeAutoLoader();
-        $this->coreLogger = self::getService(self::SERVICE_CORE_LOGGER);
-        $this->initializeConfiguration();
-        $this->initializeApp();
-        $this->initializeServices();
-        $this->initializePlugins();
+        $this->serviceMap->registerServiceClass // Upgrade done
+        (
+            self::SERVICE_CORE_LOADER,
+            CoreLoaderService::class,
+            [],
+            true
+        );
+
+        $this->coreLoader = self::getService(self::SERVICE_CORE_LOADER);
     }
 
     /**
@@ -171,63 +190,47 @@ class Scalar
     private function initializeCoreServices()
     {
 
-        $this->serviceMap->registerServiceClass
+        $this->serviceMap->registerServiceClass // Upgrade done
         (
-            self::SERVICE_AUTO_LOADER,
-            AutoLoader::class,
+            self::SERVICE_CORE_CONFIG,
+            CoreConfigurationService::class,
             [],
             true
         );
 
-        $this->serviceMap->registerServiceClass
-        (
-            self::SERVICE_SCALAR_CONFIG,
-            ScalarConfig::class,
-            [],
-            true
-        );
-
-        $this->serviceMap->registerServiceClass
+        $this->serviceMap->registerServiceClass // Upgrade done
         (
             self::SERVICE_CORE_LOGGER,
-            CoreLogger::class,
+            CoreLoggerService::class,
             [],
             true
         );
 
-        $this->serviceMap->registerServiceClass
+        $this->serviceMap->registerServiceClass // Upgrade done
         (
-            self::SERVICE_ROUTER,
-            CoreRouter::class,
+            self::SERVICE_CORE_ROUTER,
+            CoreRouterService::class,
             [],
             true
         );
 
-        $this->serviceMap->registerServiceClass
+        $this->serviceMap->registerServiceClass // Upgrade done
         (
-            self::SERVICE_MUSTACHE_ENGINE,
-            \Mustache_Engine::class,
+            self::SERVICE_CORE_TEMPLATE,
+            CoreTemplateService::class,
             [],
             true
         );
 
-        $this->serviceMap->registerServiceClass
+        $this->serviceMap->registerServiceClass // Upgrade
         (
-            self::SERVICE_TEMPLATER,
-            Templater::class,
+            self::SERVICE_CORE_DATABASE,
+            CoreDatabaseService::class,
             [],
             true
         );
 
-        $this->serviceMap->registerServiceClass
-        (
-            self::SERVICE_DATABASE_MANAGER,
-            DatabaseManager::class,
-            [],
-            true
-        );
-
-        $this->serviceMap->registerServiceClass
+        $this->serviceMap->registerServiceClass // Pending
         (
             self::SERVICE_REPOSITORY_MANAGER,
             RepositoryManager::class,
@@ -235,7 +238,7 @@ class Scalar
             true
         );
 
-        $this->serviceMap->registerServiceClass
+        $this->serviceMap->registerServiceClass // Pending
         (
             self::SERVICE_UPDATER,
             CoreUpdater::class,
@@ -243,30 +246,20 @@ class Scalar
             true
         );
 
-        $this->serviceMap->registerServiceClass
+        $this->serviceMap->registerServiceClass // No Upgrade needed
         (
             self::SERVICE_HTTP_CLIENT,
             CurlHttpClient::class,
             []
         );
 
-        $this->serviceMap->registerServiceClass
+        $this->serviceMap->registerServiceClass // Upgrade
         (
-            self::SERVICE_PLUGIN_MANAGER,
-            PluginManager::class,
+            self::SERVICE_CORE_PLUGIN,
+            CorePluginService::class,
             [],
             true
         );
-    }
-
-    /**
-     * Add Scalar Core home directory to autoloader
-     */
-    private function initializeAutoLoader()
-    {
-        $this->autoLoader = self::getService(self::SERVICE_AUTO_LOADER);
-        $this->autoLoader->register();
-        $this->autoLoader->addClassPath("Scalar\\", SCALAR_CORE);
     }
 
     /**
@@ -276,48 +269,33 @@ class Scalar
     {
         $this->coreLogger->i('Initializing Scalar configuration...');
 
-        $this->scalarConfig = self::getService(self::SERVICE_SCALAR_CONFIG);
-        $this->scalarConfig->setDefaultPath
+        $this->coreConfig = self::getService(self::SERVICE_CORE_CONFIG);
+
+        $this->coreConfig->setDefault
         (
             self::CONFIG_CORE_DEV_MODE,
             false
-        )->setDefaultPath
+        )->setDefault
         (
             self::CONFIG_CORE_DEBUG_MODE,
             false
-        )->setDefaultPath
+        )->setDefault
         (
             self::CONFIG_APP_PATH,
             dirname(SCALAR_CORE) . '/scalar_app'
-        )->setDefaultPath
-        (
-            self::CONFIG_ROUTER_MAP,
-            '{{App.Home}}/route.map'
-        )->setDefaultPath
-        (
-            self::CONFIG_ROUTER_CONTROLLER,
-            '{{App.Home}}/Controller'
-        )->setDefaultPath
-        (
-            self::CONFIG_TEMPLATE_DIR,
-            '{{App.Home}}/Resources/Templates/'
-        )->setDefaultPath
-        (
-            self::CONFIG_ASSETS_DIR,
-            '{{App.Home}}/Resources/Assets/'
-        )->setDefaultPath
+        )->setDefault
         (
             self::CONFIG_UPDATE_CHANNEL,
             'stable'
-        )->setDefaultPath
+        )->setDefault
         (
             self::CONFIG_STORAGE_PATH,
             sys_get_temp_dir() . '/Scalar.cache/{{App.Home}}'
-        )->setDefaultPath
+        )->setDefault
         (
             self::CONFIG_MEMCACHE_HOST,
             'localhost'
-        )->setDefaultPath
+        )->setDefault
         (
             self::CONFIG_MEMCACHE_PORT,
             '11211'
@@ -345,14 +323,13 @@ class Scalar
 
         $this->coreLogger->d("Requested VirtualHost: " . $hostname);
 
-        if ($this->scalarConfig->asScalarArray()->containsPath(self::CONFIG_VIRTUAL_HOST_PREFIX . $hostname)) {
+        if ($this->coreConfig->has(self::CONFIG_VIRTUAL_HOST_PREFIX . $hostname)) {
             $this->coreLogger->i("Valid Virtual Hostname detected! Rerouting...");
             define
             (
                 'SCALAR_APP',
-                $this->scalarConfig
-                    ->asScalarArray()
-                    ->getPath
+                $this->coreConfig
+                    ->get
                     (
                         self::CONFIG_VIRTUAL_HOST_PREFIX . $hostname
                     )
@@ -360,7 +337,7 @@ class Scalar
 
             $this->coreLogger->d("Rerouting to App: " . SCALAR_APP);
 
-            $this->scalarConfig->addOverride
+            $this->coreConfig->addOverride
             (
                 self::CONFIG_APP_PATH,
                 SCALAR_APP
@@ -372,7 +349,7 @@ class Scalar
             define
             (
                 'SCALAR_APP',
-                $this->scalarConfig->get
+                $this->coreConfig->get
                 (
                     self::CONFIG_APP_PATH
                 )
@@ -381,21 +358,15 @@ class Scalar
 
         $this->coreLogger->d("Registered Application home in autoloader");
 
-        $this->autoLoader->addClassPath
+        $this->coreLoader->registerNamespace
         (
             "Scalar\\App\\",
             SCALAR_APP
         );
 
-        $this->router = self::getService(self::SERVICE_ROUTER);
-
-
-        $this->router->addRoute('/assets', function ($request, $response, ...$params) {
-            $assetProxy = new AssetProxy();
-            return $assetProxy->proxy($request, $response, join('/', $params));
-        });
-
-        $this->coreLogger->d("Registered reverse asset proxy");
+        $this->coreRouter = Scalar::getService(Scalar::SERVICE_CORE_ROUTER);
+        $this->coreTemplate = Scalar::getService(Scalar::SERVICE_CORE_TEMPLATE);
+        $this->coreDatabase = Scalar::getService(Scalar::SERVICE_CORE_DATABASE);
     }
 
     /**
@@ -412,7 +383,7 @@ class Scalar
             [
                 new FileCacheStorage
                 (
-                    $this->scalarConfig->asScalarArray()->get
+                    $this->coreConfig->get
                     (
                         self::CONFIG_STORAGE_PATH
                     )
@@ -430,11 +401,11 @@ class Scalar
                 [
                     new MemCacheStorage
                     (
-                        $this->scalarConfig->asScalarArray()->get
+                        $this->coreConfig->get
                         (
                             self::CONFIG_MEMCACHE_HOST
                         ),
-                        $this->scalarConfig->asScalarArray()->get
+                        $this->coreConfig->get
                         (
                             self::CONFIG_MEMCACHE_PORT
                         )
@@ -447,24 +418,12 @@ class Scalar
     }
 
     /**
-     * Load global and app specific plugins
-     */
-    private function initializePlugins()
-    {
-        $this->coreLogger->i("Initializing Scalar Plugin framework...");
-        $this->pluginManager = self::getService(self::SERVICE_PLUGIN_MANAGER);
-        $this->coreLogger->i("Loading all plugins");
-        $this->pluginManager->loadPluginDirectory();
-        $this->coreLogger->i("Loaded all plugins");
-    }
-
-    /**
      * Returns true if developer mode was set to 'on' in the core configuration
      * @return bool
      */
     public static function isDeveloperMode()
     {
-        return self::getInstance()->scalarConfig->asScalarArray()->getPath(self::CONFIG_CORE_DEV_MODE) === true;
+        return self::getInstance()->coreConfig->get(self::CONFIG_CORE_DEV_MODE) === true;
     }
 
     /**
@@ -492,13 +451,54 @@ class Scalar
     }
 
     /**
-     * Disables Scalar Core functionality
+     * This function is being executed before the request is dispatched
+     *
+     * @param RequestInterface $request
+     * @return RequestInterface
      */
-    public function shutdown()
+    public function startup
+    (
+        $request
+    )
     {
-        $this->coreLogger->i("Shutting down Scalar...");
+        $this->initializeCoreServices();
+        $this->coreLogger = self::getService(self::SERVICE_CORE_LOGGER);
+        $this->initializeConfiguration();
+        $this->initializeApp();
+        $this->coreLogger->setup(false);
+        $this->initializeServices();
 
-        $this->pluginManager->disableAllPlugins();
+        $this->corePlugin = Scalar::getService(Scalar::SERVICE_CORE_PLUGIN);
+
+        $this->app = new App;
+        $this->app->startup($request);
+
+        return $request;
     }
 
+    /**
+     * This function is being executed after the request has been dispatched
+     * and the response is ready to be returned to the client
+     *
+     * @param RequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    public function shutdown(
+        $request,
+        $response
+    )
+    {
+        $this->coreLogger->i("Shutting down Scalar...");
+        $this->app->shutdown($request, $response);
+        $this->coreRouter->tearDown();
+        $this->corePlugin->tearDown();
+        $this->coreTemplate->tearDown();
+        $this->coreDatabase->tearDown();
+        $this->coreLogger->tearDown(true);
+        $this->coreConfig->tearDown();
+        $this->coreLogger->tearDown();
+
+        return $response;
+    }
 }

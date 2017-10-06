@@ -36,6 +36,25 @@ if (!function_exists('getallheaders')) {
     }
 }
 
+if (!function_exists('extract_namespace')) {
+    function extract_namespace($file)
+    {
+        $ns = NULL;
+        $handle = fopen($file, "r");
+        if ($handle) {
+            while (($line = fgets($handle)) !== false) {
+                if (strpos($line, 'namespace') === 0) {
+                    $parts = explode(' ', $line);
+                    $ns = rtrim(trim($parts[1]), ';');
+                    break;
+                }
+            }
+            fclose($handle);
+        }
+        return $ns;
+    }
+}
+
 umask(0);
 
 #endregion
@@ -46,7 +65,11 @@ use Scalar\Core\Scalar;
 
 
 $scalar = Scalar::getInstance();
-$scalar->initialize();
+
+$serverRequestFactory = new \Scalar\Http\Factory\ServerRequestFactory();
+$serverRequest = $serverRequestFactory->createServerRequestFromArray($_SERVER);
+
+$scalar->startup($serverRequest);
 
 if (!Scalar::isDeveloperMode()) {
     error_reporting(0);
@@ -54,15 +77,13 @@ if (!Scalar::isDeveloperMode()) {
 
 
 /**
- * @var \Scalar\Core\Router\CoreRouter $router
+ * @var \Scalar\Core\Service\CoreRouterService $router
  */
 $router = Scalar::getService
 (
-    Scalar::SERVICE_ROUTER
+    Scalar::SERVICE_CORE_ROUTER
 );
 
-$serverRequestFactory = new \Scalar\Http\Factory\ServerRequestFactory();
-$serverRequest = $serverRequestFactory->createServerRequestFromArray($_SERVER);
 
 $response = $router->dispatch($serverRequest);
 
@@ -86,4 +107,4 @@ foreach ($response->getHeaders() as $headerName => $headerValue) {
 
 echo $response->getBody()->getContents();
 
-$scalar->shutdown();
+$scalar->shutdown($serverRequest, $response);
