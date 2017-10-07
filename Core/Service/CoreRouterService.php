@@ -195,6 +195,11 @@ class CoreRouterService extends CoreService
             $generatedRouteMap = RouteMapGenerator::fromApp($this->getValue(self::CONFIG_ROUTER_CONTROLLER));
         }
 
+        if ((!$file->exists() && !$file->canCreate()) || (!$file->isWritable() && $file->exists())) {
+            $this->coreLogger->e('Cannot create routing table! Fail-over to in-memory routing');
+            $file = fopen('php://temp', 'r+');
+        }
+
         $this->routingTableFile = new JsonConfig($file);
         $this->routingTableFile->load();
 

@@ -118,6 +118,16 @@ class File
     }
 
     /**
+     * Check if file creation is possible
+     *
+     * @return bool
+     */
+    public function canCreate()
+    {
+        return is_writable(dirname($this->path));
+    }
+
+    /**
      * Create file
      *
      * @param int $chmod

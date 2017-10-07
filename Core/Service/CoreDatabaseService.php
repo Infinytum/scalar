@@ -108,6 +108,12 @@ class CoreDatabaseService extends CoreService
 
         $databaseListFile = new File($this->getValue(self::CONFIG_DATABASE_LIST));
 
+
+        if ((!$databaseListFile->exists() && !$databaseListFile->canCreate()) || (!$databaseListFile->isWritable() && $databaseListFile->exists())) {
+            $this->coreLogger->e('Cannot create database configuration! Fail-over to in-memory configuration');
+            $databaseListFile = fopen('php://temp', 'r+');
+        }
+
         $this->databaseList = new IniConfig($databaseListFile, [], true);
         $this->databaseList->load();
 
