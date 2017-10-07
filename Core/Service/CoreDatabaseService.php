@@ -34,7 +34,7 @@ class CoreDatabaseService extends CoreService
 
     // Configuration
 
-    const CONFIG_DATABASE_LIST = 'Database.List';
+    const CONFIG_DATABASE_LIST = 'List';
 
     // Variables
 
