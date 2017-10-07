@@ -22,6 +22,7 @@
 namespace Scalar\Core\Service;
 
 
+use Scalar\IO\Exception\IOException;
 use Scalar\IO\Factory\StreamFactory;
 use Scalar\IO\File;
 use Scalar\Log\Logger;
@@ -43,6 +44,10 @@ class CoreLoggerService extends CoreService
     const CONFIG_CORE_LOG_FILE = 'LogPath';
     const CONFIG_CORE_LOG_LEVEL = 'LogLevel';
     const CONFIG_CORE_LOG_APPEND = 'LogAppend';
+
+    // Exceptions
+
+    const ERR_KERNEL_LOG_NOT_WRITABLE = 'Could not access or create kernel.log with write permissions!';
 
     /**
      * Determines which log messages will be written in the log file
@@ -209,15 +214,22 @@ class CoreLoggerService extends CoreService
             }
 
             $logStream = $logFile->toStream();
+
+            if ($logStream === null) {
+                throw new IOException(self::ERR_KERNEL_LOG_NOT_WRITABLE);
+            }
+
+            $retVal = true;
         } catch (\Exception $ex) {
             $streamFactory = new StreamFactory();
             $logStream = $streamFactory->createStream();
+            $retVal = false;
         }
 
         $this->logger = new Logger($logStream);
         $this->i('Logging to ' . $this->getValue(self::CONFIG_CORE_LOG_FILE) . ' has started...');
 
-        return true;
+        return $retVal;
     }
 
     /**
@@ -263,6 +275,10 @@ class CoreLoggerService extends CoreService
                 }
 
                 $logStream = $logFile->toStream();
+
+                if ($logStream === null) {
+                    throw new IOException(self::ERR_KERNEL_LOG_NOT_WRITABLE);
+                }
             } catch (\Exception $ex) {
                 $streamFactory = new StreamFactory();
                 $logStream = $streamFactory->createStream();
