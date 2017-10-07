@@ -91,6 +91,14 @@ class FilesystemLoader implements Loader
         }
     }
 
+    public function addBaseDir
+    (
+        $baseDirPath
+    )
+    {
+        array_push($this->_baseDir, $baseDirPath);
+    }
+
     /**
      * Load a Template by name.
      *

@@ -127,7 +127,7 @@ class RouteMapGenerator
             }
 
         }
-        return $routes;
+        return json_decode(json_encode($routes), true);
     }
 
 }
