@@ -81,7 +81,7 @@ abstract class Config implements ConfigInterface
                 $this->resource = $resource->toStream('c+');
                 $this->save();
             } else if ($resource->isWritable()) {
-                $this->resource = $resource->toStream('r');
+                $this->resource = $resource->toStream('r+');
             } else {
                 $this->resource = $resource->toStream('r');
             }
