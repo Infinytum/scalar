@@ -19,61 +19,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Scalar\Router;
-
 /**
- * Class Router
- * @package Scalar\Router
+ * Cache Interface
+ *
+ * @category  Xamin
+ * @package   Handlebars
+ * @author    fzerorubigd <fzerorubigd@gmail.com>
+ * @author    Behrooz Shabani <everplays@gmail.com>
+ * @copyright 2012 (c) ParsPooyesh Co
+ * @copyright 2013 (c) Behrooz Shabani
+ * @license   MIT
+ * @link      http://voodoophp.org/docs/handlebars
  */
-class Router
+
+
+namespace Handlebars;
+
+interface Cache
 {
 
     /**
-     * Routing table
-     * @var RoutingTable
+     * Get cache for $name if exist.
+     *
+     * @param string $name Cache id
+     *
+     * @return mixed data on hit, boolean false on cache not found
      */
-    private $routingTable;
+    public function get($name);
 
     /**
-     * Router constructor.
-     * @param RoutingTable $routingTable
+     * Set a cache
+     *
+     * @param string $name cache id
+     * @param mixed $value data to store
+     *
+     * @return void
      */
-    function __construct
-    (
-        $routingTable
-    )
-    {
-        $this->routingTable = $routingTable;
-    }
+    public function set($name, $value);
 
     /**
-     * @param $route
-     * @param $arguments
-     * @return mixed
+     * Remove cache
+     *
+     * @param string $name Cache id
+     *
+     * @return void
      */
-    public function route
-    (
-        $route,
-        $arguments
-    )
-    {
-        $routeHandler = $this->routingTable->resolveRoute($route);
-
-        if ($routeHandler === null) {
-            return null;
-        }
-
-        return call_user_func_array($routeHandler, $arguments);
-    }
-
-    /**
-     * Get routing table for this router
-     * @return RoutingTable
-     */
-    public function getRoutingTable()
-    {
-        return $this->routingTable;
-    }
-
+    public function remove($name);
 
 }

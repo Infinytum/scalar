@@ -20,23 +20,38 @@
  */
 
 /**
- * Created by PhpStorm.
- * User: nila
- * Date: 04/09/17
- * Time: 17:45
+ * Handlebars Template string Loader implementation.
+ *
+ * @category  Xamin
+ * @package   Handlebars
+ * @author    fzerorubigd <fzerorubigd@gmail.com>
+ * @author    Behrooz Shabani <everplays@gmail.com>
+ * @author    Mardix <https://github.com/mardix>
+ * @copyright 2012 (c) ParsPooyesh Co
+ * @copyright 2013 (c) Behrooz Shabani
+ * @copyright 2013 (c) Mardix
+ * @license   MIT
+ * @link      http://voodoophp.org/docs/handlebars
  */
 
-namespace Scalar\Config\Exception;
+namespace Handlebars\Loader;
 
+use Handlebars\HandlebarsString;
+use Handlebars\Loader;
 
-use Throwable;
-
-class ParseException extends \Exception
+class StringLoader implements Loader
 {
 
-    public function __construct($message = "", $code = 0, Throwable $previous = null)
+    /**
+     * Load a Template by source.
+     *
+     * @param string $name Handlebars Template source
+     *
+     * @return HandlebarsString Handlebars Template source
+     */
+    public function load($name)
     {
-        parent::__construct($message, $code, $previous);
+        return new HandlebarsString($name);
     }
 
 }

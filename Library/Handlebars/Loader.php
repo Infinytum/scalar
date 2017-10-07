@@ -20,23 +20,30 @@
  */
 
 /**
- * Created by PhpStorm.
- * User: nila
- * Date: 04/09/17
- * Time: 17:45
+ * Handlebars loader interface
+ *
+ * @category  Xamin
+ * @package   Handlebars
+ * @author    fzerorubigd <fzerorubigd@gmail.com>
+ * @author    Behrooz Shabani <everplays@gmail.com>
+ * @copyright 2012 (c) ParsPooyesh Co
+ * @copyright 2013 (c) Behrooz Shabani
+ * @license   MIT
+ * @link      http://voodoophp.org/docs/handlebars
  */
 
-namespace Scalar\Config\Exception;
+namespace Handlebars;
 
-
-use Throwable;
-
-class ParseException extends \Exception
+interface Loader
 {
 
-    public function __construct($message = "", $code = 0, Throwable $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
-    }
+    /**
+     * Load a Template by name.
+     *
+     * @param string $name template name to load
+     *
+     * @return String
+     */
+    public function load($name);
 
 }

@@ -34,7 +34,9 @@ use Scalar\Util\ScalarArray;
 class TableDefinition
 {
 
+    const TABLE_DATABASE = 'Table.Database';
     const TABLE_NAME = 'Table.Table';
+    const TABLE_CLASS = 'Table.Class';
     const TABLE_FIELDS = 'Fields';
 
     private $array;
@@ -56,6 +58,16 @@ class TableDefinition
     }
 
     /**
+     * Get table database
+     *
+     * @return string|null
+     */
+    public function getDatabase()
+    {
+        return $this->array->getPath(self::TABLE_DATABASE);
+    }
+
+    /**
      * Get table name
      *
      * @return string|null
@@ -63,6 +75,16 @@ class TableDefinition
     public function getTableName()
     {
         return $this->array->getPath(self::TABLE_NAME);
+    }
+
+    /**
+     * Get table name
+     *
+     * @return string|null
+     */
+    public function getTableClass()
+    {
+        return $this->array->getPath(self::TABLE_CLASS);
     }
 
     /**

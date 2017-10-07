@@ -39,6 +39,10 @@ class Logger implements LoggerInterface
      */
     private $logStream;
 
+    /**
+     * Logger constructor.
+     * @param $logStream
+     */
     public function __construct
     (
         $logStream
@@ -59,8 +63,14 @@ class Logger implements LoggerInterface
     )
     {
 
-        $this->logStream->write($logMessage . PHP_EOL);
+        if ($this->logStream->isWritable()) {
+            $this->logStream->write($logMessage . PHP_EOL);
+        }
+    }
 
+    public function close()
+    {
+        $this->logStream->close();
     }
 
 }

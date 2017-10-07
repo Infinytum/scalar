@@ -38,7 +38,7 @@ class CoreUpdater extends Updater
 
     public function __construct()
     {
-        $scalarConfig = Scalar::getService(Scalar::SERVICE_SCALAR_CONFIG);
+        $scalarConfig = Scalar::getService(Scalar::SERVICE_CORE_CONFIG);
         /**
          * @var RepositoryManager $repoManager
          */

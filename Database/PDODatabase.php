@@ -22,6 +22,10 @@
 namespace Scalar\Database;
 
 
+use Scalar\Database\Query\Flavor;
+use Scalar\Database\Table\FieldDefinition;
+use Scalar\Database\Table\TableDefinition;
+
 class PDODatabase implements DatabaseInterface
 {
 
@@ -56,9 +60,9 @@ class PDODatabase implements DatabaseInterface
     private $tables = [];
 
     /**
-     * @var QueryFlavor
+     * @var Flavor
      */
-    private $queryFlavor;
+    private $flavor;
 
     private $helperTableStrings = [];
     private $tableStrings = [];
@@ -82,8 +86,8 @@ class PDODatabase implements DatabaseInterface
         $this->pdo = $pdo;
         $this->scanTables();
 
-        $this->queryFlavor = new QueryFlavor($flavor);
-        $this->queryFlavor->load();
+        $this->flavor = new Flavor($flavor);
+        $this->flavor->load();
     }
 
     private function scanTables()
@@ -283,7 +287,7 @@ class PDODatabase implements DatabaseInterface
             if (!array_key_exists($helperTable->getTableName(), $this->tableStrings)) {
                 $this->helperTableStrings[$helperTable->getTableName()] = [
                     'Table' => $helperTable->getTableName(),
-                    'Query' => $this->queryFlavor->generateCreate($helperTable),
+                    'Query' => $this->flavor->generateCreate($helperTable),
                     'Needs' => []
                 ];
             }
@@ -292,11 +296,11 @@ class PDODatabase implements DatabaseInterface
 
         $this->tableStrings[$tableDefinition->getTableName()] = [
             'Table' => $tableDefinition->getTableName(),
-            'Query' => $this->queryFlavor->generateCreate($tableDefinition),
+            'Query' => $this->flavor->generateCreate($tableDefinition),
             'Needs' => $tableDefinition->getDependencies()
         ];
 
-        return $this->queryFlavor->generateCreate($tableDefinition);
+        return $this->flavor->generateCreate($tableDefinition);
     }
 
     private function createTable

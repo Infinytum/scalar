@@ -121,7 +121,7 @@ class FieldDefinition
      */
     public function isNotNull()
     {
-        return $this->array->getPath(self::FIELD_NOT_NULL, true);
+        return $this->array->getPath(self::FIELD_NOT_NULL, false);
     }
 
     /**
@@ -196,7 +196,7 @@ class FieldDefinition
      */
     public function getForeignTableDefinition()
     {
-        $reflectionClass = new \ReflectionClass('Scalar\App\Database\\' . MysqlTable::getPDO()->getName() . '\\' . $this->getForeignTable());
+        $reflectionClass = new \ReflectionClass('Scalar\App\Database\\' . $this->tableDefinition->getDatabase() . '\\' . $this->getForeignTable());
         return $reflectionClass->getMethod('getTableDefinition')->invoke(null);
     }
 

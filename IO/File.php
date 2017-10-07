@@ -98,6 +98,36 @@ class File
     }
 
     /**
+     * Check if file is writable
+     *
+     * @return bool
+     */
+    public function isWritable()
+    {
+        return is_writable($this->path);
+    }
+
+    /**
+     * Check if file is readable
+     *
+     * @return bool
+     */
+    public function isReadable()
+    {
+        return is_readable($this->path);
+    }
+
+    /**
+     * Check if file creation is possible
+     *
+     * @return bool
+     */
+    public function canCreate()
+    {
+        return is_writable(dirname($this->path));
+    }
+
+    /**
      * Create file
      *
      * @param int $chmod
