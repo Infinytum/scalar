@@ -56,7 +56,7 @@ class RouteEntry
      * @param string $route
      * @param \Closure $handler
      * @param bool $static
-     * @param ScalarArray $data
+     * @param ScalarArray|array $data
      */
     public function __construct
     (
@@ -69,6 +69,9 @@ class RouteEntry
         $this->route = $route;
         $this->handler = $handler;
         $this->static = $static;
+        if (is_array($data)) {
+            $data = new ScalarArray($data);
+        }
         if ($data === null) {
             $data = new ScalarArray();
         }
