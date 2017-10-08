@@ -39,6 +39,7 @@ namespace Handlebars;
 
 use InvalidArgumentException;
 use RuntimeException;
+use Scalar\Database\Table\MysqlTable;
 
 class Template
 {
@@ -331,6 +332,13 @@ class Template
     {
         $name = $current[Tokenizer::NAME];
         $value = $context->get($name);
+        /**
+         * @var $table MysqlTable
+         */
+        if (($table = $context->get('this')) instanceof MysqlTable) {
+            $value = $table->getFieldValue(str_replace('this.', '', $name));
+        }
+
         if ($name == '@index') {
             return $context->lastIndex();
         }
