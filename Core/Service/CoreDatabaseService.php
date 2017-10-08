@@ -132,12 +132,6 @@ class CoreDatabaseService extends CoreService
      */
     public function tearDown()
     {
-        try {
-            $this->databaseList->save();
-        } catch (IOException $ex) {
-            $this->coreLogger->e('An error occurred while saving the database configuration list: ' . $ex);
-        }
-
         return true;
     }
 }

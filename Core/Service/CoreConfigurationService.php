@@ -21,9 +21,7 @@
 
 namespace Scalar\Core\Service;
 
-use Exception;
 use Scalar\Config\IniConfig;
-use Scalar\Core\Scalar;
 use Scalar\IO\File;
 use Scalar\Util\ScalarArray;
 
@@ -179,13 +177,6 @@ class CoreConfigurationService extends CoreService
      */
     public function tearDown()
     {
-        try {
-            $this->iniConfig->save();
-        } catch (Exception $ex) {
-            $coreLogger = Scalar::getService(Scalar::SERVICE_CORE_LOGGER);
-            $coreLogger->e('An error occurred while saving core configuration: ' . $ex);
-        }
-
         return true;
     }
 }
