@@ -124,7 +124,7 @@ class CoreRouterService extends CoreService
             });
         }
 
-        $uri = str_replace(strtolower($routeEntry->getRoute()), '', $route);
+        $uri = str_replace(strtolower($routeEntry->getRoute()), '', $path);
         $path = explode('/', $uri);
         unset($path[0]);
 
