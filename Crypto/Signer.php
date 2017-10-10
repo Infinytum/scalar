@@ -19,13 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Created by PhpStorm.
- * User: nila
- * Date: 10/9/17
- * Time: 8:50 PM
- */
-
 namespace Scalar\Crypto;
 
 
