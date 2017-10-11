@@ -71,6 +71,12 @@ class CoreRouterService extends CoreService
     private $httpMiddlewareDispatcher;
 
     /**
+     * Array
+     * @var array
+     */
+    private $initialArray;
+
+    /**
      * CoreRouterService constructor.
      */
     public function __construct()
@@ -212,6 +218,8 @@ class CoreRouterService extends CoreService
             $this->routingTableFile->setConfigArray(json_decode(json_encode($generatedRouteMap), true));
         }
 
+        $this->initialArray = $this->routingTableFile->asScalarArray()->asArray();
+
         $routingTable = new RoutingTable($this->routingTableFile->asScalarArray()->asArray());
 
         $this->router = new Router($routingTable);
@@ -234,15 +242,17 @@ class CoreRouterService extends CoreService
     {
         $this->coreLogger->i("Tearing down CoreRouter...");
 
-        $this->coreLogger->i("Saving routing table...");
-        $this->routingTableFile->setConfigArray($this->router->getRoutingTable()->getRoutingTable()->asArray());
+        if ($this->initialArray != $this->router->getRoutingTable()->getRoutingTable()->asArray()) {
+            $this->coreLogger->i("Saving routing table...");
+            $this->routingTableFile->setConfigArray($this->router->getRoutingTable()->getRoutingTable()->asArray());
 
-        try {
-            $this->routingTableFile->save();
-        } catch (\Exception $exception) {
-            $this->coreLogger->e('An error occurred while saving the routing tables: ' . $exception);
+
+            try {
+                $this->routingTableFile->save();
+            } catch (\Exception $exception) {
+                $this->coreLogger->e('An error occurred while saving the routing tables: ' . $exception);
+            }
         }
-
         return true;
     }
 }
