@@ -204,6 +204,10 @@ class CoreRouterService extends CoreService
         $this->routingTableFile = new JsonConfig($file);
         $this->routingTableFile->load();
 
+        if (!$this->routingTableFile->asScalarArray()->any()) {
+            $generatedRouteMap = RouteMapGenerator::fromApp($this->getValue(self::CONFIG_ROUTER_CONTROLLER));
+        }
+
         if (isset($generatedRouteMap)) {
             $this->routingTableFile->setConfigArray(json_decode(json_encode($generatedRouteMap), true));
         }
