@@ -80,7 +80,7 @@ class AssetController
         }
 
         $response = $response->withAddedHeader('Content-Type', $this->mime_content_type($fullPath));
-        $response = $response->withAddedHeader('Expires', gmdate('D, d M Y H:i:s \G\M\T', time() + (60 * 60)));
+        $response = $response->withAddedHeader('Expires', gmdate('D, d M Y H:i:s \G\M\T', time() + (60 * 60 * 30)));
         $response->getBody()->write(file_get_contents($fullPath));
         return $response;
     }
