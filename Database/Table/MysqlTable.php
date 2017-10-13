@@ -133,6 +133,40 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
     }
 
     /**
+     * Filter data on SQL Server
+     * @param $lambda callable filter
+     * @return self
+     */
+    public function whereLess($lambda)
+    {
+        $mockObject = $this->generateMockInstance();
+        $mock = &$mockObject;
+        $field = $lambda($mock);
+
+        $this->query->putPath('Where.Less',
+            $field
+        );
+        return $this;
+    }
+
+    /**
+     * Filter data on SQL Server
+     * @param $lambda callable filter
+     * @return self
+     */
+    public function whereGreater($lambda)
+    {
+        $mockObject = $this->generateMockInstance();
+        $mock = &$mockObject;
+        $field = $lambda($mock);
+
+        $this->query->putPath('Where.Greater',
+            $field
+        );
+        return $this;
+    }
+
+    /**
      * @return \stdClass
      */
     private function generateMockInstance()
@@ -554,6 +588,13 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         $reflectionClass = new \ReflectionClass(get_called_class());
 
         if (!$reflectionClass->hasProperty($fieldName)) {
+
+            if ($reflectionClass->hasMethod($fieldName)) {
+                $property = $reflectionClass->getMethod($fieldName);
+                $property->setAccessible(true);
+                return $property->invoke($this);
+            }
+
             return null;
         }
 
