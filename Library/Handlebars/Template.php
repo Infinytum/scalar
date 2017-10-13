@@ -332,14 +332,13 @@ class Template
     private function variables(Context $context, $current, $escaped)
     {
         $name = $current[Tokenizer::NAME];
+        $names = explode('.', $name);
         $value = $context->get($name);
 
         /**
          * @var $table MysqlTable
          */
-        if (($table = $context->get('this')) instanceof MysqlTable) {
-            $names = explode('.', $name);
-            array_shift($names);
+        if (($table = $context->get($names[0])) instanceof MysqlTable) {
             return $this->handleTable($context, $names);
         }
 
@@ -376,7 +375,8 @@ class Template
         $name
     )
     {
-        $value = $context->get('this');
+        $value = $context->get($name[0]);
+        array_shift($name);
         while (true) {
             if ($value instanceof MysqlTable) {
                 $value = $value->getFieldValue($name[0]);
