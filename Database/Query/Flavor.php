@@ -46,6 +46,8 @@ class Flavor extends IniConfig
     const CONFIG_SELECT_WHERE_NOT_EQUAL = 'General.WhereNotEqual';
     const CONFIG_SELECT_WHERE_LIKE = 'General.WhereLike';
     const CONFIG_SELECT_WHERE_NOT_LIKE = 'General.WhereNotLike';
+    const CONFIG_SELECT_WHERE_LESS = 'General.WhereLess';
+    const CONFIG_SELECT_WHERE_GREATER = 'General.WhereGreater';
     const CONFIG_SELECT_JOIN = 'Select.Join';
     const CONFIG_CREATE_BASE = 'Create.Base';
     const CONFIG_CREATE_COLUMN = 'Create.Column';
@@ -438,6 +440,20 @@ class Flavor extends IniConfig
             if ($whereArguments->contains('NotLike')) {
                 $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_NOT_LIKE);
                 $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotLike'), $conditionTemplate);
+                array_push($conditions, $whereFilter[0]);
+                $pdoData = array_merge($pdoData, $whereFilter[1]);
+            }
+
+            if ($whereArguments->contains('Less')) {
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_LESS);
+                $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Less'), $conditionTemplate);
+                array_push($conditions, $whereFilter[0]);
+                $pdoData = array_merge($pdoData, $whereFilter[1]);
+            }
+
+            if ($whereArguments->contains('Greater')) {
+                $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_GREATER);
+                $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Greater'), $conditionTemplate);
                 array_push($conditions, $whereFilter[0]);
                 $pdoData = array_merge($pdoData, $whereFilter[1]);
             }
