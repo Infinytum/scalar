@@ -40,6 +40,7 @@ namespace Handlebars;
 use InvalidArgumentException;
 use RuntimeException;
 use Scalar\Database\Table\MysqlTable;
+use Scalar\Util\ScalarArray;
 
 class Template
 {
@@ -332,12 +333,16 @@ class Template
     {
         $name = $current[Tokenizer::NAME];
         $value = $context->get($name);
+
         /**
          * @var $table MysqlTable
          */
         if (($table = $context->get('this')) instanceof MysqlTable) {
-            $value = $table->getFieldValue(str_replace('this.', '', $name));
+            $names = explode('.', $name);
+            array_shift($names);
+            return $this->handleTable($context, $names);
         }
+
 
         if ($name == '@index') {
             return $context->lastIndex();
@@ -355,6 +360,38 @@ class Template
         }
 
         return $value;
+    }
+
+    /**
+     * Process partial section
+     *
+     * @param Context $context current context
+     *
+     * @param $name
+     * @return string the result
+     */
+    private function handleTable
+    (
+        $context,
+        $name
+    )
+    {
+        $value = $context->get('this');
+        while (true) {
+            if ($value instanceof MysqlTable) {
+                $value = $value->getFieldValue($name[0]);
+                array_shift($name);
+            } else if (is_array($value) && count($name) > 0) {
+                $arr = new ScalarArray($value);
+                return $arr->getPath(join('.', $name), "");
+            } else if ($value instanceof ScalarArray && count($name) > 0) {
+                return $value->getPath(join('.', $name), "");
+            } else if ($value instanceof ScalarArray) {
+                return $value->asArray();
+            } else {
+                return $value;
+            }
+        }
     }
 
     /**
