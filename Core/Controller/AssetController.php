@@ -70,6 +70,7 @@ class AssetController
     {
         $this->coreTemplate = Scalar::getService(Scalar::SERVICE_CORE_TEMPLATE);
         $fullPath = $this->coreTemplate->getAssetDirectory() . '/' . join('/', $path);
+        $fullPath = urldecode($fullPath);
 
         if (!file_exists($fullPath)) {
             return $response->withStatus(404);
