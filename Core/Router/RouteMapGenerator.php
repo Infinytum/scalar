@@ -32,7 +32,7 @@ class RouteMapGenerator
      * Controller PHPDoc Property regex
      * @var string
      */
-    private static $phpDocRegex = '/@(?<property>[A-Z][a-z]+)(?:\s){0,1}(?<values>.*)/';
+    private static $phpDocRegex = '/@(?<property>[A-Z][a-zA-Z]+)(?:\s){0,1}(?<values>.*)/';
 
     public static function fromApp
     (
