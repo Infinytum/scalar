@@ -19,6 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#region Support for built-in webserver
+
+if (php_sapi_name() == 'cli-server') {
+    chdir($_SERVER['DOCUMENT_ROOT']);
+}
+
+#endregion
+
+
 define('SCALAR_CORE', dirname(getcwd()));
 
 #region PHP Patches
@@ -108,3 +117,12 @@ foreach ($response->getHeaders() as $headerName => $headerValue) {
 echo $response->getBody()->getContents();
 
 $scalar->shutdown($serverRequest, $response);
+
+#region Support for built-in webserver
+
+if (php_sapi_name() == 'cli-server') {
+    return true;
+}
+
+#endregion
+
