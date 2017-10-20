@@ -249,25 +249,25 @@ class Flavor extends IniConfig
 
             if ($whereArguments->contains('Equal')) {
                 $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_EQUAL);
-                $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Equal'), $conditionTemplate);
+                $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Equal'), $conditionTemplate, true);
                 array_push($conditions, $whereFilter[0]);
             }
 
             if ($whereArguments->contains('NotEqual')) {
                 $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_NOT_EQUAL);
-                $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotEqual'), $conditionTemplate);
+                $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotEqual'), $conditionTemplate, true);
                 array_push($conditions, $whereFilter[0]);
             }
 
             if ($whereArguments->contains('Like')) {
                 $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_LIKE);
-                $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Like'), $conditionTemplate);
+                $whereFilter = $this->generateWhereFilter($whereArguments->getPath('Like'), $conditionTemplate, true);
                 array_push($conditions, $whereFilter[0]);
             }
 
             if ($whereArguments->contains('NotLike')) {
                 $conditionTemplate = $this->getPath(self::CONFIG_SELECT_WHERE_NOT_LIKE);
-                $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotLike'), $conditionTemplate);
+                $whereFilter = $this->generateWhereFilter($whereArguments->getPath('NotLike'), $conditionTemplate, true);
                 array_push($conditions, $whereFilter[0]);
             }
 
@@ -278,7 +278,7 @@ class Flavor extends IniConfig
         return [$this->replacePlaceholders($baseQuery, $placeholders)];
     }
 
-    private function generateWhereFilter($array, $conditionTemplate)
+    private function generateWhereFilter($array, $conditionTemplate, $isUpdate = false)
     {
         $possibilities = [];
         $pdoPlaceholders = [];
@@ -294,9 +294,12 @@ class Flavor extends IniConfig
                 $keys = [];
 
                 foreach ($val as $whereOption) {
-                    $placeholderKey = str_replace('.', '_', $key) . $this->placeholderCounter;
+                    $placeholderKey = str_replace('.', '_', $key);
+                    if (!$isUpdate) {
+                        $placeholderKey .= $this->placeholderCounter;
+                        $this->placeholderCounter++;
+                    }
                     $pdoPlaceholders[$placeholderKey] = $whereOption;
-                    $this->placeholderCounter++;
                     array_push($keys, ':' . $placeholderKey);
                 }
 
