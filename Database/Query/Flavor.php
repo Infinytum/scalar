@@ -181,8 +181,8 @@ class Flavor extends IniConfig
 
         foreach ($injectables as $injectable) {
             $path = $injectable['Path'];
-            if ($placeholders->contains($path)) {
-                $string = str_replace($injectable[0], $placeholders[$path], $string);
+            if ($placeholders->containsPath($path)) {
+                $string = str_replace($injectable[0], $placeholders->getPath($path), $string);
             }
         }
 
