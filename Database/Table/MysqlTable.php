@@ -550,6 +550,17 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         return $this;
     }
 
+    public function limit
+    (
+        $from = 0,
+        $to
+    )
+    {
+        $this->query->setPath('Limit.Offset', $from);
+        $this->query->setPath('Limit.Count', $to);
+        return $this;
+    }
+
     /**
      * Reverse data
      * @return self
