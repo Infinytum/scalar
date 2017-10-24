@@ -28,7 +28,6 @@
 
 namespace Scalar\Database\Table;
 
-
 use Scalar\Util\ScalarArray;
 
 class TableDefinition
@@ -40,6 +39,8 @@ class TableDefinition
     const TABLE_FIELDS = 'Fields';
 
     private $array;
+
+    private $fieldDefinitions;
 
     public function __construct
     (
@@ -55,6 +56,7 @@ class TableDefinition
             );
         }
         $this->array = $array;
+        $this->fieldDefinitions = new ScalarArray();
     }
 
     /**
@@ -85,6 +87,13 @@ class TableDefinition
     public function getTableClass()
     {
         return $this->array->getPath(self::TABLE_CLASS);
+    }
+
+    public function getTableClassName()
+    {
+        $className = $this->getTableClass();
+        $className = str_replace('Scalar\\App\\Database\\' . $this->getDatabase() . "\\", '', $className);
+        return str_replace('.php', '', $className);
     }
 
     /**
@@ -137,12 +146,20 @@ class TableDefinition
             return null;
         }
 
-        return new FieldDefinition
+        if ($this->fieldDefinitions->containsPath(self::TABLE_FIELDS . '.' . $fieldName)) {
+            return $this->fieldDefinitions->getPath(self::TABLE_FIELDS . '.' . $fieldName);
+        }
+
+        $fieldDefintion = new FieldDefinition
         (
             $fieldName,
             $this,
             $this->array->getPath(self::TABLE_FIELDS . '.' . $fieldName)
         );
+
+        $this->fieldDefinitions->setPath(self::TABLE_FIELDS . '.' . $fieldName, $fieldDefintion);
+
+        return $fieldDefintion;
     }
 
     /**
