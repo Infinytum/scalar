@@ -40,6 +40,11 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
     private static $databaseConnections;
 
     /**
+     * @var ScalarArray
+     */
+    private static $tableDefintions;
+
+    /**
      * @var \stdClass
      */
     private $mockObject;
@@ -363,13 +368,22 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
      */
     public static function getTableDefinition()
     {
+        if (!self::$tableDefintions) {
+            self::$tableDefintions = new ScalarArray();
+        }
         $reflectionClass = new \ReflectionClass(get_called_class());
         $definitionPath = dirname($reflectionClass->getFileName()) . '/' . $reflectionClass->getShortName() . '.json';
+        $cachePath = $reflectionClass->getName();
+
+        if (self::$tableDefintions->containsPath($cachePath)) {
+            return self::$tableDefintions->getPath($cachePath);
+        }
 
         $definitionLoader = new JsonConfig(new File($definitionPath, true), []);
         $definitionLoader->load();
 
         if (!$definitionLoader->has('Table')) {
+
             $reflectionFields = $reflectionClass->getProperties();
 
             $definitionLoader->set('Table', self::getParameters($reflectionClass));
@@ -390,7 +404,11 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
             $definitionLoader->save();
         }
 
-        return new TableDefinition($definitionLoader->asScalarArray());
+        $tableDefinition = new TableDefinition($definitionLoader->asScalarArray());
+
+        self::$tableDefintions->setPath($cachePath, $tableDefinition);
+
+        return $tableDefinition;
     }
 
     private static function getParameters
