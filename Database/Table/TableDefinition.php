@@ -155,6 +155,8 @@ class TableDefinition
                 return $fieldDefinition;
             }
         }
+
+        return null;
     }
 
     /**
