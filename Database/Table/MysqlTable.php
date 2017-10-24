@@ -83,8 +83,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         $this->tableName = $tableName;
         $this->updateOverrides = $updateFieldOverrides;
         $this->resetQuery();
-        $this->queryFlavor = new Flavor('mysql');
-        $this->queryFlavor->load();
+        $this->queryFlavor = Flavor::byName(Flavor::LANG_MYSQL);
     }
 
     public function resetQuery()
