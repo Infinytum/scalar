@@ -39,6 +39,7 @@ class FieldDefinition
     const FIELD_PRIMARY_KEY = 'PrimaryKey';
     const FIELD_UNIQUE = 'Unique';
     const FIELD_AUTO_INCREMENT = 'AutoIncrement';
+    const FIELD_LAZY_LOAD = 'LazyLoad';
 
     const FIELD_HAS = 'Has';
     const FIELD_HAS_MANY = 'HasMany';
@@ -74,6 +75,7 @@ class FieldDefinition
                 'Invalid table definition passed to field definition'
             );
         }
+
         $this->array = $array;
         $this->fieldName = $fieldName;
         $this->tableDefinition = $tableDefinition;
@@ -125,6 +127,16 @@ class FieldDefinition
     }
 
     /**
+     * Determine if this field will be lazy loaded
+     *
+     * @return bool
+     */
+    public function isLazyLoading()
+    {
+        return $this->array->getPath(self::FIELD_LAZY_LOAD, false);
+    }
+
+    /**
      * Determine if this field is a foreign key
      *
      * @return bool
@@ -160,10 +172,12 @@ class FieldDefinition
     public function getHelperTableDefinition()
     {
         $foreignTable = $this->getForeignTableDefinition();
+
         $helperMock =
             [
                 'Table' => [
-                    'Table' => $this->getHelperTable()
+                    'Table' => $this->getHelperTable(),
+                    'Database' => $this->tableDefinition->getDatabase()
                 ],
                 'Fields' => [
                     $this->tableDefinition->getTableName() . '_' . $this->tableDefinition->getField($this->getLocalHelperColumn())->getFieldName() => [
@@ -171,7 +185,7 @@ class FieldDefinition
                         'NotNull' => true,
                         'PrimaryKey' => true,
                         'Has' => [
-                            $this->tableDefinition->getTableName(),
+                            $this->tableDefinition->getTableClassName(),
                             $this->getLocalHelperColumn()
                         ]
                     ],
@@ -180,7 +194,7 @@ class FieldDefinition
                         'NotNull' => true,
                         'PrimaryKey' => true,
                         'Has' => [
-                            $this->getForeignTableDefinition()->getTableName(),
+                            $this->getForeignTableDefinition()->getTableClassName(),
                             $this->getForeignHelperColumn()
                         ]
                     ]
