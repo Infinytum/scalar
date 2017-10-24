@@ -87,8 +87,7 @@ class PDODatabase implements DatabaseInterface
         $this->pdo = $pdo;
         $this->scanTables();
 
-        $this->flavor = new Flavor($flavor);
-        $this->flavor->load();
+        $this->flavor = Flavor::byName(Flavor::LANG_MYSQL);
     }
 
     private function scanTables()
