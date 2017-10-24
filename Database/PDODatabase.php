@@ -67,6 +67,7 @@ class PDODatabase implements DatabaseInterface
     private $helperTableStrings = [];
     private $tableStrings = [];
     private $createdTables = [];
+    private $beingCreated = [];
 
 
     public function __construct
@@ -312,12 +313,19 @@ class PDODatabase implements DatabaseInterface
         if (in_array($table['Table'], $this->createdTables))
             return;
 
+        array_push($this->beingCreated, $table['Table']);
+
         /**
          * @var TableDefinition $need
          */
-        foreach ($table['Needs'] as $need) {
+        foreach ($table['Needs'] as $needIndex => $need) {
+            if (in_array($need->getTableName(), $this->beingCreated))
+                continue;
             $this->createTable($this->tableStrings[$need->getTableName()]);
         }
+
+        array_pop($this->beingCreated);
+
         $this->pdo->query($table['Query']);
         array_push($this->createdTables, $table['Table']);
     }
