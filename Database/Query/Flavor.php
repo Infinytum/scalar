@@ -37,6 +37,13 @@ use Scalar\Util\ScalarArray;
 
 class Flavor extends IniConfig
 {
+
+    // Flavors
+
+    const LANG_MYSQL = 'mysql';
+
+    // Configuration Paths
+
     const CONFIG_SELECT_BASE = 'Select.Base';
     const CONFIG_SELECT_ORDER = 'Select.Order';
     const CONFIG_SELECT_GROUP = 'Select.Group';
@@ -66,7 +73,12 @@ class Flavor extends IniConfig
 
     private $placeholderCounter = 0;
 
-    public function __construct($flavor)
+    private static $flavorCache = [];
+
+    public function __construct
+    (
+        $flavor
+    )
     {
         parent::__construct
         (
@@ -77,6 +89,7 @@ class Flavor extends IniConfig
         );
 
         $this->load();
+        self::$flavorCache[$flavor] = $this;
     }
 
     /**
@@ -164,7 +177,11 @@ class Flavor extends IniConfig
         return $this->replacePlaceholders($baseQuery, ['Table' => $tableDefinition->getTableName(), 'Columns' => join(', ', $columns)]);
     }
 
-    private function replacePlaceholders($string, $placeholders)
+    private function replacePlaceholders
+    (
+        $string,
+        $placeholders
+    )
     {
         preg_match_all
         (
@@ -278,7 +295,12 @@ class Flavor extends IniConfig
         return [$this->replacePlaceholders($baseQuery, $placeholders)];
     }
 
-    private function generateWhereFilter($array, $conditionTemplate, $isUpdate = false)
+    private function generateWhereFilter
+    (
+        $array,
+        $conditionTemplate,
+        $isUpdate = false
+    )
     {
         $possibilities = [];
         $pdoPlaceholders = [];
@@ -479,6 +501,21 @@ class Flavor extends IniConfig
         }
 
         return [$this->replacePlaceholders($baseQuery, $placeholders), $pdoData];
+    }
+
+
+    public static function byName
+    (
+        $flavorName
+    )
+    {
+        $flavorName = strtolower($flavorName);
+
+        if (in_array($flavorName, self::$flavorCache)) {
+            return self::$flavorCache[$flavorName];
+        }
+
+        return new Flavor($flavorName);
     }
 
 }
