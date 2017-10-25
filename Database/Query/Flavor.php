@@ -511,7 +511,7 @@ class Flavor extends IniConfig
     {
         $flavorName = strtolower($flavorName);
 
-        if (in_array($flavorName, self::$flavorCache)) {
+        if (array_key_exists($flavorName, self::$flavorCache)) {
             return self::$flavorCache[$flavorName];
         }
 
