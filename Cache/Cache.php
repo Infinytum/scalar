@@ -41,7 +41,7 @@ class Cache implements CacheInterface
      */
     private $cacheStorage;
 
-    private $keyRegex = '/^[a-zA-Z0-9_.]{1,64}$/';
+    private $keyRegex = '/^[a-zA-Z0-9_.-]{1,}$/';
 
     public function __construct($cacheStorage)
     {
