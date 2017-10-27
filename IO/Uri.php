@@ -302,7 +302,7 @@ $/xm';
      * @return static A new instance with parameters parsed from the string
      * @throws MalformedUriException
      */
-    public function fromString($uri)
+    public static function fromString($uri)
     {
         if (!preg_match(self::$uriRegex, $uri, $parsedUri)) {
             throw new MalformedUriException($uri);
