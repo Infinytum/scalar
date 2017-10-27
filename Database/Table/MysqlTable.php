@@ -600,7 +600,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         foreach ($primaryKeys as $fieldDefinition) {
             $fieldName = $fieldDefinition->getFieldName();
             $this->where(function ($mock) use ($fieldName) {
-                return [$mock->$fieldName = $this->getFieldValue($fieldName)];
+                return [$mock->$fieldName => $this->getFieldValue($fieldName)];
             });
         }
         $query = $this->getDeleteQuery();
