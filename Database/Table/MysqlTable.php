@@ -923,6 +923,14 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         // TODO: Implement asArray() method.
     }
 
+    public function property(&$field, $value, $numArgs)
+    {
+        if ($numArgs > 0) {
+            $field = $value;
+        }
+        return $field;
+    }
+
     public function offsetGet($offset)
     {
         if (substr($offset, -2) === '()') {
