@@ -131,6 +131,10 @@ class Flavor extends IniConfig
                 array_push($constraints, $fieldDefinition);
             }
 
+            if ($fieldDefinition->isForeignKey() && $fieldDefinition->hasHelperTable()) {
+                continue;
+            }
+
             array_push($columns, join(' ', $column));
         }
 
