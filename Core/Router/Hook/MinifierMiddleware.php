@@ -68,19 +68,9 @@ class MinifierMiddleware implements HttpMiddlewareInterface
             $mimeType = $response->getHeader('Content-Type')[0];
         }
 
-        if (strpos($mimeType, 'html')) {
-            $response->getBody()->wipe();
-            $response->getBody()->write($this->fn_minify_css_union($this->fn_minify_html_union_attr($content)));
-        }
-
         if (strpos($mimeType, 'css')) {
             $response->getBody()->wipe();
             $response->getBody()->write($this->fn_minify_css_union($content));
-        }
-
-        if (strpos($mimeType, 'javascript')) {
-            $response->getBody()->wipe();
-            $response->getBody()->write($this->fn_minify_js_union($content));
         }
 
 
