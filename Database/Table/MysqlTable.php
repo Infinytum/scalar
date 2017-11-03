@@ -95,6 +95,8 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
                 'Selector' => '*'
             ]
         );
+
+        $this->queryFlavor = Flavor::byName(Flavor::LANG_MYSQL);
     }
 
     /**
@@ -120,6 +122,42 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
     )
     {
         $reflectionClass = new \ReflectionClass(get_called_class());
+        $tableDefintion = $reflectionClass->getMethod('getTableDefinition')->invoke(null);
+        foreach ($tableDefintion->getFieldDefinitions() as $field) {
+
+            if ($field->isLazyLoading()) {
+                continue;
+            }
+
+            if ($field->isForeignKey() && $field->hasHelperTable()) {
+                $foreignClass = new \ReflectionClass($field->getForeignTableDefinition()->getTableClass());
+                $fakeClass = $foreignClass->newInstanceArgs(array_fill(0, $foreignClass->getConstructor()->getNumberOfParameters(), null));
+                $data = [];
+                foreach ($row[$field->getFieldName()] as $fieldValue) {
+                    array_push($data, $fakeClass->where(
+                        function ($mock) use ($field, $fieldValue) {
+                            return [
+                                $field->getForeignHelperColumn() => $fieldValue
+                            ];
+                        }
+                    )->fetch()->firstOrDefault());
+                }
+                $row[$field->getFieldName()] = $data;
+            }
+
+            if ($field->isForeignKey() && !$field->hasHelperTable()) {
+                $foreignClass = new \ReflectionClass($field->getForeignTableDefinition()->getTableClass());
+                $fakeClass = $foreignClass->newInstanceArgs(array_fill(0, $foreignClass->getConstructor()->getNumberOfParameters(), null));
+                $fieldValue = $row[$field->getForeignColumn()];
+                $row[$field->getFieldName()] = $fakeClass->where(
+                    function ($mock) use ($field, $fieldValue) {
+                        return [
+                            $field->getForeignColumn() => $fieldValue
+                        ];
+                    }
+                )->fetch()->firstOrDefault();
+            }
+        }
         return $reflectionClass->newInstanceArgs(array_values($row));
     }
 
