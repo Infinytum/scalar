@@ -246,12 +246,12 @@ class Context
                 $value = $variable[$inside];
             }
         } elseif (is_object($variable)) {
-            if (isset($variable->$inside)) {
-                $value = $variable->$inside;
+            if ($variable instanceof MysqlTable) {
+                $value = $this->handleTable($variable, $inside);
             } elseif (is_callable(array($variable, $inside))) {
                 $value = call_user_func(array($variable, $inside));
-            } elseif ($variable instanceof MysqlTable) {
-                $value = $this->handleTable($variable, $inside);
+            } elseif (isset($variable->$inside)) {
+                $value = $variable->$inside;
             }
         } elseif ($inside === '.') {
             $value = $variable;
@@ -276,23 +276,18 @@ class Context
     )
     {
         $value = $context;
-        $name = explode('.', $name);
-        while (true) {
-            if ($value instanceof MysqlTable) {
-                $value = $value->getFieldValue($name[0]);
-                array_shift($name);
-            } else if (is_array($value) && count($name) > 0) {
-                $arr = new ScalarArray($value);
-                return $arr->getPath(join('.', $name), "");
-            } else if ($value instanceof ScalarArray && count($name) > 0) {
-                return $value->getPath(join('.', $name), "");
-            } else if ($value instanceof ScalarArray) {
-                return $value->asArray();
-            } else {
-                return $value;
-            }
+        if ($value instanceof MysqlTable) {
+            return $value->getFieldValue($name);
+        } else if (is_array($value) && count($name) > 0) {
+            $arr = new ScalarArray($value);
+            return $arr->getPath(join('.', $name), "");
+        } else if ($value instanceof ScalarArray && count($name) > 0) {
+            return $value->getPath(join('.', $name), "");
+        } else if ($value instanceof ScalarArray) {
+            return $value->asArray();
+        } else {
+            return $value;
         }
-        return $value;
     }
 
     /**
