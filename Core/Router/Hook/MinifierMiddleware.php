@@ -70,7 +70,7 @@ class MinifierMiddleware implements HttpMiddlewareInterface
 
         if (strpos($mimeType, 'html')) {
             $response->getBody()->wipe();
-            $response->getBody()->write($this->fn_minify_css_union($this->fn_minify_html($content)));
+            $response->getBody()->write($this->fn_minify_css_union($this->fn_minify_html_union_attr($content)));
         }
 
         if (strpos($mimeType, 'css')) {
@@ -185,7 +185,7 @@ class MinifierMiddleware implements HttpMiddlewareInterface
         return preg_split('#(' . implode('|', $pattern) . ')#', $input, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
     }
 
-    private function fn_minify_html_union($input, $quote)
+    private function fn_minify_html_union($input, $quote = '')
     {
         if (
             strpos($input, ' ') === false &&
