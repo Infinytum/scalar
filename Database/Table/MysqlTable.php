@@ -123,7 +123,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         return $reflectionClass->newInstanceArgs(array_values($row));
     }
 
-    public function getFakeInstance()
+    public static function getFakeInstance()
     {
         $reflectionClass = new \ReflectionClass(get_called_class());
         return $reflectionClass->newInstanceWithoutConstructor();
