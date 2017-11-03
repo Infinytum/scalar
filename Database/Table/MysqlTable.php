@@ -148,7 +148,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
             if ($field->isForeignKey() && !$field->hasHelperTable()) {
                 $foreignClass = new \ReflectionClass($field->getForeignTableDefinition()->getTableClass());
                 $fakeClass = $foreignClass->newInstanceArgs(array_fill(0, $foreignClass->getConstructor()->getNumberOfParameters(), null));
-                $fieldValue = $row[$field->getForeignColumn()];
+                $fieldValue = $row[$field->getFieldName()];
                 $row[$field->getFieldName()] = $fakeClass->where(
                     function ($mock) use ($field, $fieldValue) {
                         return [
