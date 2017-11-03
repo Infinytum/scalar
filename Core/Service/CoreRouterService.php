@@ -25,6 +25,7 @@ namespace Scalar\Core\Service;
 use Scalar\Config\JsonConfig;
 use Scalar\Core\Router\Hook\ControllerDependencyInjectionHook;
 use Scalar\Core\Router\Hook\MethodFilterMiddleware;
+use Scalar\Core\Router\Hook\MinifierMiddleware;
 use Scalar\Core\Router\Hook\RestControllerHook;
 use Scalar\Core\Router\RouteMapGenerator;
 use Scalar\Core\Scalar;
@@ -227,9 +228,11 @@ class CoreRouterService extends CoreService
 
         $this->httpMiddlewareDispatcher = new HttpMiddlewareDispatcher();
 
-        $this->httpMiddlewareDispatcher = $this->httpMiddlewareDispatcher->addMiddleware(new MethodFilterMiddleware())
+        $this->httpMiddlewareDispatcher = $this->httpMiddlewareDispatcher
+            ->addMiddleware(new MethodFilterMiddleware())
             ->addMiddleware(new RestControllerHook())
-            ->addMiddleware(new ControllerDependencyInjectionHook());
+            ->addMiddleware(new ControllerDependencyInjectionHook())
+            ->addMiddleware(new MinifierMiddleware());
 
         return true;
     }
