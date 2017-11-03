@@ -74,16 +74,22 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
      */
     private $updateOverrides;
 
-    public function __construct
-    (
-        $tableName,
-        $updateFieldOverrides = []
-    )
+    public function __construct()
     {
-        $this->tableName = $tableName;
-        $this->updateOverrides = $updateFieldOverrides;
+        /**
+         * @var TableDefinition $tableDefintion
+         */
+        $tableDefintion = get_class($this)::getTableDefinition();
+        $this->tableName = $tableDefintion->getTableName();
+        $this->updateOverrides = [];
+
+        foreach ($tableDefintion->getPrimaryKeys() as $fieldDefinition) {
+            $this->updateOverrides[$fieldDefinition->getFieldName()] = $this->getFieldValue($fieldDefinition->getFieldName());
+        }
+
         $this->resetQuery();
         $this->queryFlavor = Flavor::byName(Flavor::LANG_MYSQL);
+
     }
 
     public function resetQuery()
@@ -161,10 +167,13 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         return $reflectionClass->newInstanceArgs(array_values($row));
     }
 
+    /**
+     * @return static
+     */
     public static function getFakeInstance()
     {
-        $reflectionClass = new \ReflectionClass(get_called_class());
-        return $reflectionClass->newInstanceWithoutConstructor();
+        $foreignClass = new \ReflectionClass(get_called_class());
+        return $foreignClass->newInstanceArgs(array_fill(0, $foreignClass->getConstructor()->getNumberOfParameters(), null));
     }
 
     /**
