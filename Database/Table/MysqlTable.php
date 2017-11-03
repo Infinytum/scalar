@@ -114,10 +114,20 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
         self::$databaseConnections->set($databaseName, $pdo);
     }
 
-    public abstract static function fromRow
+    public function fromRow
     (
         $row
-    );
+    )
+    {
+        $reflectionClass = new \ReflectionClass(get_called_class());
+        return $reflectionClass->newInstanceArgs(array_values($row));
+    }
+
+    public function getFakeInstance()
+    {
+        $reflectionClass = new \ReflectionClass(get_called_class());
+        return $reflectionClass->newInstanceWithoutConstructor();
+    }
 
     /**
      * Filter data on SQL Server
@@ -354,7 +364,7 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 
                 $row[$fieldDefinition->getFieldName()] = $ids;
             }
-            array_push($data, $method->invoke(null, $row));
+            array_push($data, $method->invoke($this, $row));
 
         }
         return new ScalarArray($data);
