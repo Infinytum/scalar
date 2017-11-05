@@ -131,7 +131,7 @@ abstract class DatabaseTable implements \ArrayAccess
      *
      * @return FlavoredQuery
      */
-    public function getSelectQuery()
+    private function getSelectQuery()
     {
         return $this->queryFlavor->generateSelect(
             $this->query->asArray()
