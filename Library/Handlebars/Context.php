@@ -38,7 +38,7 @@
 namespace Handlebars;
 
 use InvalidArgumentException;
-use Scalar\Database\Table\MysqlTable;
+use Scalar\Database\Table\DatabaseTable;
 use Scalar\Util\ScalarArray;
 
 class Context
@@ -246,7 +246,7 @@ class Context
                 $value = $variable[$inside];
             }
         } elseif (is_object($variable)) {
-            if ($variable instanceof MysqlTable) {
+            if ($variable instanceof DatabaseTable) {
                 $value = $this->handleTable($variable, $inside);
             } elseif (is_callable(array($variable, $inside))) {
                 $value = call_user_func(array($variable, $inside));
@@ -276,8 +276,8 @@ class Context
     )
     {
         $value = $context;
-        if ($value instanceof MysqlTable) {
-            return $value->getFieldValue($name);
+        if ($value instanceof DatabaseTable) {
+            return $value->offsetGet($name);
         } else if (is_array($value) && count($name) > 0) {
             $arr = new ScalarArray($value);
             return $arr->getPath(join('.', $name), "");

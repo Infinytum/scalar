@@ -234,7 +234,7 @@ class Flavor extends IniConfig
             $placeholders->setPath('Ignore', $this->getPath(self::CONFIG_INSERT_IGNORE));
         }
 
-        return [$this->replacePlaceholders($baseQuery, $placeholders)];
+        return new FlavoredQuery($this->replacePlaceholders($baseQuery, $placeholders), []);
     }
 
     public function generateUpdate
@@ -296,7 +296,8 @@ class Flavor extends IniConfig
 
             $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_UPDATE_WHERE)]);
         }
-        return [$this->replacePlaceholders($baseQuery, $placeholders)];
+
+        return new FlavoredQuery($this->replacePlaceholders($baseQuery, $placeholders), []);
     }
 
     private function generateWhereFilter
@@ -391,7 +392,7 @@ class Flavor extends IniConfig
             $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_DELETE_WHERE)]);
         }
 
-        return [$this->replacePlaceholders($baseQuery, $placeholders), $pdoData];
+        return new FlavoredQuery($this->replacePlaceholders($baseQuery, $placeholders), $pdoData);
     }
 
     public function generateSelect
@@ -504,7 +505,7 @@ class Flavor extends IniConfig
             $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_SELECT_LIMIT)]);
         }
 
-        return [$this->replacePlaceholders($baseQuery, $placeholders), $pdoData];
+        return new FlavoredQuery($this->replacePlaceholders($baseQuery, $placeholders), $pdoData);
     }
 
 

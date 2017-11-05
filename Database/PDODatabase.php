@@ -25,9 +25,17 @@ namespace Scalar\Database;
 use Scalar\Database\Query\Flavor;
 use Scalar\Database\Table\FieldDefinition;
 use Scalar\Database\Table\TableDefinition;
+use Scalar\Util\ScalarArray;
 
 class PDODatabase implements DatabaseInterface
 {
+
+    /**
+     * PDO Connection pool
+     *
+     * @var ScalarArray
+     */
+    private static $databaseConnections;
 
     /**
      * @var string
@@ -88,6 +96,10 @@ class PDODatabase implements DatabaseInterface
         $this->scanTables();
 
         $this->flavor = Flavor::byName(Flavor::LANG_MYSQL);
+
+        if (self::$databaseConnections === null) {
+            self::$databaseConnections = new ScalarArray();
+        }
     }
 
     private function scanTables()
@@ -192,6 +204,8 @@ class PDODatabase implements DatabaseInterface
             ]
         );
 
+        self::$databaseConnections->set($this->name, $this);
+
         return true;
     }
 
@@ -203,6 +217,7 @@ class PDODatabase implements DatabaseInterface
     public function disconnect()
     {
         $this->pdo = null;
+        unset(self::$databaseConnections[$this->name]);
     }
 
     public function getTables()
@@ -327,5 +342,19 @@ class PDODatabase implements DatabaseInterface
 
         $this->pdo->query($table['Query']);
         array_push($this->createdTables, $table['Table']);
+    }
+
+    /**
+     * Get database connection
+     *
+     * @param string $databaseName
+     * @return PDODatabase|null
+     */
+    public static function getPDO
+    (
+        $databaseName
+    )
+    {
+        return self::$databaseConnections->getPath($databaseName);
     }
 }
