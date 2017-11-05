@@ -982,14 +982,15 @@ abstract class MysqlTable implements FilterableInterface, \ArrayAccess
 
     public function property
     (
-        &$field,
-        $value = null,
-        $numArgs = 0
+        &$field
     )
     {
-        if ($numArgs > 0) {
-            $field = $value;
+        $trace = debug_backtrace(0)[1];
+
+        if (count($trace['args']) >= 1) {
+            $field = $trace['args'][0];
         }
+
         return $field;
     }
 
