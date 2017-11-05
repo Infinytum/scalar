@@ -90,90 +90,64 @@ abstract class DatabaseTable implements \ArrayAccess
     #region Query Helper Methods
 
     /**
-     * Get table definition
+     * Add where filter to query
      *
-     * @param string|DatabaseTable $tableClass Full class name of the table you want the table definition of
-     * @return null|TableDefinition
+     * @param string $wherePath
+     * @param array $whereFilterData
      */
-    public static function getTableDefinition
-    (
-        $tableClass = null
-    )
+    private function addWhereFilter($wherePath, $whereFilterData)
     {
-        if (!self::$tableDefinitions) {
-            self::$tableDefinitions = new ScalarArray();
-        }
-
-        if ($tableClass === null) {
-            $tableClass = get_called_class();
-        } else if ($tableClass instanceof DatabaseTable) {
-            $tableClass = get_class($tableClass);
-        }
-
-        $reflectionClass = new \ReflectionClass($tableClass);
-        $definitionPath = dirname($reflectionClass->getFileName()) . '/' . $reflectionClass->getShortName() . '.json';
-        $cachePath = $reflectionClass->getName();
-
-        if (self::$tableDefinitions->containsPath($cachePath)) {
-            return self::$tableDefinitions->getPath($cachePath);
-        }
-
-        $definitionLoader = new JsonConfig(new File($definitionPath, true), []);
-        $definitionLoader->load();
-
-        if (!$definitionLoader->has('Table')) {
-
-            $reflectionFields = $reflectionClass->getProperties();
-
-            $definitionLoader->set('Table', (new PHPDoc($reflectionClass))->getAnnotations());
-
-            if (!$definitionLoader->hasPath('Table.Table') || !$definitionLoader->hasPath('Table.Database')) {
-                return null;
-            }
-
-            $definitionLoader->setPath('Table.Class', $reflectionClass->getName());
-
-            foreach ($reflectionFields as $reflectionField) {
-                $params = (new PHPDoc($reflectionField))->getAnnotations();
-                if (array_key_exists('Field', $params)) {
-                    $definitionLoader->setPath('Fields.' . $reflectionField->name, $params);
-                }
-
-            }
-            $definitionLoader->save();
-        }
-
-        $tableDefinition = new TableDefinition($definitionLoader->asScalarArray());
-
-        self::$tableDefinitions->setPath($cachePath, $tableDefinition);
-
-        return $tableDefinition;
+        $this->query->putPath($wherePath,
+            $whereFilterData
+        );
     }
 
     /**
-     * Get field value stored in this object
+     * Generates the delete query with the current parameters
      *
-     * @param string $fieldName Name of field
-     * @return mixed|null
+     * @return FlavoredQuery
      */
-    private function getPropertyValue($fieldName)
+    private function getDeleteQuery()
     {
-        $reflectionClass = new \ReflectionClass(get_class($this));
+        return $this->queryFlavor->generateDelete(
+            $this->query->asArray()
+        );
+    }
 
-        if (!$reflectionClass->hasProperty($fieldName)) {
+    /**
+     * Generates the insert query with the current parameters
+     *
+     * @return FlavoredQuery
+     */
+    private function getInsertQuery()
+    {
+        return $this->queryFlavor->generateInsert(
+            $this->query->asArray()
+        );
+    }
 
-            if ($reflectionClass->hasMethod($fieldName)) {
-                $property = $reflectionClass->getMethod($fieldName);
-                $property->setAccessible(true);
-                return $property->invoke($this);
-            }
+    /**
+     * Generates the select query with the current parameters
+     *
+     * @return FlavoredQuery
+     */
+    public function getSelectQuery()
+    {
+        return $this->queryFlavor->generateSelect(
+            $this->query->asArray()
+        );
+    }
 
-            return null;
-        }
-
-        $property = $reflectionClass->getProperty($fieldName);
-        $property->setAccessible(true);
-        return $property->getValue($this);
+    /**
+     * Generates the update query with the current parameters
+     *
+     * @return FlavoredQuery
+     */
+    private function getUpdateQuery()
+    {
+        return $this->queryFlavor->generateUpdate(
+            $this->query->asArray()
+        );
     }
 
     /**
@@ -191,16 +165,58 @@ abstract class DatabaseTable implements \ArrayAccess
         );
     }
 
+    #endregion
+
+    #region Filtering Methods
+
     /**
-     * Fetch all entries in the database
+     * Only return unique entries
      *
-     * @return ScalarArray
+     * @return self
      */
-    public static function fetchAll()
+    public function distinct()
     {
-        $fakeInstance = self::getFakeInstance();
-        $fakeInstance->reset();
-        return $fakeInstance->fetch();
+        $this->query->setPath('Distinct', true);
+        return $this;
+    }
+
+    /**
+     * Set selector for this query
+     *
+     * @param $lambda callable filter
+     * @return self
+     */
+    public function select($lambda)
+    {
+        $field = $lambda
+        (
+            $this->generateMockInstance()
+        );
+
+        if (is_array($field)) {
+            $field = join(', ', $field);
+        }
+
+        $this->query->setPath('Selector', $field);
+        return $this;
+    }
+
+    /**
+     * Only return data which matches your filter
+     *
+     * @param \Closure $lambda callable filter
+     * @return self
+     */
+    public function where($lambda)
+    {
+        $this->addWhereFilter(
+            'Where.Equal',
+            $lambda
+            (
+                $this->generateMockInstance()
+            )
+        );
+        return $this;
     }
 
     /**
@@ -219,46 +235,6 @@ abstract class DatabaseTable implements \ArrayAccess
             )
         );
         return $this;
-    }
-
-    /**
-     * Add where filter to query
-     *
-     * @param string $wherePath
-     * @param array $whereFilterData
-     */
-    private function addWhereFilter($wherePath, $whereFilterData)
-    {
-        $this->query->putPath($wherePath,
-            $whereFilterData
-        );
-    }
-
-    #endregion
-
-    #region Filtering Methods
-
-    /**
-     * @param string|DatabaseTable $tableClass
-     * @return static|object
-     */
-    private function generateMockInstance($tableClass = null)
-    {
-        if ($tableClass === null) {
-            $tableClass = get_called_class();
-        } else if ($tableClass instanceof DatabaseTable) {
-            $tableClass = get_class($tableClass);
-        }
-
-        $tableDefinition = self::getTableDefinition($tableClass);
-        $fields = $tableDefinition->getFieldDefinitions();
-        $fields = array_map(function ($definition) {
-            return $definition->getFieldName();
-        }, $fields);
-
-
-        $foreignClass = new \ReflectionClass($tableClass);
-        return $foreignClass->newInstanceArgs($fields);
     }
 
     /**
@@ -333,6 +309,10 @@ abstract class DatabaseTable implements \ArrayAccess
         return $this;
     }
 
+    #endregion
+
+    #region Order/Sorting Methods
+
     /**
      * Set order direction to 'ascending'
      *
@@ -355,21 +335,6 @@ abstract class DatabaseTable implements \ArrayAccess
         return $this;
     }
 
-    #endregion
-
-    #region Order/Sorting Methods
-
-    /**
-     * Only return unique entries
-     *
-     * @return self
-     */
-    public function distinct()
-    {
-        $this->query->setPath('Distinct', true);
-        return $this;
-    }
-
     /**
      * Sort entries according to specified field
      *
@@ -382,6 +347,11 @@ abstract class DatabaseTable implements \ArrayAccess
         $this->query->setPath('Order', $fieldName);
         return $this;
     }
+
+
+    #endregion
+
+    #region Miscellaneous Methods
 
     /**
      * Limit the amount and/or starting point of entries returned
@@ -401,6 +371,10 @@ abstract class DatabaseTable implements \ArrayAccess
         return $this;
     }
 
+    #endregion
+
+    #region Informative Methods
+
     /**
      * Check if any entry matched your current query
      *
@@ -410,10 +384,6 @@ abstract class DatabaseTable implements \ArrayAccess
     {
         return $this->count() > 0;
     }
-
-    #endregion
-
-    #region Miscellaneous Methods
 
     /**
      * Fetches the amount of entries that matches your current query
@@ -428,32 +398,6 @@ abstract class DatabaseTable implements \ArrayAccess
         $query = $this->getSelectQuery();
         $row = $this->getPDO()->execute($query->getQueryString(), $query->getQueryData())[0];
         return intval($row['amount']);
-    }
-
-    #endregion
-
-    #region Informative Methods
-
-    /**
-     * Generates the select query with the current parameters
-     *
-     * @return FlavoredQuery
-     */
-    public function getSelectQuery()
-    {
-        return $this->queryFlavor->generateSelect(
-            $this->query->asArray()
-        );
-    }
-
-    /**
-     * Get PDO instance for this table
-     *
-     * @return PDODatabase|null
-     */
-    private function getPDO()
-    {
-        return PDODatabase::getPDO(self::getTableDefinition($this)->getDatabase());
     }
 
     #endregion
@@ -566,62 +510,6 @@ abstract class DatabaseTable implements \ArrayAccess
     }
 
     /**
-     * Set selector for this query
-     *
-     * @param $lambda callable filter
-     * @return self
-     */
-    public function select($lambda)
-    {
-        $field = $lambda
-        (
-            $this->generateMockInstance()
-        );
-
-        if (is_array($field)) {
-            $field = join(', ', $field);
-        }
-
-        $this->query->setPath('Selector', $field);
-        return $this;
-    }
-
-    /**
-     * Generates the insert query with the current parameters
-     *
-     * @return FlavoredQuery
-     */
-    private function getInsertQuery()
-    {
-        return $this->queryFlavor->generateInsert(
-            $this->query->asArray()
-        );
-    }
-
-    /**
-     * Set field value stored in this object
-     *
-     * @param string $fieldName Name of field
-     * @param mixed $value
-     */
-    public function setPropertyValue($fieldName, $value)
-    {
-        $reflectionClass = new \ReflectionClass(get_called_class());
-
-        if (!$reflectionClass->hasProperty($fieldName)) {
-            return;
-        }
-
-        $property = $reflectionClass->getProperty($fieldName);
-        $property->setAccessible(true);
-        $property->setValue($this, $value);
-    }
-
-    #endregion
-
-    #region Reflection Methods
-
-    /**
      * Delete database entry
      *
      * @return boolean
@@ -647,38 +535,76 @@ abstract class DatabaseTable implements \ArrayAccess
     }
 
     /**
-     * Only return data which matches your filter
+     * Fetch data with current query
      *
-     * @param \Closure $lambda callable filter
-     * @return self
+     * @return ScalarArray
      */
-    public function where($lambda)
+    public function fetch()
     {
-        $this->addWhereFilter(
-            'Where.Equal',
-            $lambda
-            (
-                $this->generateMockInstance()
-            )
-        );
-        return $this;
+        $tableDefinition = self::getTableDefinition();
+        $query = $this->getSelectQuery();
+        $rows = $this->getPDO()->execute($query->getQueryString(), $query->getQueryData());
+
+        if (!$rows) {
+            return new ScalarArray();
+        }
+
+        $data = [];
+
+        foreach ($rows as $row) {
+
+            foreach ($tableDefinition->getMultiRelations() as $fieldDefinition) {
+
+                if ($fieldDefinition->isLazyLoading()) {
+                    continue;
+                }
+
+                $this->reset();
+                $helperTable = $fieldDefinition->getHelperTableDefinition();
+                $this->query->setPath('Table', $helperTable->getTableName());
+                $this->select
+                (
+                    function ($mock) use ($fieldDefinition) {
+                        return $fieldDefinition
+                            ->getForeignTableDefinition()
+                            ->getField($fieldDefinition->getForeignHelperColumn())
+                            ->getHelperColumnName();
+                    }
+
+                );
+
+                $this->where
+                (
+                    function ($mock) use ($fieldDefinition, $tableDefinition, $row) {
+                        return [
+                            $tableDefinition
+                                ->getField
+                                (
+                                    $fieldDefinition
+                                        ->getLocalHelperColumn()
+                                )
+                                ->getHelperColumnName() => $row[$fieldDefinition->getLocalHelperColumn()]];
+                    }
+                );
+
+                $query = $this->getSelectQuery();
+                $result = $this->getPDO()->execute($query->getQueryString(), $query->getQueryData());
+
+                $ids = [];
+                $fieldName = $fieldDefinition->getForeignTableDefinition()->getTableName();
+                $fieldName .= '_';
+                $fieldName .= $fieldDefinition->getForeignHelperColumn();
+                foreach ($result as $re) {
+                    array_push($ids, $re[$fieldName]);
+                }
+
+                $row[$fieldDefinition->getFieldName()] = $ids;
+            }
+            array_push($data, self::fromRow($row));
+
+        }
+        return new ScalarArray($data);
     }
-
-    /**
-     * Generates the delete query with the current parameters
-     *
-     * @return FlavoredQuery
-     */
-    private function getDeleteQuery()
-    {
-        return $this->queryFlavor->generateDelete(
-            $this->query->asArray()
-        );
-    }
-
-    #endregion
-
-    #region Private Table Helper Methods
 
     /**
      * Update existing database entry
@@ -815,120 +741,75 @@ abstract class DatabaseTable implements \ArrayAccess
         return $this;
     }
 
-    /**
-     * Generates the update query with the current parameters
-     *
-     * @return FlavoredQuery
-     */
-    private function getUpdateQuery()
-    {
-        return $this->queryFlavor->generateUpdate(
-            $this->query->asArray()
-        );
-    }
+    #endregion
+
+    #region Reflection Methods
 
     /**
-     * Passed field will be updated with previous method's first argument
-     * If none is passed, nothing happens
+     * Get field value stored in this object
      *
-     * @param mixed $field Field to be modified
-     * @return mixed Fields value
+     * @param string $fieldName Name of field
+     * @return mixed|null
      */
-    public function property(&$field)
+    private function getPropertyValue($fieldName)
     {
-        $trace = debug_backtrace(0)[1];
+        $reflectionClass = new \ReflectionClass(get_class($this));
 
-        if (count($trace['args']) >= 1) {
-            $field = $trace['args'][0];
+        if (!$reflectionClass->hasProperty($fieldName)) {
+
+            if ($reflectionClass->hasMethod($fieldName)) {
+                $property = $reflectionClass->getMethod($fieldName);
+                $property->setAccessible(true);
+                return $property->invoke($this);
+            }
+
+            return null;
         }
 
-        return $field;
+        $property = $reflectionClass->getProperty($fieldName);
+        $property->setAccessible(true);
+        return $property->getValue($this);
     }
 
     /**
-     * Return filtered data as array
-     * @return array
+     * Create an reflection class instance for a table
+     *
+     * @param string|DatabaseTable $tableClass
+     * @return \ReflectionClass
      */
-    public function asArray()
+    private static function getReflectionClass($tableClass)
     {
-        return $this->fetch()->asArray();
+        if ($tableClass === null) {
+            $tableClass = get_called_class();
+        } else if ($tableClass instanceof DatabaseTable) {
+            $tableClass = get_class($tableClass);
+        }
+
+        return new \ReflectionClass($tableClass);
+    }
+
+    /**
+     * Set field value stored in this object
+     *
+     * @param string $fieldName Name of field
+     * @param mixed $value
+     */
+    public function setPropertyValue($fieldName, $value)
+    {
+        $reflectionClass = new \ReflectionClass(get_called_class());
+
+        if (!$reflectionClass->hasProperty($fieldName)) {
+            return;
+        }
+
+        $property = $reflectionClass->getProperty($fieldName);
+        $property->setAccessible(true);
+        $property->setValue($this, $value);
     }
 
     #endregion
 
-    #region Public Table Helper Methods
-
-    /**
-     * Fetch data with current query
-     *
-     * @return ScalarArray
-     */
-    public function fetch()
-    {
-        $tableDefinition = self::getTableDefinition();
-        $query = $this->getSelectQuery();
-        $rows = $this->getPDO()->execute($query->getQueryString(), $query->getQueryData());
-
-        if (!$rows) {
-            return new ScalarArray();
-        }
-
-        $data = [];
-
-        foreach ($rows as $row) {
-
-            foreach ($tableDefinition->getMultiRelations() as $fieldDefinition) {
-
-                if ($fieldDefinition->isLazyLoading()) {
-                    continue;
-                }
-
-                $this->reset();
-                $helperTable = $fieldDefinition->getHelperTableDefinition();
-                $this->query->setPath('Table', $helperTable->getTableName());
-                $this->select
-                (
-                    function ($mock) use ($fieldDefinition) {
-                        return $fieldDefinition
-                            ->getForeignTableDefinition()
-                            ->getField($fieldDefinition->getForeignHelperColumn())
-                            ->getHelperColumnName();
-                    }
-
-                );
-
-                $this->where
-                (
-                    function ($mock) use ($fieldDefinition, $tableDefinition, $row) {
-                        return [
-                            $tableDefinition
-                                ->getField
-                                (
-                                    $fieldDefinition
-                                        ->getLocalHelperColumn()
-                                )
-                                ->getHelperColumnName() => $row[$fieldDefinition->getLocalHelperColumn()]];
-                    }
-                );
-
-                $query = $this->getSelectQuery();
-                $result = $this->getPDO()->execute($query->getQueryString(), $query->getQueryData());
-
-                $ids = [];
-                $fieldName = $fieldDefinition->getForeignTableDefinition()->getTableName();
-                $fieldName .= '_';
-                $fieldName .= $fieldDefinition->getForeignHelperColumn();
-                foreach ($result as $re) {
-                    array_push($ids, $re[$fieldName]);
-                }
-
-                $row[$fieldDefinition->getFieldName()] = $ids;
-            }
-            array_push($data, self::fromRow($row));
-
-        }
-        return new ScalarArray($data);
-    }
+    #region Private Table Helper Methods
 
     private function fromRow($row)
     {
@@ -972,17 +853,11 @@ abstract class DatabaseTable implements \ArrayAccess
         return $reflectionTable->newInstanceArgs(array_values($row));
     }
 
-    #endregion
-
-    #region Built-in Shorthands
-
     /**
-     * Create an reflection class instance for a table
-     *
      * @param string|DatabaseTable $tableClass
-     * @return \ReflectionClass
+     * @return static|object
      */
-    private static function getReflectionClass($tableClass)
+    private function generateMockInstance($tableClass = null)
     {
         if ($tableClass === null) {
             $tableClass = get_called_class();
@@ -990,8 +865,53 @@ abstract class DatabaseTable implements \ArrayAccess
             $tableClass = get_class($tableClass);
         }
 
-        return new \ReflectionClass($tableClass);
+        $tableDefinition = self::getTableDefinition($tableClass);
+        $fields = $tableDefinition->getFieldDefinitions();
+        $fields = array_map(function ($definition) {
+            return $definition->getFieldName();
+        }, $fields);
+
+
+        $foreignClass = new \ReflectionClass($tableClass);
+        return $foreignClass->newInstanceArgs($fields);
     }
+
+    /**
+     * Get PDO instance for this table
+     *
+     * @return PDODatabase|null
+     */
+    private function getPDO()
+    {
+        return PDODatabase::getPDO(self::getTableDefinition($this)->getDatabase());
+    }
+
+    /**
+     * Passed field will be updated with previous method's first argument
+     * If none is passed, nothing happens
+     *
+     * @param mixed $field Field to be modified
+     * @param mixed $valueOverride
+     * @return mixed Fields value
+     */
+    protected function property(&$field, $valueOverride = null)
+    {
+        $trace = debug_backtrace(0)[1];
+
+        if (count($trace['args']) >= 1) {
+            $field = $trace['args'][0];
+        }
+
+        if (func_num_args() > 1) {
+            $field = $valueOverride;
+        }
+
+        return $field;
+    }
+
+    #endregion
+
+    #region Public Table Helper Methods
 
     /**
      * Get fake instance of this class for non-modifying actions
@@ -999,10 +919,7 @@ abstract class DatabaseTable implements \ArrayAccess
      * @param string $tableClass Full class name of the table you want a fake instance of
      * @return object|static
      */
-    public static function getFakeInstance
-    (
-        $tableClass = null
-    )
+    public static function getFakeInstance($tableClass = null)
     {
         if ($tableClass === null) {
             $tableClass = get_called_class();
@@ -1010,6 +927,77 @@ abstract class DatabaseTable implements \ArrayAccess
 
         $foreignClass = new \ReflectionClass($tableClass);
         return $foreignClass->newInstanceArgs(array_fill(0, $foreignClass->getConstructor()->getNumberOfParameters(), null));
+    }
+
+    /**
+     * Get table definition
+     *
+     * @param string|DatabaseTable $tableClass Full class name of the table you want the table definition of
+     * @return null|TableDefinition
+     */
+    public static function getTableDefinition($tableClass = null)
+    {
+        if (!self::$tableDefinitions) {
+            self::$tableDefinitions = new ScalarArray();
+        }
+
+        if ($tableClass === null) {
+            $tableClass = get_called_class();
+        } else if ($tableClass instanceof DatabaseTable) {
+            $tableClass = get_class($tableClass);
+        }
+
+        $reflectionClass = new \ReflectionClass($tableClass);
+        $definitionPath = dirname($reflectionClass->getFileName()) . '/' . $reflectionClass->getShortName() . '.json';
+        $cachePath = $reflectionClass->getName();
+
+        if (self::$tableDefinitions->containsPath($cachePath)) {
+            return self::$tableDefinitions->getPath($cachePath);
+        }
+
+        $definitionLoader = new JsonConfig(new File($definitionPath, true), []);
+        $definitionLoader->load();
+
+        if (!$definitionLoader->has('Table')) {
+
+            $reflectionFields = $reflectionClass->getProperties();
+
+            $definitionLoader->set('Table', (new PHPDoc($reflectionClass))->getAnnotations());
+
+            if (!$definitionLoader->hasPath('Table.Table') || !$definitionLoader->hasPath('Table.Database')) {
+                return null;
+            }
+
+            $definitionLoader->setPath('Table.Class', $reflectionClass->getName());
+
+            foreach ($reflectionFields as $reflectionField) {
+                $params = (new PHPDoc($reflectionField))->getAnnotations();
+                if (array_key_exists('Field', $params)) {
+                    $definitionLoader->setPath('Fields.' . $reflectionField->name, $params);
+                }
+
+            }
+            $definitionLoader->save();
+        }
+
+        $tableDefinition = new TableDefinition($definitionLoader->asScalarArray());
+
+        self::$tableDefinitions->setPath($cachePath, $tableDefinition);
+
+        return $tableDefinition;
+    }
+
+    #endregion
+
+    #region Built-in Shorthands
+
+    /**
+     * Return filtered data as array
+     * @return array
+     */
+    public function asArray()
+    {
+        return $this->fetch()->asArray();
     }
 
     /**
@@ -1021,6 +1009,18 @@ abstract class DatabaseTable implements \ArrayAccess
     public function asDictionary($keyValueAssignment)
     {
         return $this->fetch()->asDictionary($keyValueAssignment);
+    }
+
+    /**
+     * Fetch all entries in the database
+     *
+     * @return ScalarArray
+     */
+    public static function fetchAll()
+    {
+        $fakeInstance = self::getFakeInstance();
+        $fakeInstance->reset();
+        return $fakeInstance->fetch();
     }
 
     #endregion
