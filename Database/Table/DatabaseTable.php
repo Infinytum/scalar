@@ -794,7 +794,7 @@ abstract class DatabaseTable implements \ArrayAccess
      * @param string $fieldName Name of field
      * @param mixed $value
      */
-    public function setPropertyValue($fieldName, $value)
+    private function setPropertyValue($fieldName, $value)
     {
         $reflectionClass = new \ReflectionClass(get_called_class());
 
