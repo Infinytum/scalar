@@ -39,7 +39,7 @@ namespace Handlebars;
 
 use InvalidArgumentException;
 use RuntimeException;
-use Scalar\Database\Table\MysqlTable;
+use Scalar\Database\Table\DatabaseTable;
 use Scalar\Util\ScalarArray;
 
 class Template
@@ -336,9 +336,9 @@ class Template
         $value = $context->get($name);
 
         /**
-         * @var $table MysqlTable
+         * @var $table DatabaseTable
          */
-        if (($table = $context->get($names[0])) instanceof MysqlTable) {
+        if (($table = $context->get($names[0])) instanceof DatabaseTable) {
             return $this->handleTable($context, $names);
         }
 
@@ -378,8 +378,8 @@ class Template
         $value = $context->get($name[0]);
         array_shift($name);
         while (true) {
-            if ($value instanceof MysqlTable) {
-                $value = $value->getFieldValue($name[0]);
+            if ($value instanceof DatabaseTable) {
+                $value = $value->offsetGet($name[0]);
                 array_shift($name);
             } else if (is_array($value) && count($name) > 0) {
                 $arr = new ScalarArray($value);
