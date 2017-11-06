@@ -250,7 +250,8 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
 
     /**
      * Get first object or default value
-     * @param $default mixed
+     *
+     * @param mixed $default
      * @return mixed
      */
     public function firstOrDefault
@@ -258,16 +259,17 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
         $default = null
     )
     {
-        if (count($this->array) > 0) {
-            return $this->array[0];
-        } else {
+        if (empty($this->array)) {
             return $default;
+        } else {
+            return reset($this->array);
         }
     }
 
     /**
      * Get last object or default value
-     * @param $default mixed
+     *
+     * @param mixed $default
      * @return mixed
      */
     public function lastOrDefault
@@ -275,15 +277,16 @@ class ScalarArray implements \ArrayAccess, FilterableInterface
         $default = null
     )
     {
-        if (count($this->array) > 0) {
-            return $this->array[count($this->array) - 1];
-        } else {
+        if (empty($this->array)) {
             return $default;
+        } else {
+            return end($this->array);
         }
     }
 
     /**
      * Reverse data
+     *
      * @return self
      */
     public function reverse()
