@@ -116,6 +116,7 @@ class RouteMapGenerator
                 $values = str_getcsv($match["values"], ' ');
                 if ($property === 'Path') {
                     foreach ($values as $key => $val) {
+                        $val = str_replace('${Controller}', $controller->Path, $val);
                         $values[$key] = strtolower($val);
                     }
                 }
@@ -126,16 +127,6 @@ class RouteMapGenerator
 
             if (!isset($method->Path))
                 $method->Path = $controller->Path . '/' . lcfirst($phpMethod->getName());
-
-            if (is_array($method->Path)) {
-                foreach ($method->Path as $item) {
-                    $tempPath = str_replace('${Controller}', $controller->Path, $item);
-                    $routes[$tempPath] = ['Data' => $method];
-                }
-            } else {
-                $method->Path = str_replace('${Controller}', $controller->Path, $method->Path);
-                $routes[$method->Path] = ['Data' => $method];
-            }
 
         }
         return json_decode(json_encode($routes), true);
