@@ -555,10 +555,6 @@ abstract class DatabaseTable implements \ArrayAccess
 
             foreach ($tableDefinition->getMultiRelations() as $fieldDefinition) {
 
-                if ($fieldDefinition->isLazyLoading()) {
-                    continue;
-                }
-
                 $this->reset();
                 $helperTable = $fieldDefinition->getHelperTableDefinition();
                 $this->query->setPath('Table', $helperTable->getTableName());
