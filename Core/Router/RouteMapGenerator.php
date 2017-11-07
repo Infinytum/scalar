@@ -128,7 +128,17 @@ class RouteMapGenerator
             if (!isset($method->Path))
                 $method->Path = $controller->Path . '/' . lcfirst($phpMethod->getName());
 
-            $routes[$method->Path] = ['Data' => $method];
+            if (!is_array($method->Path)) {
+                $paths = [$method->Path];
+            } else {
+                $paths = $method->Path;
+            }
+
+            unset($method->Path);
+
+            foreach ($paths as $path) {
+                $routes[$path] = ['Data' => $method];
+            }
 
         }
         return json_decode(json_encode($routes), true);
