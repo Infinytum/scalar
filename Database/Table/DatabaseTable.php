@@ -750,6 +750,7 @@ abstract class DatabaseTable implements \ArrayAccess
     private function getPropertyValue($fieldName)
     {
         $reflectionClass = new \ReflectionClass(get_class($this));
+        $tableDefinition = self::getTableDefinition($this);
 
         if (!$reflectionClass->hasProperty($fieldName)) {
 
@@ -762,9 +763,24 @@ abstract class DatabaseTable implements \ArrayAccess
             return null;
         }
 
+        $fieldDefinition = $tableDefinition->getField($fieldName);
         $property = $reflectionClass->getProperty($fieldName);
         $property->setAccessible(true);
-        return $property->getValue($this);
+        $value = $property->getValue($this);
+
+        if ($fieldDefinition->isLazyLoading()) {
+            if (is_array($value)) {
+                $data = [];
+                foreach ($value as $item) {
+                    array_push($data, $this->resolveDependency($fieldDefinition, $item));
+                }
+                $value = $data;
+            } else {
+                $value = $this->resolveDependency($fieldDefinition, $value);
+            }
+        }
+
+        return $value;
     }
 
     /**
@@ -807,6 +823,40 @@ abstract class DatabaseTable implements \ArrayAccess
 
     #region Private Table Helper Methods
 
+    /**
+     * @param FieldDefinition $field
+     * @param mixed $linkingValue
+     */
+    private function resolveDependency
+    (
+        $field,
+        $linkingValue
+    )
+    {
+        if ($field->isForeignKey()) {
+            $fakeForeignTable = self::getFakeInstance($field->getForeignTableDefinition()->getTableClass());
+
+            if ($field->hasHelperTable()) {
+                return $fakeForeignTable->where(
+                    function ($mock) use ($field, $linkingValue) {
+                        return [
+                            $field->getForeignHelperColumn() => $linkingValue
+                        ];
+                    }
+                )->fetch()->firstOrDefault();
+            } else {
+                return $fakeForeignTable->where(
+                    function ($mock) use ($field, $linkingValue) {
+                        return [
+                            $field->getForeignColumn() => $linkingValue
+                        ];
+                    }
+                )->fetch()->firstOrDefault();
+            }
+        }
+        return $linkingValue;
+    }
+
     private function fromRow($row)
     {
         $tableDefinition = self::getTableDefinition($this);
@@ -825,23 +875,11 @@ abstract class DatabaseTable implements \ArrayAccess
                 if ($field->hasHelperTable()) {
                     $data = [];
                     foreach ($fieldValues as $fieldValue) {
-                        array_push($data, $fakeForeignTable->where(
-                            function ($mock) use ($field, $fieldValue) {
-                                return [
-                                    $field->getForeignHelperColumn() => $fieldValue
-                                ];
-                            }
-                        )->fetch()->firstOrDefault());
+                        array_push($data, $this->resolveDependency($field, $fieldValue));
                     }
                     $row[$field->getFieldName()] = $data;
                 } else {
-                    $row[$field->getFieldName()] = $fakeForeignTable->where(
-                        function ($mock) use ($field, $fieldValues) {
-                            return [
-                                $field->getForeignColumn() => $fieldValues
-                            ];
-                        }
-                    )->fetch()->firstOrDefault();
+                    $row[$field->getFieldName()] = $this->resolveDependency($field, $fieldValues);
                 }
             }
         }
