@@ -114,6 +114,11 @@ class RouteMapGenerator
             foreach ($matches as $match) {
                 $property = $match["property"];
                 $values = str_getcsv($match["values"], ' ');
+                if ($property === 'Path') {
+                    foreach ($values as $key => $val) {
+                        $values[$key] = strtolower($val);
+                    }
+                }
                 if (is_array($values) && count($values) == 1)
                     $values = $values[0];
                 $method->$property = $values;
