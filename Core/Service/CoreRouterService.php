@@ -231,8 +231,7 @@ class CoreRouterService extends CoreService
         $this->httpMiddlewareDispatcher = $this->httpMiddlewareDispatcher
             ->addMiddleware(new MethodFilterMiddleware())
             ->addMiddleware(new RestControllerHook())
-            ->addMiddleware(new ControllerDependencyInjectionHook())
-            ->addMiddleware(new MinifierMiddleware());
+            ->addMiddleware(new ControllerDependencyInjectionHook());
 
         return true;
     }
