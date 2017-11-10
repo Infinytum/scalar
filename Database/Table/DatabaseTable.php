@@ -763,20 +763,22 @@ abstract class DatabaseTable implements \ArrayAccess
             return null;
         }
 
-        $fieldDefinition = $tableDefinition->getField($fieldName);
         $property = $reflectionClass->getProperty($fieldName);
         $property->setAccessible(true);
         $value = $property->getValue($this);
 
-        if ($fieldDefinition->isLazyLoading()) {
-            if (is_array($value)) {
-                $data = [];
-                foreach ($value as $item) {
-                    array_push($data, $this->resolveDependency($fieldDefinition, $item));
+        if ($fieldDefinition = $tableDefinition->getField($fieldName)) {
+
+            if ($fieldDefinition->isLazyLoading()) {
+                if (is_array($value)) {
+                    $data = [];
+                    foreach ($value as $item) {
+                        array_push($data, $this->resolveDependency($fieldDefinition, $item));
+                    }
+                    $value = $data;
+                } else {
+                    $value = $this->resolveDependency($fieldDefinition, $value);
                 }
-                $value = $data;
-            } else {
-                $value = $this->resolveDependency($fieldDefinition, $value);
             }
         }
 
