@@ -863,30 +863,36 @@ abstract class DatabaseTable implements \ArrayAccess
     {
         $tableDefinition = self::getTableDefinition($this);
         $reflectionTable = self::getReflectionClass($this);
+        $instanceArgs = [];
 
-        foreach ($tableDefinition->getFieldDefinitions() as $field) {
+        foreach ($reflectionTable->getConstructor()->getParameters() as $reflectionParameter) {
 
-            if ($field->isLazyLoading()) {
-                continue;
-            }
+            if ($field = $tableDefinition->getField($reflectionParameter->getName())) {
 
-            if ($field->isForeignKey()) {
-                $fakeForeignTable = self::getFakeInstance($field->getForeignTableDefinition()->getTableClass());
-                $fieldValues = $row[$field->getFieldName()];
+                if (!array_key_exists($field->getFieldName(), $row)) {
+                    $instanceArgs[$field->getFieldName()] = $field->hasHelperTable() ? [] : null;
+                }
 
-                if ($field->hasHelperTable()) {
-                    $data = [];
-                    foreach ($fieldValues as $fieldValue) {
-                        array_push($data, $this->resolveDependency($field, $fieldValue));
+                if ($field->isForeignKey() && $field->isLazyLoading()) {
+                    $fieldValues = $row[$field->getFieldName()];
+
+                    if ($field->hasHelperTable()) {
+                        $data = [];
+                        foreach ($fieldValues as $fieldValue) {
+                            array_push($data, $this->resolveDependency($field, $fieldValue));
+                        }
+                        $instanceArgs[$field->getFieldName()] = $data;
+                    } else {
+                        $instanceArgs[$field->getFieldName()] = $this->resolveDependency($field, $fieldValues);
                     }
-                    $row[$field->getFieldName()] = $data;
                 } else {
-                    $row[$field->getFieldName()] = $this->resolveDependency($field, $fieldValues);
+                    $instanceArgs[$field->getFieldName()] = $row[$field->getFieldName()];
+                    continue;
                 }
             }
         }
 
-        return $reflectionTable->newInstanceArgs(array_values($row));
+        return $reflectionTable->newInstanceArgs(array_values($instanceArgs));
     }
 
     /**
