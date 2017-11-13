@@ -873,7 +873,7 @@ abstract class DatabaseTable implements \ArrayAccess
                     $instanceArgs[$field->getFieldName()] = $field->hasHelperTable() ? [] : null;
                 }
 
-                if ($field->isForeignKey() && $field->isLazyLoading()) {
+                if ($field->isForeignKey() && !$field->isLazyLoading()) {
                     $fieldValues = $row[$field->getFieldName()];
 
                     if ($field->hasHelperTable()) {
