@@ -627,6 +627,11 @@ abstract class DatabaseTable implements \ArrayAccess
             if (array_key_exists($fieldName, $this->updateOverrides)) {
                 $fieldValue = $this->updateOverrides[$fieldName];
             }
+
+            if ($fieldDefinition->hasHelperTable()) {
+                continue;
+            }
+
             $selectorData[$fieldName] = $fieldValue;
             $this->where(function ($mock) use ($fieldName, $fieldValue) {
                 return [$mock->$fieldName => $fieldValue];
@@ -642,12 +647,12 @@ abstract class DatabaseTable implements \ArrayAccess
             if ($this->getPropertyValue($fieldDefinition->getFieldName()) === null) {
                 continue;
             }
-            $selectorData['updated_' . $fieldDefinition->getFieldName()] = $this->getPropertyValue($fieldDefinition->getFieldName());
 
             if ($fieldDefinition->isForeignKey()) {
 
                 if ($fieldDefinition->hasHelperTable()) {
                     array_push($multiConstraints, $fieldDefinition);
+                    continue;
                 } else {
                     /**
                      * @var DatabaseTable $remoteObject
@@ -655,7 +660,10 @@ abstract class DatabaseTable implements \ArrayAccess
                     $remoteObject = $this->getPropertyValue($fieldDefinition->getFieldName());
                     $selectorData['updated_' . $fieldDefinition->getFieldName()] = $remoteObject->getPropertyValue($fieldDefinition->getForeignColumn());
                 }
+            } else {
+                $selectorData['updated_' . $fieldDefinition->getFieldName()] = $this->getPropertyValue($fieldDefinition->getFieldName());
             }
+
             array_push($selectorFields, $fieldDefinition->getFieldName());
         }
 
