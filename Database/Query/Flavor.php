@@ -232,6 +232,8 @@ class Flavor extends IniConfig
 
         if ($placeholders->contains('Ignore') && $placeholders->getPath('Ignore')) {
             $placeholders->setPath('Ignore', $this->getPath(self::CONFIG_INSERT_IGNORE));
+        } else {
+            $placeholders->setPath('Ignore', '');
         }
 
         return new FlavoredQuery($this->replacePlaceholders($baseQuery, $placeholders), []);
