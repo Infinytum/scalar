@@ -634,7 +634,7 @@ abstract class DatabaseTable implements \ArrayAccess
 
             $selectorData[$fieldName] = $fieldValue;
             $this->where(function ($mock) use ($fieldName, $fieldValue) {
-                return [$mock->$fieldName => $fieldValue];
+                return [$fieldName => $fieldValue];
             });
         }
 
