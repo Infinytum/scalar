@@ -526,7 +526,7 @@ abstract class DatabaseTable implements \ArrayAccess
         foreach ($primaryKeys as $fieldDefinition) {
             $fieldName = $fieldDefinition->getFieldName();
             $this->where(function ($mock) use ($fieldName) {
-                return [$mock->$fieldName => $this->getPropertyValue($fieldName)];
+                return [$fieldName => $this->getPropertyValue($fieldName)];
             });
         }
         $query = $this->getDeleteQuery();
