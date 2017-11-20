@@ -137,6 +137,20 @@ class FieldDefinition
     }
 
     /**
+     * Get value of a custom description
+     *
+     * @return bool
+     */
+    public function getCustomDescription
+    (
+        $option,
+        $default = null
+    )
+    {
+        return $this->array->getPath($option, $default);
+    }
+
+    /**
      * Determine if this field is a foreign key
      *
      * @return bool
