@@ -116,4 +116,19 @@ interface RestController
         $id = null
     );
 
+    /**
+     * REST API OPTIONS
+     *
+     * @Path ${Controller}
+     *
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface Returns options
+     */
+    public function options
+    (
+        $request,
+        $response
+    );
+
 }

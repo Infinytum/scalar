@@ -44,6 +44,7 @@ class RestControllerHook implements HttpMiddlewareInterface
     const FUNC_PUT = 'update';
     const FUNC_PATCH = 'patch';
     const FUNC_DELETE = 'delete';
+    const FUNC_OPTIONS = 'options';
 
     /**
      * Process object an then pass it to the next middleware
@@ -75,6 +76,9 @@ class RestControllerHook implements HttpMiddlewareInterface
                         break;
                     case 'PATCH':
                         $response = $response->withAddedCustomArgument('Function', self::FUNC_PATCH);
+                        break;
+                    case 'OPTIONS':
+                        $response = $response->withAddedCustomArgument('Function', self::FUNC_OPTIONS);
                         break;
                     case 'DELETE':
                         $response = $response->withAddedCustomArgument('Function', self::FUNC_DELETE);
