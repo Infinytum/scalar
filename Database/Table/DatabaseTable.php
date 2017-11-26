@@ -644,10 +644,6 @@ abstract class DatabaseTable implements \ArrayAccess
 
         foreach ($fieldDefinitions as $fieldDefinition) {
 
-            if ($this->getPropertyValue($fieldDefinition->getFieldName()) === null) {
-                continue;
-            }
-
             if ($fieldDefinition->isForeignKey()) {
 
                 if ($fieldDefinition->hasHelperTable()) {
@@ -658,7 +654,11 @@ abstract class DatabaseTable implements \ArrayAccess
                      * @var DatabaseTable $remoteObject
                      */
                     $remoteObject = $this->getPropertyValue($fieldDefinition->getFieldName());
-                    $selectorData['updated_' . $fieldDefinition->getFieldName()] = $remoteObject->getPropertyValue($fieldDefinition->getForeignColumn());
+
+                    if ($this->getPropertyValue($fieldDefinition->getFieldName()) !== null) {
+                        $remoteObject = $remoteObject->getPropertyValue($fieldDefinition->getForeignColumn());
+                    }
+                    $selectorData['updated_' . $fieldDefinition->getFieldName()] = $remoteObject;
                 }
             } else {
                 $selectorData['updated_' . $fieldDefinition->getFieldName()] = $this->getPropertyValue($fieldDefinition->getFieldName());
