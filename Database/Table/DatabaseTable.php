@@ -467,6 +467,10 @@ abstract class DatabaseTable implements \ArrayAccess
              * @var DatabaseTable $remoteObject
              */
             $remoteObjects = $this->getPropertyValue($fieldDefinition->getFieldName());
+            if (!is_array($remoteObjects)) {
+                $remoteObjects = [$remoteObjects];
+            }
+
             $helperTable = $fieldDefinition->getHelperTableDefinition();
             $this->reset();
             $this->query->setPath('Table', $helperTable->getTableName());
@@ -686,6 +690,10 @@ abstract class DatabaseTable implements \ArrayAccess
              * @var DatabaseTable $remoteObject
              */
             $remoteObjects = $this->getPropertyValue($fieldDefinition->getFieldName());
+            if (!is_array($remoteObjects)) {
+                $remoteObjects = [$remoteObjects];
+            }
+
             $helperTable = $fieldDefinition->getHelperTableDefinition();
             $this->reset();
             $this->query->setPath('Ignore', true);
