@@ -159,7 +159,14 @@ class PDODatabase implements DatabaseInterface
         $param
     )
     {
-
+        foreach ($param as $key => $value) {
+            if ($value === true) {
+                $value = 1;
+            } else if ($value === false) {
+                $value = 0;
+            }
+            $param[$key] = $value;
+        }
         $statement = $this->pdo->prepare($query);
         $result = $statement->execute($param);
 
