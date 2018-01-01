@@ -1,6 +1,6 @@
 <?php
 /**
- * (C) 2017 by Michael Teuscher (mk.teuscher@gmail.com)
+ * (C) 2018 by Michael Teuscher (mk.teuscher@gmail.com)
  * as part of the Scalar PHP framework
  *
  * Released under the AGPL v3.0 license
@@ -65,6 +65,7 @@ class Flavor extends IniConfig
     const CONFIG_INSERT_BASE = 'Insert.Base';
     const CONFIG_INSERT_IGNORE = 'Insert.Ignore';
     const CONFIG_INSERT_VALUES = 'Insert.Values';
+    const CONFIG_INSERT_COLUMN = 'Insert.Column';
     const CONFIG_UPDATE_BASE = 'Update.Base';
     const CONFIG_UPDATE_VALUES = 'Update.Values';
     const CONFIG_UPDATE_WHERE = 'Update.Where';
@@ -230,6 +231,19 @@ class Flavor extends IniConfig
             $placeholders->setPath('Values', join(', ', $preparedFields));
         }
 
+        foreach ($placeholders->getPath('Selector') as $fieldKey => $field) {
+            $placeholders->setPath
+            (
+                'Selector.' . $fieldKey,
+                $this->replacePlaceholders(
+                    $this->getPath(self::CONFIG_INSERT_COLUMN),
+                    ['Column' => $field]
+                )
+            );
+        }
+
+        $placeholders->setPath('Selector', join(', ', $placeholders->getPath('Selector')));
+
         if ($placeholders->contains('Ignore') && $placeholders->getPath('Ignore')) {
             $placeholders->setPath('Ignore', $this->getPath(self::CONFIG_INSERT_IGNORE));
         } else {
@@ -298,6 +312,8 @@ class Flavor extends IniConfig
 
             $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_UPDATE_WHERE)]);
         }
+
+        $placeholders->setPath('Selector', join(', ', $placeholders->getPath('Selector')));
 
         return new FlavoredQuery($this->replacePlaceholders($baseQuery, $placeholders), []);
     }
@@ -393,6 +409,7 @@ class Flavor extends IniConfig
 
             $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_DELETE_WHERE)]);
         }
+        $placeholders->setPath('Selector', join(', ', $placeholders->getPath('Selector')));
 
         return new FlavoredQuery($this->replacePlaceholders($baseQuery, $placeholders), $pdoData);
     }
@@ -507,6 +524,7 @@ class Flavor extends IniConfig
             $baseQuery = join(' ', [$baseQuery, $this->getPath(self::CONFIG_SELECT_LIMIT)]);
         }
 
+        $placeholders->setPath('Selector', join(', ', $placeholders->getPath('Selector')));
         return new FlavoredQuery($this->replacePlaceholders($baseQuery, $placeholders), $pdoData);
     }
 
