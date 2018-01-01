@@ -1,6 +1,6 @@
 <?php
 /**
- * (C) 2017 by Michael Teuscher (mk.teuscher@gmail.com)
+ * (C) 2018 by Michael Teuscher (mk.teuscher@gmail.com)
  * as part of the Scalar PHP framework
  *
  * Released under the AGPL v3.0 license
@@ -160,7 +160,7 @@ abstract class DatabaseTable implements \ArrayAccess
         (
             [
                 'Table' => $tableDefinition->getTableName(),
-                'Selector' => '*'
+                'Selector' => ['*']
             ]
         );
     }
@@ -193,8 +193,8 @@ abstract class DatabaseTable implements \ArrayAccess
             $this->generateMockInstance()
         );
 
-        if (is_array($field)) {
-            $field = join(', ', $field);
+        if (is_string($field)) {
+            $field = [$field];
         }
 
         $this->query->setPath('Selector', $field);
@@ -393,7 +393,7 @@ abstract class DatabaseTable implements \ArrayAccess
     public function count()
     {
         $selector = $this->query->getPath('Selector');
-        $this->query->setPath('Selector', 'Count(' . $selector . ') as amount');
+        $this->query->setPath('Selector', ['Count(' . $selector . ') as amount']);
 
         $query = $this->getSelectQuery();
         $row = $this->getPDO()->execute($query->getQueryString(), $query->getQueryData())[0];
@@ -443,7 +443,6 @@ abstract class DatabaseTable implements \ArrayAccess
                 $selectorData[$fieldDefinition->getFieldName()] = $this->getPropertyValue($fieldDefinition->getFieldName());
                 array_push($selectorFields, $fieldDefinition->getFieldName());
             }
-
         }
 
         $this->query->setPath('Fields', $selectorFields);
