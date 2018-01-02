@@ -1,6 +1,6 @@
 <?php
 /**
- * (C) 2017 by Michael Teuscher (mk.teuscher@gmail.com)
+ * (C) 2018 by Michael Teuscher (mk.teuscher@gmail.com)
  * as part of the Scalar PHP framework
  *
  * Released under the AGPL v3.0 license
@@ -74,6 +74,7 @@ class RouteMapGenerator
                 $controller->$property = $values;
             }
 
+
             if (!isset($controller->Path))
                 $controller->Path = '/' . strtolower(str_replace('Controller', '', $reflector->getShortName()));
 
@@ -103,6 +104,11 @@ class RouteMapGenerator
     {
         $routes = [];
         foreach ($controllerReflect->getMethods() as $phpMethod) {
+
+            if (!$phpMethod->isPublic()) {
+                continue;
+            }
+
             $method = new \stdClass();
             $method->Controller = $controllerName;
             $method->Function = $phpMethod->getName();
@@ -135,9 +141,15 @@ class RouteMapGenerator
             }
 
             unset($method->Path);
+            $clonetroller = clone $controller;
+
+            unset($clonetroller->Path);
+
+            $method = json_decode(json_encode($method), true);
+            $clonetroller = json_decode(json_encode($clonetroller), true);
 
             foreach ($paths as $path) {
-                $routes[$path] = ['Data' => $method];
+                $routes[$path] = ['Data' => $method + $clonetroller];
             }
 
         }
