@@ -1,6 +1,6 @@
 <?php
 /**
- * (C) 2017 by Michael Teuscher (mk.teuscher@gmail.com)
+ * (C) 2018 by Michael Teuscher (mk.teuscher@gmail.com)
  * as part of the Scalar PHP framework
  *
  * Released under the AGPL v3.0 license
@@ -30,6 +30,9 @@ use Scalar\IO\Factory\StreamFactory;
 class CurlHttpClient implements HttpClientInterface
 {
 
+    const CONTENT_TYPE_JSON = 'application/json';
+    const CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded';
+
     /**
      * @var ServerRequestInterface
      */
@@ -39,6 +42,11 @@ class CurlHttpClient implements HttpClientInterface
      * @var ResponseInterface
      */
     private $response;
+
+    /**
+     * @var string
+     */
+    private $postBody = self::CONTENT_TYPE_FORM_URLENCODED;
 
     /**
      * Set request to execute
@@ -52,6 +60,20 @@ class CurlHttpClient implements HttpClientInterface
     )
     {
         $this->serverRequest = $serverRequest;
+    }
+
+    /**
+     * Set true if data should be posted
+     *
+     * @param $postBody string
+     * @return void
+     */
+    public function setPostContentType
+    (
+        $postBody
+    )
+    {
+        $this->postBody = $postBody;
     }
 
     /**
@@ -74,7 +96,12 @@ class CurlHttpClient implements HttpClientInterface
 
         if ($this->serverRequest->getMethod() == "POST") {
             curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $this->serverRequest->getQueryParams());
+            if ($body = $this->serverRequest->getBody()) {
+                $body->rewind();
+                curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:' . $this->postBody));
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $body->getContents());
+            } else {
+            }
         }
 
         $result = curl_exec($curl);
