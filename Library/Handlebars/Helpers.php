@@ -403,7 +403,7 @@ class Helpers
     public function helperWith($template, $context, $args, $source)
     {
         $tmp = $context->get($args);
-        if (!$tmp) {
+        if ($tmp) {
             $context->push($tmp);
             $template->setStopToken('else');
             $buffer = $template->render($context);
