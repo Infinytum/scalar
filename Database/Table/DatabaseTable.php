@@ -358,7 +358,7 @@ abstract class DatabaseTable implements \ArrayAccess
      *
      * @param int $from Start returning entries beginning at row with this number
      * @param int $to Amount of entries which should be returned starting from your starting point
-     * @return $this
+     * @return self
      */
     public function limit
     (
@@ -974,7 +974,7 @@ abstract class DatabaseTable implements \ArrayAccess
      * Get fake instance of this class for non-modifying actions
      *
      * @param string $tableClass Full class name of the table you want a fake instance of
-     * @return object|static
+     * @return DatabaseTable
      */
     public static function getFakeInstance($tableClass = null)
     {
