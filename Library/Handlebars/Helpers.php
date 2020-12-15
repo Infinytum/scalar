@@ -403,11 +403,17 @@ class Helpers
     public function helperWith($template, $context, $args, $source)
     {
         $tmp = $context->get($args);
-        $context->push($tmp);
-        $buffer = $template->render($context);
-        $context->pop();
-
-        return $buffer;
+        if (!$tmp) {
+            $context->push($tmp);
+            $template->setStopToken('else');
+            $buffer = $template->render($context);
+            $template->setStopToken(false);
+            $context->pop();
+            $template->discard();
+            return $buffer;
+        } else {
+            return $this->renderElse($template, $context);
+        }
     }
 
     /**
