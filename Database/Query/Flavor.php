@@ -41,6 +41,7 @@ class Flavor extends IniConfig
     // Flavors
 
     const LANG_MYSQL = 'mysql';
+    const LANG_SQLite = 'sqlite';
 
     // Configuration Paths
 
