@@ -23,7 +23,7 @@ namespace Scalar\Database\Table;
 
 use Scalar\Database\Query\Flavor;
 
-abstract class MysqlTable extends DatabaseTable
+abstract class SQLiteTable extends DatabaseTable
 {
 
     public function __construct()
