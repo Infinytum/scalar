@@ -59,6 +59,10 @@ class Flavor extends IniConfig
     const CONFIG_SELECT_JOIN = 'Select.Join';
     const CONFIG_CREATE_BASE = 'Create.Base';
     const CONFIG_CREATE_COLUMN = 'Create.Column';
+    const CONFIG_CREATE_NULL = 'Create.Null';
+    const CONFIG_CREATE_NOT_NULL = 'Create.NotNull';
+    const CONFIG_CREATE_INCREMENT = 'Create.Increment';
+    const CONFIG_CREATE_INDEX = 'Create.Index';
     const CONFIG_CREATE_PRIMARY_KEY = 'Create.PrimaryKey';
     const CONFIG_CREATE_FOREIGN_KEY = 'Create.ForeignKey';
     const CONFIG_DELETE_BASE = 'Delete.Base';
@@ -116,13 +120,13 @@ class Flavor extends IniConfig
             array_push($column, $fieldDefinition->getFieldType());
 
             if ($fieldDefinition->isNotNull()) {
-                array_push($column, 'NOT NULL');
+                array_push($column, $this->getPath(self::CONFIG_CREATE_NOT_NULL));
             } else {
-                array_push($column, 'NULL');
+                array_push($column, $this->getPath(self::CONFIG_CREATE_NULL));
             }
 
             if ($fieldDefinition->isAutoIncrement()) {
-                array_push($column, 'AUTO_INCREMENT');
+                array_push($column, $this->getPath(self::CONFIG_CREATE_INCREMENT));
             }
 
             if ($fieldDefinition->isPrimaryKey()) {
