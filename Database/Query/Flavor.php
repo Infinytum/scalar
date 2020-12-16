@@ -59,7 +59,7 @@ class Flavor extends IniConfig
     const CONFIG_SELECT_JOIN = 'Select.Join';
     const CONFIG_CREATE_BASE = 'Create.Base';
     const CONFIG_CREATE_COLUMN = 'Create.Column';
-    const CONFIG_CREATE_NULL = 'Create.Null';
+    const CONFIG_CREATE_NULL = 'Create.Nullable';
     const CONFIG_CREATE_NOT_NULL = 'Create.NotNull';
     const CONFIG_CREATE_INCREMENT = 'Create.Increment';
     const CONFIG_CREATE_INDEX = 'Create.Index';
