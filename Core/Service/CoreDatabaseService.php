@@ -75,7 +75,8 @@ class CoreDatabaseService extends CoreService
             $databaseName,
             $this->databaseList->getPath($databaseName . '.ConnectionString'),
             $this->databaseList->getPath($databaseName . '.User'),
-            $this->databaseList->getPath($databaseName . '.Pass')
+            $this->databaseList->getPath($databaseName . '.Pass'),
+            $this->databaseList->getPath($databaseName . '.Flavor')
         );
     }
 
@@ -120,7 +121,8 @@ class CoreDatabaseService extends CoreService
         $this->databaseList
             ->setDefaultPath('MyDatabase.ConnectionString', 'mysql:host=localhost:3306;dbname=myDatabase;charset=utf8')
             ->setDefaultPath('MyDatabase.User', 'root')
-            ->setDefaultPath('MyDatabase.Pass', 'password');
+            ->setDefaultPath('MyDatabase.Pass', 'password')
+            ->setDefaultPath('MyDatabase.Flavor', 'mysql');
 
         return true;
     }
