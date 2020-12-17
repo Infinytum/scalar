@@ -84,7 +84,7 @@ class PDODatabase implements DatabaseInterface
         $connectionString,
         $user = null,
         $pass = null,
-        $flavor = 'mysql',
+        $flavor = Flavor::LANG_MYSQL,
         $pdo = null
     )
     {
@@ -95,7 +95,7 @@ class PDODatabase implements DatabaseInterface
         $this->pdo = $pdo;
         $this->scanTables();
 
-        $this->flavor = Flavor::byName(Flavor::LANG_MYSQL);
+        $this->flavor = Flavor::byName($flavor);
 
         if (self::$databaseConnections === null) {
             self::$databaseConnections = new ScalarArray();
