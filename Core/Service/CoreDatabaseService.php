@@ -110,7 +110,7 @@ class CoreDatabaseService extends CoreService
         $databaseListFile = new File($this->getValue(self::CONFIG_DATABASE_LIST));
 
 
-        if ((!$databaseListFile->exists() && !$databaseListFile->canCreate()) || (!$databaseListFile->isWritable() && $databaseListFile->exists())) {
+        if ((!$databaseListFile->exists() && !$databaseListFile->canCreate())) {
             $this->coreLogger->e('Cannot create database configuration! Fail-over to in-memory configuration');
             $databaseListFile = fopen('php://temp', 'r+');
         }
@@ -118,12 +118,13 @@ class CoreDatabaseService extends CoreService
         $this->databaseList = new IniConfig($databaseListFile, [], true);
         $this->databaseList->load();
 
-        $this->databaseList
+        if ($databaseListFile->isWritable() && $databaseListFile->exists()) {
+            $this->databaseList
             ->setDefaultPath('MyDatabase.ConnectionString', 'mysql:host=localhost:3306;dbname=myDatabase;charset=utf8')
             ->setDefaultPath('MyDatabase.User', 'root')
             ->setDefaultPath('MyDatabase.Pass', 'password')
             ->setDefaultPath('MyDatabase.Flavor', 'mysql');
-
+        }
         return true;
     }
 
