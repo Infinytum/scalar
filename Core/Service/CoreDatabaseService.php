@@ -118,7 +118,7 @@ class CoreDatabaseService extends CoreService
         $this->databaseList = new IniConfig($databaseListFile, [], true);
         $this->databaseList->load();
 
-        if ($databaseListFile->isWritable() && $databaseListFile->exists()) {
+        if ($this->databaseList != null) {
             $this->databaseList
             ->setDefaultPath('MyDatabase.ConnectionString', 'mysql:host=localhost:3306;dbname=myDatabase;charset=utf8')
             ->setDefaultPath('MyDatabase.User', 'root')
