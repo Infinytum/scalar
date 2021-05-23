@@ -7,8 +7,8 @@ steps:
   auto_tag: true
   image: infinytum/drone-docker
   settings:
-    registry: docker.k8.network
-    repo: docker.k8.network/library/scalar
+    registry: docker.infinytum.dev
+    repo: docker.infinytum.dev/library/scalar
     username:
       from_secret: docker_username
     password:
