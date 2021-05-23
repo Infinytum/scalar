@@ -1,4 +1,4 @@
-FROM docker.k8.network/library/web-deploy
+FROM docker.infinytum.dev/library/web-deploy
 
 LABEL Maintainer="Scalar"
 
