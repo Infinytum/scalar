@@ -14,4 +14,4 @@ ADD ./ /srv/scalar/
 RUN chmod -R 777 /srv
 
 # Configure NGINX
-ADD nginx.conf /etc/nginx/available.d/default.conf
+ADD nginx.conf /etc/nginx/http.d/default.conf
