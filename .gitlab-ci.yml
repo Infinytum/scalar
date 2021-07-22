@@ -9,4 +9,5 @@ before_script:
 base:
   stage: release
   script:
+    - cat /kaniko/.docker/config.json
     - kbuild infinytum/scalar
