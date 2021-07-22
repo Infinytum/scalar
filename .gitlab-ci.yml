@@ -1,0 +1,12 @@
+image: registry.infinytum.co/container-images/builder
+
+stages:
+  - release
+
+before_script:
+  - custom-login
+
+base:
+  stage: release
+  script:
+    - kbuild infinytum/scalar
