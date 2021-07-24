@@ -75,6 +75,13 @@ class FilesystemLoader implements Loader
         $this->_baseDir = $baseDirs;
 
         foreach ($this->_baseDir as $dir) {
+            if (!file_exists($dir)) {
+                if (!mkdir($dir, 0777, true)) {
+                    throw new \RuntimeException(
+                        'Template Engine was unable to create Resources directory: ' . $dir
+                    );
+                }
+            }
             if (!is_dir($dir)) {
                 throw new \RuntimeException(
                     'FilesystemLoader baseDir must be a directory: ' . $dir
