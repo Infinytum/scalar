@@ -9,7 +9,8 @@ before_script:
 base:
   stage: release
   only:
-    - master
+    - devel
+    - tags
   script:
-    - cat /kaniko/.docker/config.json
-    - kbuild infinytum/scalar
+    - if [ "${CI_BUILD_REF_NAME}" = "${CI_COMMIT_TAG}" ]; then export TAG=latest; else export TAG=devel; fi
+    - kbuild infinytum/scalar:$TAG
