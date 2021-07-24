@@ -63,22 +63,27 @@ class FilesystemLoader implements Loader
      */
     public function __construct($baseDirs, Array $options = [])
     {
+        $initialBaseDirs = $baseDirs;
         if (is_string($baseDirs)) {
-            $baseDirs = array(rtrim(realpath($baseDirs), '/'));
+            $realBaseDir = rtrim(realpath($baseDirs), '/');
+            $baseDirs = $realBaseDir == "" ? array() : array($realBaseDir);
         } else {
-            foreach ($baseDirs as &$dir) {
+            $newBaseDirs = array();
+            foreach ($baseDirs as $dir) {
                 $dir = rtrim(realpath($dir), '/');
+                if($dir != "") {
+                    $newBaseDirs = array_push($newBaseDirs, $dir);
+                }
             }
-            unset($dir);
+            $baseDirs = $newBaseDirs;
         }
 
         $this->_baseDir = $baseDirs;
-
         foreach ($this->_baseDir as $dir) {
             if (!file_exists($dir)) {
                 if (!mkdir($dir, 0777, true)) {
                     throw new \RuntimeException(
-                        'Template Engine was unable to create Resources directory: ' . $dir
+                        'Template Engine was unable to create resources directory: ' . $dir
                     );
                 }
             }
@@ -87,6 +92,12 @@ class FilesystemLoader implements Loader
                     'FilesystemLoader baseDir must be a directory: ' . $dir
                 );
             }
+        }
+
+        if (count($baseDirs) == 0) {
+            throw new \RuntimeException(
+                'Template Engine was unable to find a single valid template directory: ' . (is_string($initialBaseDirs) ? $initialBaseDirs : json_encode($initialBaseDirs))
+            );
         }
 
         if (isset($options['extension'])) {
