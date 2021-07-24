@@ -89,7 +89,7 @@ class FilesystemLoader implements Loader
             }
             if (!is_dir($dir)) {
                 throw new \RuntimeException(
-                    'FilesystemLoader baseDir must be a directory: ' . $dir
+                    'Template Engine path was not a directory: ' . $dir
                 );
             }
         }
