@@ -665,7 +665,9 @@ class Helpers
     public function helperRepeat($template, $context, $args, $source)
     {
         $buffer = $template->render($context);
-        return str_repeat($buffer, intval($args));
+        $value = $context->get($keyname);
+        $value = ($value) ? intval($value) : intval($args);
+        return str_repeat($buffer, $value);
     }
 
     /**
