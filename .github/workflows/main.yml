@@ -2,10 +2,10 @@ name: CI for devel and main
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - devel
-      - main
+  # push:
+  #   branches:
+  #     - devel
+  #     - main
 
 jobs:
   build-and-push:
